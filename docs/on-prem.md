@@ -31,7 +31,7 @@ Flows, store design, locks and workers: [mvp-flows.md](mvp-flows.md).
 
 | Layer | Technology | Why |
 |---|---|---|
-| Language and packages | Python 3.15 + uv (`package = false`, one lock file in `apps/api`) | Team choice. Fast, reproducible installs. |
+| Language and packages | Python 3.14 + uv (`package = false`, one lock file in `apps/api`) | Team choice. Fast, reproducible installs. |
 | API | FastAPI | Team choice. Async, so streamed uploads keep memory flat. |
 | Database access | psycopg 3 + plain SQL, no ORM | The pipeline uses window functions and bulk `COPY`. An ORM hides both. |
 | Database migrations | Alembic (raw SQL with `op.execute`) | Standard. Handles table partitions. |

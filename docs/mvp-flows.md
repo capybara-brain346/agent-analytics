@@ -3,7 +3,7 @@
 Source of truth for locked MVP flows. Build the system map and artifacts from this file.
 
 - Architecture: research map F0–F6, locked 2026-10-16 (founder validated).
-- Stack: Python 3.15 + uv + FastAPI + PostgreSQL. Code: `apps/api`. Full technology list and on-prem infrastructure: [on-prem.md](on-prem.md).
+- Stack: Python 3.14 + uv + FastAPI + PostgreSQL. Code: `apps/api`. Full technology list and on-prem infrastructure: [on-prem.md](on-prem.md).
 - Phase 1: back end, front end, database. Phase 2: infrastructure (later).
 - Method: design each flow alone, then compose the system map at the end.
 - Two deployment targets: on-prem (one customer) and managed (multi-tenant, one shared system). The flows are the same for both. Every table has `site_id`.

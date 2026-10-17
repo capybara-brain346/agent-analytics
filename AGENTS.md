@@ -11,7 +11,7 @@
 
 ## Python (`apps/api`)
 
-- Use the Python version in `apps/api/.python-version` (latest stable).
+- Use the Python version in `apps/api/.python-version` (3.14).
 - Use uv for all commands: `uv sync`, `uv add`, `uv run`. Do not use pip.
 - The project is not a package (`[tool.uv] package = false`). Do not change this. Code runs from `apps/api` as the top-level package `src` (`from src.config import get_settings`).
 - Never use `from __future__ import annotations`. It is not required on Python 3.14+ (annotations are evaluated lazily). Ruff rule TID251 rejects it.

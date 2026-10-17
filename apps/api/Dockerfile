@@ -1,5 +1,5 @@
 # One image for api, worker and migrate (on-prem.md: worker = api image, other command).
-FROM python:3.15-slim
+FROM python:3.14-slim
 COPY --from=ghcr.io/astral-sh/uv:0.12.19 /uv /bin/uv
 
 WORKDIR /app
