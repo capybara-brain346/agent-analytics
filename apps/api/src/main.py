@@ -16,6 +16,10 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
     configure_logging(settings.log_level)
     await db.open_pool(settings)
+    if not settings.api_token:
+        log.warning(
+            "API_TOKEN is not set: /api/* is open. Set it, or restrict /api at the ingress."
+        )
     log.info("api started")
     yield
     await db.close_pool()
