@@ -1,5 +1,3 @@
-"""Connection pool for the one PostgreSQL (decision S.1)."""
-
 from psycopg_pool import AsyncConnectionPool
 
 from src.config import Settings

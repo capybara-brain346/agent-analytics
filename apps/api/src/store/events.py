@@ -1,5 +1,3 @@
-"""`events` table, partitioned by day (decision S.2). Bulk writes with COPY."""
-
 from collections.abc import Iterable
 
 from psycopg import AsyncConnection

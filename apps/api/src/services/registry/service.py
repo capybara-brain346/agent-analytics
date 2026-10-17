@@ -1,5 +1,3 @@
-"""Bot registry: YAML data, not code (decisions 2.10, 3.3)."""
-
 from dataclasses import dataclass
 
 
@@ -13,7 +11,6 @@ class BotEntry:
 
 
 def load_registry() -> tuple[str, list[BotEntry]]:
-    """Return (registry_version, entries)."""
     raise NotImplementedError
 
 

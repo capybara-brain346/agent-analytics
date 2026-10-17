@@ -1,5 +1,3 @@
-"""`pipeline_runs` and `import_runs` tables (Flow 7: what the user sees)."""
-
 from psycopg import AsyncConnection
 
 from src.models.domain import Lane, RunStatus

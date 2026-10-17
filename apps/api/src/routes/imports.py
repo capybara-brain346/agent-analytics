@@ -12,5 +12,4 @@ async def list_imports() -> dict:
 
 @router.post("/upload")
 async def upload() -> dict:
-    """Dashboard upload: same streamed path as /ingest, backfill priority, limit 2 GB (1.17)."""
     raise not_implemented()

@@ -1,5 +1,3 @@
-"""Flow 4 · Activity reconstruction: sessions and group-bys, in one transaction for one site."""
-
 from psycopg import AsyncConnection
 
 

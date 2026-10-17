@@ -33,7 +33,7 @@ src/
   config/      settings from environment variables
   logger/      shared JSON logger (stdout)
   routes/      HTTP: /ingest, /health, /livez, /metrics, /api/*
-  services/    flow logic, one module for each flow step
+  services/    flow logic, one subfolder for each service (<name>/service.py + related files)
   store/       all Postgres and inbox (S3) access (decision S.3)
   models/      fixed names (enums) and API response models
 config/        YAML data: CDN field maps, bot registry, site configs

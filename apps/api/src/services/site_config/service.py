@@ -1,5 +1,3 @@
-"""Site config YAML: source type, key pages, conversion pages, journeys (decisions 1.5, 5.3)."""
-
 from dataclasses import dataclass, field
 
 from src.models.domain import SourceType

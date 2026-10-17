@@ -1,8 +1,3 @@
-"""Shared logger. JSON lines to stdout (on-prem.md: Monitoring).
-
-The folder is `logger`, not `logging`, so it never hides the standard library module.
-"""
-
 import json
 import logging
 import sys

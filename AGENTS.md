@@ -16,6 +16,7 @@
 - The project is not a package (`[tool.uv] package = false`). Do not change this. Code runs from `apps/api` as the top-level package `src` (`from src.config import get_settings`).
 - Never use `from __future__ import annotations`. It is not required on Python 3.14+ (annotations are evaluated lazily). Ruff rule TID251 rejects it.
 - Do not name a module or folder after a standard library module (for example `logging`, `types`, `queue`). The shared logger is `src/logger`.
+- Each service has its own subfolder in `src/services/<name>/`: `service.py` for the main logic, plus all files that belong only to that service (for example `importer/adapters/`, `verify/ip_lists.py`). `__init__.py` exports the public names, so callers write `from src.services import importer` and `importer.import_due_files(...)`.
 - All Postgres and inbox access goes through `src/store` (decision S.3). Routes and services do not write SQL outside it.
 - Database access: psycopg 3 and plain SQL. No ORM. Migrations: Alembic with `op.execute`.
 - Checks before a commit: `uv run ruff check . && uv run ruff format --check . && uv run pytest`.

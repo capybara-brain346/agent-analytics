@@ -14,8 +14,4 @@ async def ingest(
     site: Annotated[str, Query()],
     authorization: Annotated[str, Header()],
 ) -> IngestAccepted:
-    """Streamed body → inbox, 64 KB parts, no parsing (decision 1.15).
-
-    202 = stored; 200 = duplicate chunk; 401 = bad site token; 413 = over 50 MB; 429 = over quota.
-    """
     raise not_implemented()

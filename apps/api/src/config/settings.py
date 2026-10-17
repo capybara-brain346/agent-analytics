@@ -1,5 +1,3 @@
-"""Runtime settings. Read from environment variables (and `.env` in development)."""
-
 from functools import lru_cache
 from pathlib import Path
 

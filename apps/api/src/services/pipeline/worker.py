@@ -1,5 +1,3 @@
-"""Worker loop: 1-min tick, take the due site that waited longest, run its lane (7.1, 7.9)."""
-
 import asyncio
 
 from src.config import get_settings

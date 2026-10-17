@@ -12,7 +12,6 @@ async def list_recommendations(run: str | None = None) -> dict:
 
 @router.post("/generate")
 async def generate_now(site: str) -> dict:
-    """Same as the "Generate now" button. 409 when the site + lane lock is taken."""
     raise not_implemented()
 
 

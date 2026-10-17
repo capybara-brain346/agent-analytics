@@ -1,8 +1,3 @@
-"""Routers.
-
-`root_router` = machine paths. `api_router` = dashboard JSON under `/api` (dashboard.md §14).
-"""
-
 from fastapi import APIRouter
 
 from src.routes import (

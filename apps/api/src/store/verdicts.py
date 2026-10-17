@@ -1,5 +1,3 @@
-"""`verdicts` table: append-only, never upsert (decisions 2.8, 3.4)."""
-
 from psycopg import AsyncConnection
 
 

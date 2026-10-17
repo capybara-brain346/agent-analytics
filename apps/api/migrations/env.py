@@ -1,5 +1,3 @@
-"""Alembic environment. Migrations are raw SQL with `op.execute` (no ORM models)."""
-
 from alembic import context
 from sqlalchemy import create_engine, pool
 

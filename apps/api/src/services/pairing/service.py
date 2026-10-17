@@ -1,5 +1,3 @@
-"""Flow 1b · Pair CDN + origin events on edge_request_id + method + path ± N s."""
-
 from psycopg import AsyncConnection
 
 

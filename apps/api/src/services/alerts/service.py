@@ -1,5 +1,3 @@
-"""Alerts: no data for 1 h from a source (1.4), 3 failed runs in a row (7.6)."""
-
 from psycopg import AsyncConnection
 
 

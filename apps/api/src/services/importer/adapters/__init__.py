@@ -1,5 +1,3 @@
-"""Log line adapters. Raw line → event fields, or a reject reason (Flow 1, per-line processing)."""
-
 from dataclasses import dataclass
 from datetime import datetime
 

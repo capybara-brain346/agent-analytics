@@ -1,5 +1,3 @@
-"""Fixed names used in every flow and on every screen (mvp-flows.md, dashboard.md §4)."""
-
 from enum import IntEnum, StrEnum
 
 

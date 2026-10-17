@@ -1,8 +1,3 @@
-"""FastAPI app: `/ingest`, `/health`, `/metrics` and the dashboard JSON API under `/api`.
-
-Run: `uv run uvicorn src.main:app --reload`
-"""
-
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 

@@ -1,5 +1,3 @@
-"""Response models for the JSON API. One model for each `/api` path (dashboard.md §14)."""
-
 from datetime import datetime
 
 from pydantic import BaseModel
