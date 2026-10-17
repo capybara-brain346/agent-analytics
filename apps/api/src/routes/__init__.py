@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
 from src.routes import (
     agents,
@@ -14,12 +14,13 @@ from src.routes import (
     runs,
     sessions,
 )
+from src.routes.auth import require_api_token
 
 root_router = APIRouter()
 root_router.include_router(health.router)
 root_router.include_router(metrics.router)
 root_router.include_router(ingest.router)
 
-api_router = APIRouter()
+api_router = APIRouter(dependencies=[Depends(require_api_token)])
 for module in (overview, recommendations, agents, events, sessions, pages, journeys, imports, runs):
     api_router.include_router(module.router)
