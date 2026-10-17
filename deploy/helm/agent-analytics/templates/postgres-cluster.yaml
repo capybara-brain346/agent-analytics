@@ -1,0 +1,25 @@
+# PostgreSQL 17, primary + standby, automatic failover (CloudNativePG).
+# The operator writes the app secret "<release>-pg-app" with key "uri".
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: {{ include "aa.name" . }}-pg
+  labels: {{- include "aa.labels" . | nindent 4 }}
+spec:
+  instances: {{ .Values.postgres.instances }}
+  imageName: ghcr.io/cloudnative-pg/postgresql:17
+  storage:
+    size: {{ .Values.postgres.storageSize }}
+  bootstrap:
+    initdb:
+      database: agent_analytics
+      owner: agent_analytics
+  {{- if .Values.postgres.backup.enabled }}
+  backup:
+    barmanObjectStore:
+      destinationPath: {{ .Values.postgres.backup.destinationPath | quote }}
+      endpointURL: {{ .Values.postgres.backup.endpointURL | quote }}
+      s3Credentials:
+        accessKeyId: { name: {{ .Values.postgres.backup.credentialsSecret }}, key: ACCESS_KEY_ID }
+        secretAccessKey: { name: {{ .Values.postgres.backup.credentialsSecret }}, key: ACCESS_SECRET_KEY }
+  {{- end }}

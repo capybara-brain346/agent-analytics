@@ -1,0 +1,13 @@
+# Site config (decisions 1.5, 5.3). Written by a person: logs cannot tell which pages matter.
+site_id: example
+sources: [cdn, origin]          # pair by default (1b.1); one source if there is no shared request ID
+cdn_field_map: example          # config/cdn/example.yaml
+request_id_header: X-Request-ID
+no_data_alert_minutes: 60
+key_pages: [/pricing, /products, /docs/api]
+conversion_pages: [/signup, /checkout]
+journeys:
+  - id: signup
+    critical: true
+    steps: [/pricing, /signup, /signup/confirm]
+sitemap: null                   # URL or file of key content for pattern P4

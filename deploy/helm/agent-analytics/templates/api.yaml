@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "aa.name" . }}-api
+  labels: {{- include "aa.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.api.replicas }}
+  strategy: { type: RollingUpdate }
+  selector:
+    matchLabels: { app.kubernetes.io/component: api, app.kubernetes.io/instance: {{ .Release.Name }} }
+  template:
+    metadata:
+      labels: { app.kubernetes.io/component: api, app.kubernetes.io/instance: {{ .Release.Name }} }
+    spec:
+      securityContext: { runAsNonRoot: true }
+      containers:
+        - name: api
+          image: {{ .Values.image.api }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports: [{ name: http, containerPort: 8000 }]
+          env: {{- include "aa.apiEnv" . | nindent 12 }}
+          envFrom: [{ secretRef: { name: {{ .Values.existingSecret }} } }]
+          livenessProbe: { httpGet: { path: /livez, port: http } }
+          readinessProbe: { httpGet: { path: /livez, port: http } }
+          resources: {{- toYaml .Values.api.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "aa.name" . }}-api
+  labels: {{- include "aa.labels" . | nindent 4 }}
+spec:
+  selector: { app.kubernetes.io/component: api, app.kubernetes.io/instance: {{ .Release.Name }} }
+  ports: [{ name: http, port: 8000, targetPort: http }]

@@ -1,0 +1,19 @@
+# Origin log sender (docs/on-prem.md: Log senders). The customer installs Vector on each origin.
+# Replace <our-host>, <site_id> and <site token>.
+
+[sources.nginx]
+type    = "file"
+include = ["/var/log/nginx/access.log"]
+
+[sinks.webzero]
+type     = "http"
+inputs   = ["nginx"]
+uri      = "https://<our-host>/ingest?site=<site_id>"
+encoding.codec = "text"          # raw lines; our importer parses them
+compression    = "gzip"
+batch.timeout_secs = 30
+batch.max_bytes    = 10_000_000
+auth.strategy = "bearer"
+auth.token    = "<site token>"
+buffer.type     = "disk"
+buffer.max_size = 1_073_741_824  # 1 GB on disk while our API is down

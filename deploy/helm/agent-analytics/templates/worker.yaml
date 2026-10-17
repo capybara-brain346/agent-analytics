@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "aa.name" . }}-worker
+  labels: {{- include "aa.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.worker.replicas }}
+  selector:
+    matchLabels: { app.kubernetes.io/component: worker, app.kubernetes.io/instance: {{ .Release.Name }} }
+  template:
+    metadata:
+      labels: { app.kubernetes.io/component: worker, app.kubernetes.io/instance: {{ .Release.Name }} }
+    spec:
+      securityContext: { runAsNonRoot: true }
+      containers:
+        - name: worker
+          image: {{ .Values.image.api }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["python", "-m", "src.cli", "worker"]
+          env: {{- include "aa.apiEnv" . | nindent 12 }}
+          envFrom: [{ secretRef: { name: {{ .Values.existingSecret }} } }]
+          resources: {{- toYaml .Values.worker.resources | nindent 12 }}

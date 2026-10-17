@@ -1,0 +1,19 @@
+# Bot registry (decision 2.10). Data, not code: a new bot needs no code change.
+# Build from arcjet/well-known-bots and ai.robots.txt.
+version: "0"
+bots:
+  - id: gptbot
+    vendor: OpenAI
+    ua_pattern: "GPTBot"
+    category: ai_crawler
+    verify: { method: ip_list, source: openai-gptbot.json }
+  - id: chatgpt-user
+    vendor: OpenAI
+    ua_pattern: "ChatGPT-User"
+    category: agent_client
+    verify: { method: ip_list, source: openai-chatgpt-user.json }
+  - id: googlebot
+    vendor: Google
+    ua_pattern: "Googlebot"
+    category: search_crawler
+    verify: { method: rdns, suffixes: [googlebot.com, google.com] }
