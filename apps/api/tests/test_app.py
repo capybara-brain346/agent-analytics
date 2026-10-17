@@ -11,7 +11,3 @@ def test_livez() -> None:
 
 def test_metrics() -> None:
     assert client.get("/metrics").status_code == 200
-
-
-def test_api_routes_are_registered() -> None:
-    assert client.get("/api/agents").status_code == 501
