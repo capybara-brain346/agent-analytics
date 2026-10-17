@@ -14,6 +14,9 @@ class ParsedLine:
     request_id: str | None = None
     edge_request_id: str | None = None
     edge_signal: str | None = None
+    host: str | None = None
+    referrer: str | None = None
+    response_time_ms: int | None = None
 
 
 @dataclass(frozen=True)
