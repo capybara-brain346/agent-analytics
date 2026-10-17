@@ -4,7 +4,9 @@ import Link from "next/link";
 import {
   Check,
   ChevronDown,
+  CircleAlert,
   CircleHelp,
+  Database,
   Filter,
   Search,
   X,
@@ -12,13 +14,9 @@ import {
 import { Popover } from "@base-ui/react/popover";
 import { Select as BaseSelect } from "@base-ui/react/select";
 import { Badge } from "@/components/ui/badge";
-import {
-  binTotal,
-  classes,
-  number,
-  rangeOf,
-  sampleCount,
-} from "@/lib/mock-data";
+import { classMeta as classes, classOf } from "@/lib/classes";
+import { number } from "@/lib/format";
+import type { ApiState } from "@/lib/api/use-api";
 import type { KeyboardEvent, ReactNode } from "react";
 
 export type Href = (path: string, filters?: Record<string, string>) => string;
@@ -81,7 +79,7 @@ export function ClassName({
   id: number;
   full?: boolean;
 }) {
-  const item = classes.find((c) => c.id === id)!;
+  const item = classOf(id);
   return (
     <span className="class-name">
       <i style={{ background: item.color }} />
@@ -374,14 +372,105 @@ export function Empty({
       <h3>No matching records</h3>
       <p>
         {active.length
-          ? `No sample record matches ${active.join(" · ")}.`
-          : "These filters do not match the sample data."}
+          ? `No records match ${active.join(" · ")}.`
+          : "No records match these filters."}
       </p>
       <button className="text-link" onClick={reset}>
         Clear filters
       </button>
     </div>
   );
+}
+/** R4: the data cannot answer here. Say so where the answer would be. */
+export function Gap({ children }: { children: ReactNode }) {
+  return (
+    <span className="gap-note">
+      <Label type="Unknown" />
+      {children}
+    </span>
+  );
+}
+/** Placeholder while a request runs. Keep the size close to the real content. */
+export function LoadingState({
+  label = "Loading data",
+  rows = 3,
+}: {
+  label?: string;
+  rows?: number;
+}) {
+  return (
+    <div className="state-loading" role="status" aria-busy="true">
+      <span className="sr-only">{label}</span>
+      {Array.from({ length: rows }, (_, i) => (
+        <i key={i} className="skeleton" />
+      ))}
+    </div>
+  );
+}
+/** A failed request: the API code and message, and a retry button. */
+export function ErrorState({
+  error,
+  retry,
+  title = "Could not load this data",
+}: {
+  error: { code: string; message: string; status?: number };
+  retry?: () => void;
+  title?: string;
+}) {
+  return (
+    <div className="error-notice state-error" role="alert">
+      <CircleAlert size={15} />
+      <div>
+        <strong>{title}</strong>
+        <p>
+          {error.message} <code>{error.code}</code>
+          {error.status ? <> · HTTP {error.status}</> : null}
+        </p>
+        {retry && (
+          <button className="text-link" onClick={retry}>
+            Try again
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+/** The request worked and returned no data. Say what is missing and why. */
+export function NoData({
+  title = "No data for this view",
+  children,
+  action,
+}: {
+  title?: string;
+  children?: ReactNode;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="empty-state" role="status">
+      <Database size={24} />
+      <h3>{title}</h3>
+      {children && <p>{children}</p>}
+      {action}
+    </div>
+  );
+}
+/**
+ * Shows loading, error or the data. On a reload the old data stays visible.
+ * Pass a `skeleton` that looks like the screen to avoid layout jumps.
+ */
+export function ApiGate<T>({
+  state,
+  skeleton,
+  children,
+}: {
+  state: ApiState<T>;
+  skeleton?: ReactNode;
+  children: (data: T) => ReactNode;
+}) {
+  if (state.error)
+    return <ErrorState error={state.error} retry={state.reload} />;
+  if (state.data === null) return <>{skeleton ?? <LoadingState />}</>;
+  return <>{children(state.data)}</>;
 }
 export function TableFooter({
   count,
@@ -401,152 +490,6 @@ export function TableFooter({
     </div>
   );
 }
-const allBins = Array.from({ length: 96 }, (_, i) => binTotal(i)).reduce(
-  (a, b) => a + b,
-  0,
-);
-export function TrafficChart({
-  href,
-  compact = false,
-  selected = "",
-  range = "24h",
-}: {
-  href: Href;
-  compact?: boolean;
-  selected?: string;
-  range?: string;
-}) {
-  const shown = rangeOf(range).bins;
-  const height = compact ? 110 : 184;
-  const baseline = height - 22;
-  const visible = classes.filter(
-    (c) => !selected || selected.split(",").includes(String(c.id)),
-  );
-  return (
-    <div className={`traffic-chart ${compact ? "compact-chart" : ""}`}>
-      {[false, true].map((mobile) => {
-        const width = mobile ? 340 : 900;
-        // Hourly bars on phones once the range has more than 24 bins.
-        const group = mobile && shown > 24 ? 4 : 1;
-        const bins = shown / group;
-        const first = 96 - shown;
-        const step = (width - 49) / bins;
-        const at = (bin: number) => {
-          const minutes = 14 * 60 + 5 + bin * 15;
-          return `${String(Math.floor(minutes / 60) % 24).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`;
-        };
-        // Requests per bar, from the same class counts as the tables.
-        const value = (index: number, share: number) =>
-          Array.from({ length: group }, (_, k) => binTotal(index + k)).reduce(
-            (a, b) => a + b,
-            0,
-          ) *
-          (share / allBins);
-        const stacks = Array.from({ length: bins }, (_, i) =>
-          visible.reduce((t, c) => t + value(first + i * group, c.count), 0),
-        );
-        const raw = Math.max(...stacks, 1);
-        // Three gridline steps of 1, 2, 2.5 or 5 × 10^n.
-        const unit = 10 ** Math.floor(Math.log10(raw / 3));
-        const tick =
-          [1, 2, 2.5, 5, 10].map((m) => m * unit).find((t) => t * 3 >= raw) ||
-          unit * 10;
-        const top = tick * 3;
-        const label = (n: number) =>
-          n >= 1000 ? `${+(n / 1000).toFixed(1)}k` : String(Math.round(n));
-        const tickCount = Math.min(mobile ? 3 : 6, bins);
-        const ticks = Array.from({ length: tickCount + 1 }, (_, i) =>
-          at(first + Math.round((i * shown) / tickCount)),
-        );
-        return (
-          <svg
-            key={String(mobile)}
-            className={mobile ? "mobile-chart" : "desktop-chart"}
-            viewBox={`0 0 ${width} ${height}`}
-            role="img"
-            focusable="false"
-            aria-label={`Sample requests over time, grouped by traffic class${mobile ? ", hourly view" : ""}`}
-          >
-            {[0, 1, 2, 3].map((i) => {
-              const y = 10 + (i * (baseline - 10)) / 3;
-              return (
-                <g key={i}>
-                  <line
-                    x1="40"
-                    x2={width - 6}
-                    y1={y}
-                    y2={y}
-                    stroke="#323239"
-                    strokeDasharray="2 4"
-                  />
-                  <text
-                    x="31"
-                    y={y + 4}
-                    textAnchor="end"
-                    fill="#a6a6b4"
-                    fontSize={mobile ? 12 : 10}
-                  >
-                    {label((top * (3 - i)) / 3)}
-                  </text>
-                </g>
-              );
-            })}
-            {Array.from({ length: bins }, (_, i) => {
-              const index = first + i * group;
-              const bucket = at(index);
-              let bottom = baseline;
-              return (
-                <g key={i}>
-                  {visible.map((c) => {
-                    const n = value(index, c.count);
-                    const h = (n / top) * (baseline - 10);
-                    bottom -= h;
-                    return (
-                      <rect
-                        key={c.id}
-                        x={43 + i * step + (step * 0.7 - Math.min(step * 0.7, 32)) / 2}
-                        y={bottom}
-                        width={Math.min(step * 0.7, 32)}
-                        height={h}
-                        fill={c.color}
-                        opacity=".9"
-                      >
-                        <title>{`${c.name} · ${bucket} · ${number(Math.round(n))} requests`}</title>
-                      </rect>
-                    );
-                  })}
-                </g>
-              );
-            })}
-            {ticks.map((tick, i) => (
-              <text
-                key={i}
-                x={43 + (i * (width - 49)) / (ticks.length - 1)}
-                y={height - 4}
-                fill="#a6a6b4"
-                fontSize={mobile ? 12 : 10}
-                textAnchor={i === ticks.length - 1 ? "end" : "start"}
-              >
-                {tick}
-              </text>
-            ))}
-          </svg>
-        );
-      })}
-      {!compact && (
-        <div className="chart-legend">
-          {visible.map((c) => (
-            <Link key={c.id} href={href("/events", { class: String(c.id) })}>
-              <i style={{ background: c.color }} />
-              {c.short}
-            </Link>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
 export function Confidence({
   value,
   onClick,
@@ -574,22 +517,6 @@ export function Confidence({
     </Tag>
   );
 }
-/** A link to evidence lists that renders as plain content when the sample is empty. */
-export function CountLink({
-  href,
-  children,
-}: {
-  href: string;
-  children: ReactNode;
-}) {
-  if (!sampleCount(href))
-    return (
-      <div className="count-static" title="No sample records for this value">
-        {children}
-      </div>
-    );
-  return <Link href={href}>{children}</Link>;
-}
 export function NumberLink({
   value,
   href,
@@ -598,10 +525,10 @@ export function NumberLink({
   href: string;
 }) {
   const text = typeof value === "number" ? number(value) : value;
-  // No link when the sample has no rows behind the number.
-  if (value === 0 || /^0(\.0)?%?$/.test(String(value)) || !sampleCount(href))
+  // No link when no record is behind the number.
+  if (value === 0 || /^0(\.0)?%?$/.test(String(value)))
     return (
-      <span className="number-static" title="No sample records for this value">
+      <span className="number-static" title="No records for this value">
         {text}
       </span>
     );

@@ -46,6 +46,10 @@ services:
       context: ../../apps/dashboard
       dockerfile: ../../deploy/dashboard/Dockerfile
     image: agent-analytics-dashboard:dev
+    environment:
+      API_URL: http://api:8000
+      API_TOKEN: ${API_TOKEN:-}  # the dashboard server adds it to calls to the api
+    depends_on: [api]
 
   postgres:
     image: postgres:17

@@ -9,54 +9,67 @@ import {
   ChevronRight,
   Info,
   Sparkles,
+  TriangleAlert,
 } from "lucide-react";
+import { classOf } from "@/lib/classes";
+import { rangeOf } from "@/lib/api/filters";
+import type { ApiState } from "@/lib/api/use-api";
+import type {
+  KeyNumberName,
+  Overview as OverviewData,
+  RecommendationBrief,
+} from "@/lib/api/types";
+import { capitalize, dateTimeUTC, number, percent } from "@/lib/format";
 import {
-  agents,
-  classes,
-  number,
-  pages,
-  rangeOf,
-  recommendations,
-  scaled,
-} from "@/lib/mock-data";
-import {
+  ApiGate,
   ClassName,
   Confidence,
+  Gap,
   Href,
   Label,
+  LoadingState,
+  NoData,
   NumberLink,
   OpenDetail,
   Panel,
   Status,
   TextLink,
   Tip,
-  TrafficChart,
 } from "./shared";
+import { TrendChart } from "./trend-chart";
 
-export function RecommendationRows({ open }: { open: OpenDetail }) {
+export function RecommendationRows({
+  items,
+  open,
+}: {
+  items: RecommendationBrief[];
+  open: OpenDetail;
+}) {
   return (
     <div className="recommendation-rows">
-      {recommendations.slice(0, 3).map((r, i) => (
+      {items.map((r, i) => (
         <button
           key={r.id}
           className="recommendation-row"
-          onClick={() => open("recommendation", r.id)}
+          onClick={() => open("recommendation", String(r.id))}
         >
-          <span className={`rank rank-${i}`}>{i + 1}</span>
+          <span className={`rank rank-${i}`}>{r.rank ?? i + 1}</span>
           <span className="rec-main">
             <span className="rec-title">
-              {r.title}
-              {r.status === "New" && <Status value="New" />}
+              {r.target}
+              {r.change === "new" && <Status value="New" />}
             </span>
             <span className="rec-meta">
-              {r.pattern}
-              <span>·</span>
-              {r.sessions} sessions<span>·</span>
-              {r.events} events
+              {r.pattern_name}
+              {r.change === "open" && (
+                <>
+                  <span>·</span>Still open
+                </>
+              )}
             </span>
           </span>
           <span className="rec-confidence">
-            <Confidence value={r.confidence} />
+            <Confidence value={capitalize(r.confidence)} />
           </span>
           <span className="priority-score">
             <strong>{r.score}</strong>
@@ -69,65 +82,137 @@ export function RecommendationRows({ open }: { open: OpenDetail }) {
   );
 }
 
+// Agent traffic is classes 1-4. A class filter in the URL replaces it.
+const agentClasses = (selected: string): Record<string, string> =>
+  selected ? {} : { class: "1,2,3,4" };
+
+// Label, link and wording for each key number. `bad`: a rise is bad news.
+const keyNumbers: {
+  key: KeyNumberName;
+  title: string;
+  path: string;
+  filter: (selected: string) => Record<string, string>;
+  bad?: boolean;
+}[] = [
+  {
+    key: "total_requests",
+    title: "Total requests",
+    path: "/events",
+    filter: () => ({}),
+  },
+  {
+    key: "ai_or_automated_share",
+    title: "AI & automated share",
+    path: "/events",
+    filter: agentClasses,
+  },
+  {
+    key: "distinct_agents",
+    title: "Distinct agents",
+    path: "/agents",
+    filter: () => ({}),
+  },
+  {
+    key: "error_rate",
+    title: "Error rate",
+    path: "/events",
+    filter: () => ({ status: "4xx,5xx" }),
+    bad: true,
+  },
+  {
+    key: "denial_rate",
+    title: "Denial rate",
+    path: "/events",
+    filter: () => ({ status: "403,429" }),
+    bad: true,
+  },
+];
+
+const sourceName: Record<string, string> = {
+  cdn: "CDN logs",
+  origin: "Origin logs",
+};
+
+function OverviewSkeleton() {
+  return (
+    <>
+      <Panel title="Recommended next tests">
+        <LoadingState label="Loading recommendations" rows={3} />
+      </Panel>
+      <Panel title="Key numbers">
+        <LoadingState label="Loading key numbers" rows={2} />
+      </Panel>
+      <Panel title="Request volume">
+        <LoadingState label="Loading traffic" rows={5} />
+      </Panel>
+    </>
+  );
+}
+
 export function Overview({
   href,
   open,
   selected,
   range,
+  state,
 }: {
   href: Href;
   open: OpenDetail;
   selected: string;
   range: string;
+  state: ApiState<OverviewData>;
 }) {
-  // Every count follows the class and time range filters.
-  const shown = classes.filter(
-    (c) => !selected || selected.split(",").includes(String(c.id)),
+  return (
+    <ApiGate state={state} skeleton={<OverviewSkeleton />}>
+      {(data) => (
+        <OverviewBody
+          data={data}
+          href={href}
+          open={open}
+          selected={selected}
+          range={range}
+        />
+      )}
+    </ApiGate>
   );
-  const sum = shown.reduce((t, c) => t + c.count, 0);
-  const automated = shown
-    .filter((c) => c.id <= 4)
-    .reduce((t, c) => t + c.count, 0);
-  const groups = agents.filter((a) => shown.some((c) => c.id === a.classId));
-  // The sample stores period changes for the unfiltered 24-hour view only.
-  const comparable = !selected && (range === "24h" || range === "7d");
-  const metrics = [
-    {
-      title: "Total requests",
-      value: number(scaled(sum, range)),
-      change: "12.8%",
-      up: true,
-      filter: {},
-    },
-    {
-      title: "AI & automated share",
-      value: `${((automated / sum) * 100).toFixed(1)}%`,
-      change: "8.2%",
-      up: true,
-      filter: selected ? {} : { class: "1,2,3,4" },
-    },
-    {
-      title: selected ? "Agent groups" : "Distinct agents",
-      value: selected ? String(groups.length) : "24",
-      change: selected ? "" : "+3",
-      up: true,
-      filter: {},
-    },
-    {
-      title: "Error rate",
-      value: "2.8%",
-      change: "0.6%",
-      up: false,
-      filter: { status: "errors" },
-    },
-    {
-      title: "Denial rate",
-      value: "4.2%",
-      change: "1.1%",
-      up: true,
-      filter: { status: "denied" },
-    },
-  ];
+}
+
+function OverviewBody({
+  data,
+  href,
+  open,
+  selected,
+  range,
+}: {
+  data: OverviewData;
+  href: Href;
+  open: OpenDetail;
+  selected: string;
+  range: string;
+}) {
+  if (data.empty)
+    return (
+      <NoData
+        title="No data for this site in this time range"
+        action={
+          <Link className="text-link" href={href("/data")}>
+            {data.freshness.last_import_at
+              ? `Last import ${dateTimeUTC(data.freshness.last_import_at)} UTC · View data sources`
+              : "No import yet · View data sources"}
+          </Link>
+        }
+      >
+        Try a longer time range, or check that logs arrive.
+      </NoData>
+    );
+  const { coverage, freshness } = data;
+  const compare = rangeOf(range).compare;
+  const bucket = rangeOf(range).bucket;
+  const classRows = data.traffic_by_class;
+  const total = data.key_numbers.total_requests.value ?? 0;
+  const agentTrafficSelected =
+    !selected || selected.split(",").some((c) => Number(c) <= 4);
+  const agentOnly = agentClasses(selected);
   return (
     <>
       <Panel
@@ -135,7 +220,8 @@ export function Overview({
         className="recommendations-panel"
         action={
           <Link className="subtle-link" href={href("/recommendations")}>
-            View all 5<ArrowRight size={13} />
+            View all
+            <ArrowRight size={13} />
           </Link>
         }
       >
@@ -145,49 +231,61 @@ export function Overview({
             Start at the top. Each test links to the sessions and requests
             behind it.
           </span>
-          <span className="run-marker">Run #14 · 14:02</span>
         </div>
-        <RecommendationRows open={open} />
+        {data.top_recommendations.length ? (
+          <RecommendationRows items={data.top_recommendations} open={open} />
+        ) : (
+          <NoData title="No open recommendations">
+            No pipeline run has produced a list yet, or no pattern met its
+            threshold in the latest run. The Recommendations page shows which.
+          </NoData>
+        )}
       </Panel>
       <div className="metrics-strip">
-        {metrics.map((m, i) => (
-          <Link
-            key={m.title}
-            href={href(
-              i === 2 ? "/agents" : "/events",
-              m.filter as Record<string, string>,
-            )}
-            className="metric-cell"
-          >
-            <div className="metric-label">
-              {m.title}
-              <ArrowUpRight size={12} />
-            </div>
-            <strong>{m.value}</strong>
-            <div className="metric-bottom">
-              {m.change && comparable ? (
-                <>
-                  <span
-                    className={i === 4 ? "change-negative" : "change-neutral"}
-                  >
-                    {m.up ? (
-                      <ArrowUpRight size={12} />
-                    ) : (
-                      <ArrowDownRight size={12} />
-                    )}{" "}
-                    {m.change}
-                  </span>
-                  <span>vs. {rangeOf(range).compare}</span>
-                </>
-              ) : (
-                <span>
-                  {selected ? "Selected classes" : rangeOf(range).caption}
-                  {i >= 3 && " · all classes"}
-                </span>
-              )}
-            </div>
-          </Link>
-        ))}
+        {keyNumbers.map((m) => {
+          const k = data.key_numbers[m.key];
+          const text =
+            k.value === null
+              ? null
+              : k.unit === "percent"
+                ? percent(k.value)
+                : number(k.value);
+          const up = (k.change_pct ?? 0) >= 0;
+          return (
+            <Link
+              key={m.key}
+              href={href(m.path, m.filter(selected))}
+              className="metric-cell"
+            >
+              <div className="metric-label">
+                {m.title}
+                <ArrowUpRight size={12} />
+              </div>
+              <strong>{text ?? <Gap>Unknown</Gap>}</strong>
+              <div className="metric-bottom">
+                {k.change_pct !== null ? (
+                  <>
+                    <span
+                      className={
+                        m.bad && up ? "change-negative" : "change-neutral"
+                      }
+                    >
+                      {up ? (
+                        <ArrowUpRight size={12} />
+                      ) : (
+                        <ArrowDownRight size={12} />
+                      )}{" "}
+                      {percent(Math.abs(k.change_pct))}
+                    </span>
+                    <span>vs. {compare}</span>
+                  </>
+                ) : (
+                  <span>No traffic in the {compare} to compare</span>
+                )}
+              </div>
+            </Link>
+          );
+        })}
       </div>
       <div className="two-column chart-columns">
         <Panel
@@ -195,35 +293,43 @@ export function Overview({
           label="Observed"
           action={
             <span className="muted panel-note">
-              Requests / 15 min{" "}
-              <Tip text="Fixed sample traffic for Oct 15–16, 2026. The bars show the relative traffic mix." />
+              Requests / {bucket}{" "}
+              <Tip text="Each bar is one UTC hour or day. The colours split the bar by traffic class." />
             </span>
           }
         >
-          <TrafficChart href={href} selected={selected} range={range} />
+          <TrendChart
+            href={href}
+            trend={data.trend}
+            start={data.window.start}
+            end={data.window.end}
+            bucket={bucket}
+          />
         </Panel>
         <Panel
           title="Traffic by class"
           label="Inferred"
           action={
-            <Tip text="Classes use verified identity, the user agent, and edge signals. Select a class to inspect its sample requests." />
+            <Tip text="Classes use verified identity, the user agent, and edge signals. Select a class to inspect its requests." />
           }
         >
           <div
             className="class-distribution"
             aria-label="Traffic share by class"
           >
-            {shown.map((c) => (
-              <Link
-                href={href("/events", { class: String(c.id) })}
-                key={c.id}
-                style={{
-                  width: `${(c.count / sum) * 100}%`,
-                  background: c.color,
-                }}
-                aria-label={`${c.name} ${((c.count / sum) * 100).toFixed(1)}%`}
-              />
-            ))}
+            {classRows
+              .filter((c) => c.requests > 0)
+              .map((c) => (
+                <Link
+                  href={href("/events", { class: String(c.traffic_class) })}
+                  key={c.traffic_class}
+                  style={{
+                    width: `${c.share_pct}%`,
+                    background: classOf(c.traffic_class).color,
+                  }}
+                  aria-label={`${c.name} ${percent(c.share_pct)}`}
+                />
+              ))}
           </div>
           <table className="class-table">
             <thead>
@@ -234,20 +340,22 @@ export function Overview({
               </tr>
             </thead>
             <tbody>
-              {shown.map((c) => (
-                <tr key={c.id}>
+              {classRows.map((c) => (
+                <tr key={c.traffic_class}>
                   <td>
-                    <Link href={href("/events", { class: String(c.id) })}>
-                      <ClassName id={c.id} />
+                    <Link
+                      href={href("/events", { class: String(c.traffic_class) })}
+                    >
+                      <ClassName id={c.traffic_class} />
                     </Link>
                   </td>
                   <td>
                     <NumberLink
-                      value={scaled(c.count, range)}
-                      href={href("/events", { class: String(c.id) })}
+                      value={c.requests}
+                      href={href("/events", { class: String(c.traffic_class) })}
                     />
                   </td>
-                  <td>{`${((c.count / sum) * 100).toFixed(1)}%`}</td>
+                  <td>{percent(c.share_pct)}</td>
                 </tr>
               ))}
             </tbody>
@@ -255,6 +363,12 @@ export function Overview({
           <div className="panel-footnote">
             <Info size={12} />
             <span>
+              {data.unclassified_requests > 0 && (
+                <>
+                  {number(data.unclassified_requests)} requests have no class
+                  yet.{" "}
+                </>
+              )}
               Class does not confirm identity.{" "}
               <TextLink onClick={() => open("legend", "labels")}>
                 How classification works
@@ -274,107 +388,132 @@ export function Overview({
             </Link>
           }
         >
-          <div className="table-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>Page path</th>
-                  <th aria-sort="descending">
-                    Requests <span className="sort-arrow">↓</span>
-                  </th>
-                  <th>Errors</th>
-                  <th>Denied</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pages.slice(0, 5).map((p) => {
-                  const agentOnly: Record<string, string> = selected
-                    ? {}
-                    : { class: "1,2,3,4" };
-                  return (
-                  <tr key={p.id}>
-                    <td>
-                      <TextLink
-                        className="path-link"
-                        onClick={() => open("page", p.id)}
-                      >
-                        {p.path}
-                      </TextLink>
-                      {p.tag && <span className="page-tag">{p.tag}</span>}
-                    </td>
-                    <td>
-                      <NumberLink
-                        value={scaled(p.requests, range)}
-                        href={href("/events", { path: p.path, ...agentOnly })}
-                      />
-                    </td>
-                    <td>
-                      <NumberLink
-                        value={`${p.errors.toFixed(1)}%`}
-                        href={href("/events", {
-                          path: p.path,
-                          status: "errors",
-                          ...agentOnly,
-                        })}
-                      />
-                    </td>
-                    <td className={p.blocks > 10 ? "negative" : ""}>
-                      <NumberLink
-                        value={`${p.blocks.toFixed(1)}%`}
-                        href={href("/events", {
-                          path: p.path,
-                          status: "denied",
-                          ...agentOnly,
-                        })}
-                      />
-                    </td>
+          {data.top_pages.length ? (
+            <div className="table-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Page path</th>
+                    <th aria-sort="descending">
+                      Agent requests <span className="sort-arrow">↓</span>
+                    </th>
+                    <th>Errors</th>
+                    <th>Denied</th>
                   </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {data.top_pages.map((p) => (
+                    <tr key={p.path}>
+                      <td>
+                        <TextLink
+                          className="path-link"
+                          onClick={() => open("page", p.path)}
+                        >
+                          {p.path}
+                        </TextLink>
+                      </td>
+                      <td>
+                        <NumberLink
+                          value={p.agent_requests}
+                          href={href("/events", { path: p.path, ...agentOnly })}
+                        />
+                      </td>
+                      <td>
+                        <NumberLink
+                          value={p.errors}
+                          href={href("/events", {
+                            path: p.path,
+                            status: "4xx,5xx",
+                            ...agentOnly,
+                          })}
+                        />
+                      </td>
+                      <td className={p.blocks > 0 ? "negative" : ""}>
+                        <NumberLink
+                          value={p.blocks}
+                          href={href("/events", {
+                            path: p.path,
+                            status: "403,429",
+                            ...agentOnly,
+                          })}
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <NoData title="No agent requests to pages">
+              {agentTrafficSelected
+                ? "No class 1–4 request arrived in this window."
+                : "This list counts classes 1–4 only. The selected classes are outside it."}
+            </NoData>
+          )}
           <div className="panel-footnote">
-            {selected
-              ? "Counts include all pages for the selected classes."
-              : "Agent traffic includes classes 1–4."}{" "}
-            HTTP status does not prove task completion.
+            Agent traffic is classes 1–4. Errors are status 400 and above.
+            Denied is 403 and 429. HTTP status does not prove task completion.
           </div>
         </Panel>
         <Panel title="What the data can show">
           <div className="coverage-content">
             <div className="coverage-source">
-              <span>
-                <Check size={13} /> CDN logs
-              </span>
-              <span>
-                <Check size={13} /> Origin logs
-              </span>
+              {coverage.sources_configured.map((source) => {
+                const present =
+                  coverage.sources_present.includes(source) ||
+                  coverage.sources_present.includes("paired");
+                return present ? (
+                  <span key={source}>
+                    <Check size={13} /> {sourceName[source] ?? source}
+                  </span>
+                ) : (
+                  <span key={source} className="amber-text">
+                    <TriangleAlert size={13} /> {sourceName[source] ?? source}:
+                    no data in this window
+                  </span>
+                );
+              })}
               <span className="source-paired">
-                98% paired <Label />
+                {coverage.paired_share_pct === null ? (
+                  <Gap>Paired share unknown</Gap>
+                ) : (
+                  <>
+                    {percent(coverage.paired_share_pct, 0)} paired <Label />
+                  </>
+                )}
               </span>
             </div>
             <div className="coverage-line">
               <span>Requests with unknown class</span>
-              <Link href={href("/events", { class: "6" })}>
-                31.0%
-                <ArrowUpRight size={12} />
-              </Link>
+              {coverage.unknown_share_pct === null ? (
+                <Gap>No requests to measure</Gap>
+              ) : (
+                <Link href={href("/events", { class: "6" })}>
+                  {percent(coverage.unknown_share_pct)}
+                  <ArrowUpRight size={12} />
+                </Link>
+              )}
             </div>
             <div className="coverage-gap">
               <Label type="Unknown" />
               <p>
-                Task completion, page content, clicks, and form steps are not
-                visible in request logs.
+                {coverage.cannot_see.length
+                  ? `${capitalize(coverage.cannot_see.join(", "))} are not visible in request logs.`
+                  : "No known blind spots."}
               </p>
             </div>
-            <div className="coverage-limit">
-              <Info size={13} />
-              <span>
-                Browser requests without an edge signal remain{" "}
-                <strong>Unknown</strong>.
-              </span>
-            </div>
+            {coverage.partial.map((text) => (
+              <div className="coverage-limit" key={text}>
+                <Info size={13} />
+                <span>{capitalize(text)}.</span>
+              </div>
+            ))}
+            {freshness.state !== "ok" && (
+              <div className="coverage-limit">
+                <TriangleAlert size={13} />
+                <span>{freshness.text}</span>
+              </div>
+            )}
           </div>
         </Panel>
       </div>
@@ -383,7 +522,7 @@ export function Overview({
         label="Inferred"
         className="confidence-panel"
         action={
-          <Tip text="Each cell opens requests for one class and confidence level. Zero means no matching sample evidence." />
+          <Tip text="Each cell opens requests for one class and confidence level. Zero means no matching requests." />
         }
       >
         <div className="table-scroll">
@@ -398,32 +537,38 @@ export function Overview({
               </tr>
             </thead>
             <tbody>
-              {shown.map((c) => (
-                <tr key={c.id}>
+              {classRows.map((c) => (
+                <tr key={c.traffic_class}>
                   <td>
-                    <ClassName id={c.id} full />
+                    <ClassName id={c.traffic_class} full />
                   </td>
                   {(["high", "medium", "low"] as const).map((conf) => (
                     <td key={conf}>
                       <NumberLink
-                        value={scaled(c[conf], range)}
+                        value={c[conf]}
                         href={href("/events", {
-                          class: String(c.id),
-                          confidence: conf[0].toUpperCase() + conf.slice(1),
+                          class: String(c.traffic_class),
+                          confidence: conf,
                         })}
                       />
                     </td>
                   ))}
                   <td>
                     <NumberLink
-                      value={scaled(c.count, range)}
-                      href={href("/events", { class: String(c.id) })}
+                      value={c.requests}
+                      href={href("/events", { class: String(c.traffic_class) })}
                     />
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+        <div className="panel-footnote">
+          {number(total)} requests in this window
+          {data.unclassified_requests > 0 &&
+            `, of which ${number(data.unclassified_requests)} have no class yet`}
+          .
         </div>
       </Panel>
     </>

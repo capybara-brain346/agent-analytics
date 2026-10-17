@@ -1033,7 +1033,8 @@ button.confidence:hover {
   font-size: 10px;
   color: #aaa6b5;
 }
-.chart-legend a {
+.chart-legend a,
+.chart-legend > span {
   display: flex;
   align-items: center;
   gap: 4px;
@@ -3772,4 +3773,60 @@ td:not(:first-child) {
   .help-icon {
     justify-content: center;
   }
+}
+.gap-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted-foreground);
+}
+.state-loading {
+  display: grid;
+  gap: 10px;
+  padding: 18px 2px;
+}
+.skeleton {
+  display: block;
+  height: 14px;
+  border-radius: 3px;
+  background: var(--muted);
+  animation: skeleton-pulse 1.4s ease-in-out infinite;
+}
+.state-loading .skeleton:nth-child(even) {
+  width: 72%;
+}
+@keyframes skeleton-pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}
+.state-error strong {
+  font-weight: 500;
+}
+.state-error code {
+  margin-left: 6px;
+  font-family: var(--font-mono);
+}
+.state-error .text-link {
+  margin-top: 8px;
+}
+.button.primary {
+  min-height: 34px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--primary);
+  color: #17151e;
+  font-weight: 600;
+}
+.button.primary:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+.button.primary:disabled {
+  opacity: 0.6;
 }

@@ -6,7 +6,6 @@ import { useEffect, useRef, useState } from "react";
 import {
   Activity,
   ArrowLeft,
-  ArrowUpRight,
   Bot,
   Boxes,
   CalendarDays,
@@ -28,7 +27,10 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { rangeOf } from "@/lib/mock-data";
+import { rangeOf, scopeFromQuery } from "@/lib/api/filters";
+import { useScopedApi } from "@/lib/api/use-api";
+import type { Overview as OverviewData } from "@/lib/api/types";
+import { windowCaption } from "@/lib/format";
 import { Overview } from "./overview";
 import {
   Activity as ActivityView,
@@ -40,14 +42,14 @@ import {
 import { DetailContent, detailTitle } from "./details";
 import { ClassFilter, Href, Label, Select } from "./shared";
 
-const navigation = [
+const navigation: {
+  path: string;
+  label: string;
+  icon: typeof Sparkles;
+  count?: number;
+}[] = [
   { path: "/overview", label: "Overview", icon: LayoutDashboard },
-  {
-    path: "/recommendations",
-    label: "Recommendations",
-    icon: Sparkles,
-    count: 5,
-  },
+  { path: "/recommendations", label: "Recommendations", icon: Sparkles },
   { path: "/agents", label: "Agents", icon: Bot },
   { path: "/events", label: "Activity explorer", icon: Activity },
   { path: "/pages", label: "Pages & journeys", icon: Boxes },
@@ -72,9 +74,18 @@ export function Dashboard() {
   const nav = settings
     ? { label: "Settings" }
     : navigation.find((n) => n.path === `/${active}`);
-  const site = query.get("site") || "example.com",
-    range = query.get("range") || "24h",
-    selected = query.get("class") || "";
+  // The global filters in the URL. One request for the overview feeds the
+  // freshness banner on every screen, and the Overview screen.
+  const scope = scopeFromQuery(query),
+    range = scope.range,
+    selected = scope.classes;
+  const overview = useScopedApi<OverviewData>("overview", scope, {
+    bucket: rangeOf(range).bucket,
+  });
+  // The URL has no site until the user picks one. The API then uses the only
+  // site it has, and names it in the response.
+  const site = scope.site || overview.data?.window.site || "";
+  const freshness = overview.data?.freshness;
   const href: Href = (path, filters = {}) => {
     const params = new URLSearchParams();
     globalKeys.forEach((k) => {
@@ -119,13 +130,9 @@ export function Dashboard() {
   const detail =
     query.get("detail") ||
     (route[1] && directType[view] ? `${directType[view]}:${route[1]}` : "");
-  const siteless =
-    site !== "example.com" && Boolean(detail) && !detail.startsWith("legend");
   // Sheets opened in this view, oldest first. A deep-linked sheet is the
   // unpushed base. Browser Back and Forward move along the same list.
-  const [trail, setTrail] = useState<{ detail: string; pushed: boolean }[]>(
-    [],
-  );
+  const [trail, setTrail] = useState<{ detail: string; pushed: boolean }[]>([]);
   const [seenDetail, setSeenDetail] = useState(detail);
   if (seenDetail !== detail) {
     setSeenDetail(detail);
@@ -139,7 +146,7 @@ export function Dashboard() {
   // Keep the last sheet on screen while the sheet animates closed.
   const [shownDetail, setShownDetail] = useState(detail);
   if (detail && shownDetail !== detail) setShownDetail(detail);
-  const [shownType, shownId] = shownDetail.split(":");
+  const [shownType, shownId] = splitDetail(shownDetail);
   const closing = useRef("");
   useEffect(() => {
     // A deep-linked base sheet is still open after history.go: remove it.
@@ -227,9 +234,12 @@ export function Dashboard() {
           <span>Agent Analytics</span>
         </Link>
         <div className="workspace-switch">
-          <span className="workspace-avatar">D</span>
+          <span className="workspace-avatar">
+            {(site || "?").charAt(0).toUpperCase()}
+          </span>
           <span>
-            Demo workspace<small>Sample data · read-only</small>
+            {site || "Loading site"}
+            <small>Agent traffic</small>
           </span>
         </div>
         {navItems}
@@ -242,12 +252,6 @@ export function Dashboard() {
             <Settings2 size={15} />
             Settings
           </Link>
-          <div className="profile">
-            <span className="profile-avatar">JD</span>
-            <span>
-              Jamie Davis<small>Demo account</small>
-            </span>
-          </div>
         </div>
       </aside>
       <div className="main-shell">
@@ -267,116 +271,97 @@ export function Dashboard() {
             <span className="breadcrumb-separator">/</span>
             <span>{nav?.label || "Not found"}</span>
           </div>
-          <div className="topbar-right">
-            <span className="demo-badge">
-              <span />
-              Sample workspace
-            </span>
-          </div>
+          <div className="topbar-right" />
         </header>
         <main id="main-content">
           <div className="section-intro">
             <div>
               <h1>{nav?.label || "Page not found"}</h1>
-              <p>
-                {descriptions[view] ||
-                  "This page is not included in the sample workspace."}
-              </p>
+              <p>{descriptions[view] || "This page does not exist."}</p>
             </div>
           </div>
           {nav && (
-          <>
-          <div className="global-filters">
-            <div className="filter-group">
-              <Select
-                label="Site"
-                value={site}
-                onChange={(v) => setFilter("site", v)}
-                icon={<Globe2 size={13} />}
-                options={[
-                  { value: "example.com", label: "example.com" },
-                  { value: "store.example.com", label: "store.example.com" },
-                ]}
-              />
-              <span className="filter-divider" />
-              <Select
-                label="Time range"
-                value={range}
-                onChange={(v) => setFilter("range", v)}
-                icon={<CalendarDays size={13} />}
-                options={[
-                  { value: "1h", label: "Last 1 hour" },
-                  { value: "6h", label: "Last 6 hours" },
-                  { value: "24h", label: "Last 24 hours" },
-                  { value: "7d", label: "Last 7 days" },
-                ]}
-              />
-              <ClassFilter
-                value={selected}
-                onChange={(v) => setFilter("class", v)}
-              />
-            </div>
-            <Link
-              href={href("/data", site !== "example.com" ? { tab: "health" } : {})}
-              className={`freshness ${site !== "example.com" ? "stale" : ""}`}
-            >
-              <span className="live-dot" />
-              <span>
-                {site === "example.com"
-                  ? "Data up to 14:05"
-                  : "Alert: no new logs since 12:58"}
-              </span>
-              <span className="snapshot-tag">Snapshot</span>
-              <ChevronRight size={12} />
-            </Link>
-          </div>
-          <div className="window-caption">
-            <span>
-              {rangeOf(range).caption}{" "}
-              <span className="muted">· UTC</span>
-            </span>
-            <span>
-              <button
-                className="label-guide-trigger"
-                aria-label="Label guide: Observed, Inferred, Unknown"
-                onClick={() => open("legend", "labels")}
-              >
-                <Label />
-                <Label type="Inferred" />
-                <Label type="Unknown" />
-                <CircleHelp size={12} />
-              </button>
-            </span>
-          </div>
-          </>
+            <>
+              <div className="global-filters">
+                <div className="filter-group">
+                  <Select
+                    label="Site"
+                    value={site}
+                    onChange={(v) => setFilter("site", v)}
+                    icon={<Globe2 size={13} />}
+                    options={[{ value: site, label: site || "Loading…" }]}
+                  />
+                  <span className="filter-divider" />
+                  <Select
+                    label="Time range"
+                    value={range}
+                    onChange={(v) => setFilter("range", v)}
+                    icon={<CalendarDays size={13} />}
+                    options={[
+                      { value: "1h", label: "Last 1 hour" },
+                      { value: "6h", label: "Last 6 hours" },
+                      { value: "24h", label: "Last 24 hours" },
+                      { value: "7d", label: "Last 7 days" },
+                    ]}
+                  />
+                  <ClassFilter
+                    value={selected}
+                    onChange={(v) => setFilter("class", v)}
+                  />
+                </div>
+                <Link
+                  href={href(
+                    "/data",
+                    freshness && freshness.state !== "ok"
+                      ? { tab: "health" }
+                      : {},
+                  )}
+                  className={`freshness ${freshness?.state === "ok" ? "" : "stale"}`}
+                >
+                  <span className="live-dot" />
+                  <span>
+                    {freshness
+                      ? freshness.text
+                      : overview.error
+                        ? "Data freshness unknown"
+                        : "Checking data freshness…"}
+                  </span>
+                  <ChevronRight size={12} />
+                </Link>
+              </div>
+              <div className="window-caption">
+                <span>
+                  {overview.data
+                    ? windowCaption(
+                        overview.data.window.start,
+                        overview.data.window.end,
+                      )
+                    : rangeOf(range).label}{" "}
+                  <span className="muted">· UTC</span>
+                </span>
+                <span>
+                  <button
+                    className="label-guide-trigger"
+                    aria-label="Label guide: Observed, Inferred, Unknown"
+                    onClick={() => open("legend", "labels")}
+                  >
+                    <Label />
+                    <Label type="Inferred" />
+                    <Label type="Unknown" />
+                    <CircleHelp size={12} />
+                  </button>
+                </span>
+              </div>
+            </>
           )}
           <div className="page-content">
-            {site !== "example.com" && active !== "data" ? (
-              <div className="site-empty">
-                <Database size={32} />
-                <h2>No data in this sample window</h2>
-                <p>
-                  The last log from store.example.com was received at 12:58.
-                  <br />
-                  Edge blocks are unknown because this site has no CDN log.
-                </p>
-                <Link className="text-link" href={href("/data")}>
-                  View data sources
-                  <ArrowRightIcon />
-                </Link>
-                <button
-                  className="text-link"
-                  onClick={() => setFilter("site", "example.com")}
-                >
-                  Switch to example.com
-                </button>
-              </div>
-            ) : view === "overview" ? (
+            {view === "overview" ? (
               <Overview
                 href={href}
                 open={open}
                 selected={selected}
                 range={range}
+                state={overview}
               />
             ) : view === "recommendations" ? (
               <Recommendations {...props} />
@@ -402,11 +387,8 @@ export function Dashboard() {
               <ScanLine size={12} />
               Agent Analytics
             </span>
-            <span>
-              Sample workspace<span className="footer-dot">·</span>All traffic
-              data is fictional
-            </span>
-            <span>Oct 16, 2026 snapshot</span>
+            <span>{site}</span>
+            <span>All times are UTC</span>
           </footer>
         </main>
       </div>
@@ -419,38 +401,27 @@ export function Dashboard() {
         <SheetContent className="evidence-sheet" initialFocus={sheetTitle}>
           <SheetHeader className="evidence-sheet-header">
             {previous && detail && (
-              <button
-                className="sheet-back"
-                onClick={() => router.back()}
-              >
+              <button className="sheet-back" onClick={() => router.back()}>
                 <ArrowLeft size={13} />
-                Back to {detailTitle(...(previous.split(":") as [string, string]))}
+                Back to {detailTitle(...splitDetail(previous))}
               </button>
             )}
             <SheetTitle ref={sheetTitle} tabIndex={-1}>
-              {siteless ? "No sample evidence" : detailTitle(shownType, shownId)}
+              {detailTitle(shownType, shownId)}
             </SheetTitle>
             <SheetDescription>
               {shownType === "legend"
                 ? "How to read the evidence in this workspace"
-                : `Sample evidence · ${siteless ? site : "example.com"} · Oct 16, 2026`}
+                : `Evidence · ${site}`}
             </SheetDescription>
           </SheetHeader>
           <div className="sheet-body">
-            {siteless ? (
-              <p className="muted">
-                {site} has no sample records in this window, so there is no
-                evidence to show.
-              </p>
-            ) : (
-              <DetailContent
-                type={shownType}
-                id={shownId}
-                href={href}
-                open={open}
-                run={query.get("run") === "13" ? 13 : 14}
-              />
-            )}
+            <DetailContent
+              type={shownType}
+              id={shownId}
+              href={href}
+              open={open}
+            />
           </div>
         </SheetContent>
       </Sheet>
@@ -458,7 +429,7 @@ export function Dashboard() {
         <SheetContent side="left" className="mobile-nav">
           <SheetHeader>
             <SheetTitle>Agent Analytics</SheetTitle>
-            <SheetDescription>Demo workspace</SheetDescription>
+            <SheetDescription>{site || "Agent traffic"}</SheetDescription>
           </SheetHeader>
           {navItems}
         </SheetContent>
@@ -466,6 +437,8 @@ export function Dashboard() {
     </div>
   );
 }
-function ArrowRightIcon() {
-  return <ArrowUpRight size={13} />;
+// A detail id may hold ":" (a page path, for example). Split at the first one.
+function splitDetail(detail: string): [string, string] {
+  const at = detail.indexOf(":");
+  return at < 0 ? [detail, ""] : [detail.slice(0, at), detail.slice(at + 1)];
 }

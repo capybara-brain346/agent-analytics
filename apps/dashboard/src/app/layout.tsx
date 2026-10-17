@@ -4,8 +4,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Agent Analytics — Workspace",
-  description:
-    "Agent traffic, evidence, and journey recommendations. A workspace with sample data.",
+  description: "Agent traffic, evidence, and journey recommendations.",
 };
 
 export default function RootLayout({
