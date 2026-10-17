@@ -45,7 +45,7 @@ inbox:
   bucket: agent-analytics-inbox
   region: us-east-1
 
-# Secret with S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY and optional LLM_API_KEY.
+# Secret with S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY, API_TOKEN (guards /api/*) and optional LLM_API_KEY.
 # Create it yourself or through External Secrets from the customer's Vault.
 existingSecret: agent-analytics
 
