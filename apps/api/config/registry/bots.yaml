@@ -1,19 +1,164 @@
 # Bot registry (decision 2.10). Data, not code: a new bot needs no code change.
-# Build from arcjet/well-known-bots and ai.robots.txt.
-version: "0"
+# Built from arcjet/well-known-bots and ai.robots.txt.
+# category: search_crawler | ai_crawler | agent_client | other_bot | automation_tool
+#   automation_tool = scripted HTTP clients and CLI tools (curl, python-requests).
+# verify: { method: ip_list, source: <file in registry/ip-lists>, url: <vendor list> }
+#         { method: rdns, suffixes: [<domain>, ...] }
+#         { method: none }   (the vendor publishes no method: the verdict stays CLAIMED)
+# ua_pattern = case-insensitive substring. Set `regex: true` for a regular expression.
+# The longest pattern wins, so list order does not matter.
+version: "1"
 bots:
   - id: gptbot
     vendor: OpenAI
     ua_pattern: "GPTBot"
     category: ai_crawler
-    verify: { method: ip_list, source: openai-gptbot.json }
+    verify: { method: ip_list, source: openai-gptbot.json, url: "https://openai.com/gptbot.json" }
   - id: chatgpt-user
     vendor: OpenAI
     ua_pattern: "ChatGPT-User"
     category: agent_client
-    verify: { method: ip_list, source: openai-chatgpt-user.json }
+    verify: { method: ip_list, source: openai-chatgpt-user.json, url: "https://openai.com/chatgpt-user.json" }
+  - id: oai-searchbot
+    vendor: OpenAI
+    ua_pattern: "OAI-SearchBot"
+    category: ai_crawler
+    verify: { method: ip_list, source: openai-searchbot.json, url: "https://openai.com/searchbot.json" }
+  - id: claudebot
+    vendor: Anthropic
+    ua_pattern: "ClaudeBot"
+    category: ai_crawler
+    verify: { method: none }
+  - id: claude-user
+    vendor: Anthropic
+    ua_pattern: "Claude-User"
+    category: agent_client
+    verify: { method: none }
+  - id: claude-searchbot
+    vendor: Anthropic
+    ua_pattern: "Claude-SearchBot"
+    category: ai_crawler
+    verify: { method: none }
+  - id: perplexitybot
+    vendor: Perplexity
+    ua_pattern: "PerplexityBot"
+    category: ai_crawler
+    verify: { method: ip_list, source: perplexitybot.json, url: "https://www.perplexity.com/perplexitybot.json" }
+  - id: perplexity-user
+    vendor: Perplexity
+    ua_pattern: "Perplexity-User"
+    category: agent_client
+    verify: { method: ip_list, source: perplexity-user.json, url: "https://www.perplexity.com/perplexity-user.json" }
+  - id: mistralai-user
+    vendor: Mistral
+    ua_pattern: "MistralAI-User"
+    category: agent_client
+    verify: { method: none }
+  - id: meta-externalagent
+    vendor: Meta
+    ua_pattern: "meta-externalagent"
+    category: ai_crawler
+    verify: { method: none }
+  - id: meta-externalfetcher
+    vendor: Meta
+    ua_pattern: "meta-externalfetcher"
+    category: agent_client
+    verify: { method: none }
+  - id: amazonbot
+    vendor: Amazon
+    ua_pattern: "Amazonbot"
+    category: ai_crawler
+    # Amazon documents an IP page, but its JSON URL could not be confirmed (the old URL gave 404),
+    # so the verdict stays CLAIMED. Add an ip_list entry when a stable JSON URL is known.
+    verify: { method: none }
+  - id: ccbot
+    vendor: Common Crawl
+    ua_pattern: "CCBot"
+    category: ai_crawler
+    verify: { method: ip_list, source: ccbot.json, url: "https://index.commoncrawl.org/ccbot.json" }
+  - id: bytespider
+    vendor: ByteDance
+    ua_pattern: "Bytespider"
+    category: ai_crawler
+    verify: { method: none }
+  - id: cohere-ai
+    vendor: Cohere
+    ua_pattern: "cohere-ai"
+    category: ai_crawler
+    verify: { method: none }
+  - id: diffbot
+    vendor: Diffbot
+    ua_pattern: "Diffbot"
+    category: ai_crawler
+    verify: { method: none }
   - id: googlebot
     vendor: Google
     ua_pattern: "Googlebot"
     category: search_crawler
     verify: { method: rdns, suffixes: [googlebot.com, google.com] }
+  - id: bingbot
+    vendor: Microsoft
+    ua_pattern: "bingbot"
+    category: search_crawler
+    verify: { method: rdns, suffixes: [search.msn.com] }
+  - id: applebot
+    vendor: Apple
+    ua_pattern: "Applebot"
+    category: search_crawler
+    verify: { method: rdns, suffixes: [applebot.apple.com] }
+  - id: duckduckbot
+    vendor: DuckDuckGo
+    ua_pattern: "DuckDuckBot"
+    category: search_crawler
+    # The list is published in the same JSON shape as Google's (prefixes: ipv4Prefix/ipv6Prefix).
+    verify: { method: ip_list, source: duckduckbot.json, url: "https://duckduckgo.com/duckduckbot.json" }
+  - id: yandexbot
+    vendor: Yandex
+    ua_pattern: "YandexBot"
+    category: search_crawler
+    verify: { method: rdns, suffixes: [yandex.ru, yandex.net, yandex.com] }
+  - id: baiduspider
+    vendor: Baidu
+    ua_pattern: "Baiduspider"
+    category: search_crawler
+    verify: { method: rdns, suffixes: [baidu.com, baidu.jp] }
+  - id: petalbot
+    vendor: Huawei
+    ua_pattern: "PetalBot"
+    category: search_crawler
+    verify: { method: none }
+  - id: ahrefsbot
+    vendor: Ahrefs
+    ua_pattern: "AhrefsBot"
+    category: other_bot
+    verify: { method: none }
+  - id: semrushbot
+    vendor: Semrush
+    ua_pattern: "SemrushBot"
+    category: other_bot
+    verify: { method: none }
+  - id: python-requests
+    vendor: Python Software Foundation
+    ua_pattern: "python-requests"
+    category: automation_tool
+    verify: { method: none }
+  - id: python-httpx
+    vendor: Encode
+    ua_pattern: "python-httpx"
+    category: automation_tool
+    verify: { method: none }
+  - id: go-http-client
+    vendor: Go
+    ua_pattern: "Go-http-client"
+    category: automation_tool
+    verify: { method: none }
+  - id: curl
+    vendor: curl
+    ua_pattern: "curl/"
+    category: automation_tool
+    verify: { method: none }
+  - id: wget
+    vendor: GNU
+    ua_pattern: "Wget"
+    category: automation_tool
+    verify: { method: none }
