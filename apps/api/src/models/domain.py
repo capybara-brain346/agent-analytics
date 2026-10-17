@@ -76,3 +76,47 @@ class Pattern(StrEnum):
     P3_BROKEN_NAVIGATION = "P3"
     P4_CONTENT_DISCOVERY = "P4"
     P5_FULL_JOURNEY = "P5"
+
+
+class EventSource(StrEnum):
+    ORIGIN = "origin"
+    CDN = "cdn"
+    PAIRED = "paired"
+
+
+class PairState(StrEnum):
+    PENDING = "pending"
+    PAIRED = "paired"
+    SINGLE = "single"
+
+
+class UaType(StrEnum):
+    BROWSER = "browser"
+    HEADLESS = "headless"
+    LIBRARY = "library"
+    BOT = "bot"
+    OTHER = "other"
+
+
+class RegistryCategory(StrEnum):
+    SEARCH_CRAWLER = "search_crawler"
+    AI_CRAWLER = "ai_crawler"
+    AGENT_CLIENT = "agent_client"
+    OTHER_BOT = "other_bot"
+    AUTOMATION_TOOL = "automation_tool"
+
+
+class AlertKind(StrEnum):
+    NO_DATA = "no_data"
+    FAILED_RUNS = "failed_runs"
+
+
+class RecommendationChange(StrEnum):
+    NEW = "new"
+    OPEN = "open"
+    GONE = "gone"
+
+
+class TextSource(StrEnum):
+    LLM = "llm"
+    TEMPLATE = "template"
