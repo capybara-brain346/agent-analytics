@@ -28,6 +28,21 @@ example__cdn__20261001T0000Z__gptbot-burst.log.gz
 
 A dropped file gives the browser its name only, not its folder. So the site and source are in the name. A file whose name does not follow the rule uses the site and source that are selected in the dashboard.
 
+## Files in this folder
+
+Site `example`, 2026-10-12 00:00Z to 2026-10-18 10:00Z. One CDN file and one origin file for each scenario and day (`<scenario>-d<DD>`). The data is fictional. IP ranges are documentation, test or sample vendor ranges, and they do not overlap between scenarios.
+
+| Scenario | Content | Requests (CDN / origin lines) | Expected result |
+|---|---|---|---|
+| `humans` | Browsers: day curve, weekends lower, journeys (pricing → signup → confirm, docs), assets, 404s on old blog links | 157,208 / 157,208 | All paired. Human sessions, conversions. |
+| `crawlers` | GPTBot, OAI-SearchBot, ChatGPT-User, PerplexityBot from sample vendor ranges; ClaudeBot, Claude-User; Googlebot, bingbot; Amazonbot, meta, CCBot, Bytespider | 103,526 / 103,526 | All paired. OpenAI and Perplexity bots VERIFIED by IP list; Anthropic bots CLAIMED. Googlebot and bingbot need reverse DNS: offline they stay unverified. |
+| `spoof` | Fake Googlebot and GPTBot, a rotating scraper (530 IPs), tool clients probing `/admin`, `/.env` | 91,068 / 58,997 | 35 % blocked at the CDN (403, no origin line). Fake bots SPOOFED or UNVERIFIED. |
+| `failures` | Verified and claimed agents: 403 on key pages, 404 dead links with retries, 500 on `/signup`, redirect loops, thin content, slow `/docs/api`. In every 6-hour window | 74,504 / 74,504 | All paired. Recommendation patterns. |
+| `coverage` | Shared NAT and Cloudflare-egress IPs with many user agents; 10 % CDN bypass (origin only); origin log gap on 2026-10-15 09:00–13:00Z; `coverage-d16-resend` repeats 30 % of the 2026-10-16 CDN file | 70,671 / 73,084 | Bypass rows `cdn_bypass`; gap rows CDN only; resend lines counted as duplicates; overlap warning on the resend file. |
+| `edge` | Parser edge cases: 2–5 % intended rejects (bad JSON, bad timestamps, future timestamps, bad status, a line over 64 KB), IPv6, HEAD/POST/OPTIONS/PUT, unicode and query paths. The 2026-10-14 origin file is plain `.log` | 19,827 / 19,827 | Rejects with reasons in each import file. Origin lines with `\"` in a quoted field are rejected: nginx writes a quote as `\x22`. |
+
+Total: 85 files, about 18 MB compressed, about 1 million log lines. Files of different scenarios cover the same hours, so the import list shows an overlap warning between them. The request IDs are unique, so no event is counted twice.
+
 ## Load
 
 - **Dashboard:** open Data & pipeline → Sources. Drop one or more files on the tab, or use Upload log files. Each file is one upload. A file that is already stored is a duplicate and is not added again.
