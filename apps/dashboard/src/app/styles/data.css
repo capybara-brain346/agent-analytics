@@ -72,6 +72,50 @@
   gap: 8px;
 }
 
+/* Drop target: the whole Sources tab. The overlay shows only while files are over it. */
+.upload-drop {
+  position: relative;
+}
+
+.upload-drop-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 1px dashed var(--jade-deep);
+  background: color-mix(in srgb, var(--jade-tint) 85%, transparent);
+  color: var(--jade-deep);
+  font-size: 14px;
+  font-weight: 500;
+  pointer-events: none;
+}
+
+.upload-results ul {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  min-width: 0;
+}
+
+.upload-results li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  min-width: 0;
+}
+
+.upload-results li code {
+  overflow-wrap: anywhere;
+}
+
+.upload-results li[data-status="failed"] {
+  color: var(--fail);
+}
+
 /* Operations table: 60px rows, identity -> status -> figure -> qualifier -> time -> chevron */
 .ops-table td {
   height: 60px;

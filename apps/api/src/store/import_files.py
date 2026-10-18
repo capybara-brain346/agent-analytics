@@ -62,24 +62,32 @@ async def get_by_sha(conn: AsyncConnection, site_id: str, sha256: str) -> dict |
 _CAN_RESET = "status in ('success', 'failed', 'new') and object_deleted_at is null"
 
 
-async def force_reimport(conn: AsyncConnection, file_id: FileId) -> bool:
-    # Decision 1.9. A CDN file can hold rows paired with origin lines; the origin row was deleted
-    # at pairing. Those rows go with the file, so the origin files they came from are read again
-    # too (all or none: when one of them cannot be read, nothing changes).
-    file = await get_file(conn, file_id)
-    if file is None:
-        return False
-    ids = [str(file_id)]
-    if file["source"] == "cdn":
-        partners = await _all(
-            conn,
-            "select distinct origin_file_id from events"
-            " where site_id = %s and file_id = %s and origin_file_id is not null",
-            [file["site_id"], str(file_id)],
-        )
-        ids += [str(r["origin_file_id"]) for r in partners]
+async def origin_partners(conn: AsyncConnection, site_id: str, cdn_file_id: FileId) -> list[str]:
+    # Origin files whose lines sit in paired rows of this CDN file.
+    rows = await _all(
+        conn,
+        "select distinct origin_file_id from events"
+        " where site_id = %s and file_id = %s and origin_file_id is not null",
+        [site_id, str(cdn_file_id)],
+    )
+    return [str(r["origin_file_id"]) for r in rows]
+
+
+async def cdn_partners(conn: AsyncConnection, site_id: str, origin_file_id: FileId) -> list[str]:
+    # CDN files whose paired rows hold lines of this origin file.
+    rows = await _all(
+        conn,
+        "select distinct file_id from events where site_id = %s and origin_file_id = %s",
+        [site_id, str(origin_file_id)],
+    )
+    return [str(r["file_id"]) for r in rows]
+
+
+async def reset_files(conn: AsyncConnection, ids: list[str]) -> bool:
+    # Back to 'new' so the importer reads the raw files again. All or none: when one file cannot
+    # be read (importing, or its raw file was deleted), nothing changes and the answer is False.
     ok = await _all(conn, f"select id from import_files where id = any(%s) and {_CAN_RESET}", [ids])
-    if len(ok) != len(ids):
+    if len(ok) != len(set(ids)):
         return False
     await conn.execute(
         f"""
@@ -92,11 +100,31 @@ async def force_reimport(conn: AsyncConnection, file_id: FileId) -> bool:
         [ids],
     )
     await conn.execute("delete from import_rejects where file_id = any(%s)", [ids])
+    return True
+
+
+async def force_reimport(conn: AsyncConnection, file_id: FileId) -> bool:
+    # Decision 1.9. A CDN file can hold rows paired with origin lines; the origin row was deleted
+    # at pairing. Those rows go with the file, so the origin files they came from are read again
+    # too (all or none: when one of them cannot be read, nothing changes).
+    file = await get_file(conn, file_id)
+    if file is None:
+        return False
+    ids = [str(file_id)]
+    if file["source"] == "cdn":
+        ids += await origin_partners(conn, file["site_id"], file_id)
+    if not await reset_files(conn, ids):
+        return False
     if file["source"] == "cdn":
         await conn.execute(
             "delete from events where site_id = %s and file_id = %s", [file["site_id"], ids[0]]
         )
     return True
+
+
+async def delete_file(conn: AsyncConnection, file_id: FileId) -> None:
+    # The row goes (its rejects by cascade), so the same file can be uploaded again.
+    await conn.execute("delete from import_files where id = %s", [str(file_id)])
 
 
 async def claim_next_file(

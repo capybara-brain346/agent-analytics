@@ -48,7 +48,7 @@ Run with `uv run python -m src.cli <command>`.
 | `worker` | Run the worker loop (see below). |
 | `run-pipeline --site S --lane fast\|slow` | Run one lane for one site now. |
 | `run-recommendations --site S [--window 6h]` | Make a recommendation run now. |
-| `import FILE --site S [--now] [--force] [--source cdn\|origin]` | Import a log file from disk. |
+| `import PATH [--site S] [--now] [--force] [--source cdn\|origin]` | Import a log file, or every log file in a folder (name order). Without `--site` / `--source`, they come from the file name (`samples/logs/README.md`). |
 | `cleanup` | Delete expired raw files and drop old event partitions. |
 | `download-ip-lists` | Download vendor IP lists (offline mode: load the bundled files). |
 

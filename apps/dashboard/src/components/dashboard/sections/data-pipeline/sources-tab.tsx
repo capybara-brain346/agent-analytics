@@ -11,7 +11,12 @@ import { alertSentence, sourceLabel } from "./format";
 import { Qualifier, StatusPill } from "./pill";
 import { SourcePanels } from "./source-panels";
 import { sourceRows, sourceState } from "./source-rows";
-import { UploadControls, UploadResult, useUpload } from "./upload";
+import {
+  UploadControls,
+  UploadDropZone,
+  UploadResult,
+  useUpload,
+} from "./upload";
 
 const HELP = `Files and times come from the newest ${SOURCE_FILE_LIMIT} import files. The format and field map of each source are not in the API.`;
 
@@ -41,7 +46,7 @@ export function SourcesTab({
   const site = overview.data?.window.site ?? null;
 
   return (
-    <>
+    <UploadDropZone upload={upload}>
       <div className="filter-toolbar">
         <span className="toolbar-count">
           {imports.data
@@ -148,6 +153,6 @@ export function SourcesTab({
         </ApiGate>
       </Panel>
       <SourcePanels href={href} overview={overview} />
-    </>
+    </UploadDropZone>
   );
 }

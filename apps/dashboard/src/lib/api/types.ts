@@ -564,3 +564,10 @@ export type ImportList = {
 };
 // POST /api/imports/upload (202, or 200 when the file is a duplicate).
 export type IngestAccepted = { file_id: string; duplicate: boolean };
+// DELETE /api/imports/{id}. files_reimported: paired partner files read again.
+export type ImportDeleted = {
+  file_id: string;
+  site_id: string;
+  events_deleted: number;
+  files_reimported: string[];
+};

@@ -369,9 +369,10 @@ Import run detail:
  Rejects       line number · reason   (line text is NOT shown — not stored, Flow 1)
  Overlap       "Time range overlaps file X: possible double count" (nginx, no request ID)
  Actions       [Force import again]  (bypasses the sha256 check, Flow 1 decision 1.9)
+               [Delete import]       (confirm step; removes the file's events and record, Flow 1 decision 1.21)
 ```
 
-Upload: [Upload log file] → choose site + source → file goes to the inbox → shows as "new".
+Upload: [Upload log files] or drop files on the Sources tab → site + source from the file name (`samples/logs/README.md`), else the selected site + source → one upload per file → each file shows as "new". One result row per file: accepted, duplicate or failed.
 
 ### 10.3 Pipeline runs
 

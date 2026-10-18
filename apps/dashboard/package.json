@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --experimental-strip-types --test src/lib/api/api.test.mjs"
+    "test": "node --experimental-strip-types --test src/lib/api/api.test.mjs src/lib/log-name.test.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

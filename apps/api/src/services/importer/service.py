@@ -11,6 +11,7 @@ from psycopg import AsyncConnection
 from src.config import get_settings
 from src.logger import get_logger
 from src.models.keys import client_key
+from src.services import ingest
 from src.services.importer.adapters import ParsedLine, Reject, cdn, origin
 from src.services.importer.dedupe import line_key
 from src.services.site_config import SiteConfig, load_site_config
@@ -241,11 +242,7 @@ async def import_local_file(
     inbox: Inbox | None = None,
 ) -> dict:
     settings = get_settings()
-    cfg = load_site_config(site_id)
-    if source is None:
-        if len(cfg.sources) != 1:
-            raise ValueError("site has more than one source: pass source")
-        source = str(cfg.sources[0])
+    source = ingest.resolve_source(load_site_config(site_id), source)
     inbox = inbox or get_inbox()
     path = Path(path)
     key = f"cli/{site_id}/{uuid.uuid4().hex}-{path.name}"

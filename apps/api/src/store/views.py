@@ -612,6 +612,19 @@ async def refresh_hours(conn: AsyncConnection, site_id: str, p: dict) -> int:
     return hours
 
 
+async def reset_site(conn: AsyncConnection, site_id: str) -> int:
+    # Full rebuild after events were removed (an import file was deleted). The incremental path
+    # only adds: it cannot see that rows are gone. All views of the site are deleted and every
+    # event is new work again, so the next views step builds them from the events that remain.
+    for table in ("session_events", "sessions", "open_sessions", "page_stats", "journey_steps",
+                  "agents"):  # fmt: skip
+        await conn.execute(f"delete from {table} where site_id = %s", [site_id])
+    cur = await conn.execute(
+        "update events set in_views = false where site_id = %s and in_views", [site_id]
+    )
+    return cur.rowcount
+
+
 async def mark_in_views(conn: AsyncConnection, site_id: str) -> int:
     # Flag the staged events as done. Same transaction as the session rows.
     cur = await conn.execute(

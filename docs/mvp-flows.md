@@ -144,6 +144,8 @@ Delay request → dashboard: about 1–6 min. The CDN push batch sets the floor.
 ```
  new ──► importing ──► success ──(after 7 days)──► deleted by cleanup job
                   └──► failed ──► file stays; fix the cause, then import again
+
+ new / success / failed ──(Delete import)──► row, events and raw file removed; views rebuilt
 ```
 
 ### Decisions
@@ -169,6 +171,8 @@ Delay request → dashboard: about 1–6 min. The CDN push batch sets the floor.
 | 1.17 | No presigned URLs for machine senders. A CDN that writes only to its own bucket → our bucket reader lists it every 1 min (read-only access) and copies new objects into the inbox. Dashboard upload: MVP = same streamed POST (limit 2 GB); later = presigned multipart. | Vector and CDN push cannot do the 2-step presigned flow. |
 | 1.18 | `import_files.priority`: live (sender chunks) or backfill (dashboard upload, CLI of old logs). Backfill runs only when no live work waits. | A large upload of old logs must not delay the 1-min live data of other sites. |
 | 1.19 | Inbox storage behind one interface, S3 API. | Same code for S3, the customer's S3-compatible storage and SeaweedFS. |
+| 1.20 | Test data = log files committed in `samples/logs/`, loaded through the normal upload or CLI path. The file name holds site, source and start time (`<site>__<source>__<YYYYMMDDTHHMMZ>[__<label>].log[.gz]`). | Test data goes through the same parser and pipeline as customer data. A dropped file gives only its name, so the name carries site and source. |
+| 1.21 | `DELETE /api/imports/{id}`: one transaction under the site's fast-lane lock (transaction-level advisory lock). It deletes the file's events (also paired rows that hold its origin lines), resets paired partner files to `new` so their own lines are read again, deletes the file row, then deletes all views of the site and sets `in_views = false` on its events. The raw file is deleted after the commit. Refused (`409`) during a run, during an import, or when a partner's raw file is gone. | A paired row holds lines of two files. The incremental views only add, so a full rebuild of the site is the only correct result after rows are removed. The freed sha256 lets the same file be loaded again. |
 
 ### Known limits / gaps (for the handover)
 

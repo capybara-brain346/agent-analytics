@@ -1,13 +1,15 @@
 from datetime import datetime, timedelta
 from typing import Annotated
+from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, Request, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from pydantic import BaseModel
 
 from src.config import get_settings
 from src.models.api import IngestAccepted
 from src.models.domain import FilePriority
 from src.routes.ingest import inbox_dependency, load_site, source_for, store_body
+from src.services import importer
 from src.store import db, import_files
 from src.store.inbox import Inbox
 
@@ -40,6 +42,13 @@ class ImportFile(BaseModel):
     error: str | None
     delete_on: datetime | None
     overlap_warning: OverlapWarning | None
+
+
+class ImportDeleted(BaseModel):
+    file_id: str
+    site_id: str
+    events_deleted: int
+    files_reimported: list[str]
 
 
 class ImportList(BaseModel):
@@ -129,3 +138,29 @@ async def upload(
     if duplicate:
         response.status_code = status.HTTP_200_OK
     return IngestAccepted(file_id=file_id, duplicate=duplicate)
+
+
+@router.delete(
+    "/{file_id}",
+    responses={
+        404: {"description": "Unknown import file"},
+        409: {"description": "A run or an import is active, or a paired file cannot be read"},
+    },
+)
+async def delete_import(
+    file_id: UUID,
+    inbox: Annotated[Inbox, Depends(inbox_dependency)],
+) -> ImportDeleted:
+    # Removes the file's events and its row, then the views of the site are built again.
+    try:
+        result = await importer.delete_import(str(file_id), inbox)
+    except importer.ImportNotFound:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, f"Unknown import file: {file_id}") from None
+    except importer.DeleteBlocked as error:
+        raise HTTPException(status.HTTP_409_CONFLICT, str(error)) from None
+    return ImportDeleted(
+        file_id=result.file_id,
+        site_id=result.site_id,
+        events_deleted=result.events_deleted,
+        files_reimported=result.files_reimported,
+    )
