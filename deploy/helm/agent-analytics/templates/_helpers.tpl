@@ -22,4 +22,10 @@ app.kubernetes.io/instance: {{ .Release.Name }}
   value: {{ .Values.offline | quote }}
 - name: LOG_LEVEL
   value: {{ .Values.logLevel | quote }}
+{{- with .Values.llm.model }}
+- name: LLM_MODEL
+  value: {{ . | quote }}
+{{- end }}
+- name: LLM_BASE_URL
+  value: {{ .Values.llm.baseURL | quote }}
 {{- end -}}

@@ -52,7 +52,7 @@ Flows, store design, locks and workers: [mvp-flows.md](mvp-flows.md).
 | Secrets | Kubernetes Secret, or the customer's Vault through External Secrets; `.env` in Compose | Fits what the customer already runs. |
 | Monitoring | `/metrics` (Prometheus) + `/health` + JSON logs to stdout | The customer's own tools read them. |
 | Backups | CloudNativePG to S3, point-in-time restore | Built into the operator. |
-| LLM (recommendation text) | The customer's own key, or off (template text) | Banks may block outside calls. Template fallback exists (Flow 5). |
+| LLM (recommendation text) | OpenRouter (or a compatible gateway via `LLM_BASE_URL`) with the customer's own key and `LLM_MODEL`, or off (template text) | Banks may block outside calls. Template fallback exists (Flow 5). |
 | Internet access | Offline mode: IP lists + bot registry bundled in each release | Banks often block outside calls. |
 
 ### Not used

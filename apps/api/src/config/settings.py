@@ -77,9 +77,9 @@ class Settings(BaseSettings):
     frequency_mid_min: int = 5  # sessions < 5 = 1; 5..50 = 2; > 50 = 3
     frequency_high_over: int = 50
     p4_bytes_ratio: float = 0.3  # AI median bytes below this share of the browser median
-    llm_api_key: str | None = None  # None = template text only
-    llm_base_url: str = "https://api.anthropic.com"
-    llm_model: str = "claude-sonnet-5-5"
+    openrouter_api_key: str | None = None  # None = template text only
+    llm_base_url: str = "https://openrouter.ai/api/v1"  # OpenRouter or a compatible gateway
+    llm_model: str | None = None  # OpenRouter model ID; None = template text only
     llm_prompt_version: str = "1"
     llm_timeout_seconds: float = 30.0
 

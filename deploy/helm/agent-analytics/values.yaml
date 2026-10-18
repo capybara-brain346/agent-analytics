@@ -45,9 +45,15 @@ inbox:
   bucket: agent-analytics-inbox
   region: us-east-1
 
-# Secret with S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY, API_TOKEN (guards /api/*) and optional LLM_API_KEY.
+# Secret with S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY, API_TOKEN (guards /api/*) and optional OPENROUTER_API_KEY.
 # Create it yourself or through External Secrets from the customer's Vault.
 existingSecret: agent-analytics
 
 offline: false
 logLevel: INFO
+
+# Recommendation text (Flow 5) through OpenRouter. OPENROUTER_API_KEY goes in existingSecret.
+# Empty model = template text only.
+llm:
+  model: ""                           # for example anthropic/claude-sonnet-5.5
+  baseURL: https://openrouter.ai/api/v1

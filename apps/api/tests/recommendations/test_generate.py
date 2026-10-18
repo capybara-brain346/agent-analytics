@@ -8,7 +8,7 @@ from psycopg.rows import dict_row
 from src.config import get_settings
 from src.services import recommendations
 from src.services.recommendations import scoring
-from src.services.recommendations.llm import AnthropicClient, LLMError
+from src.services.recommendations.llm import LLMError, OpenRouterClient, default_client
 from src.services.recommendations.text import template_text, validate_llm_text
 from tests.factories import NOW, make_agent, make_page_stats, make_session
 from tests.recommendations.helpers import FakeLLM, blocked_page
@@ -207,20 +207,50 @@ async def test_llm_client_http():
             "suggested_validation": "s",
             "next_action": "n",
         }
-        return httpx.Response(200, json={"content": [{"type": "text", "text": json.dumps(reply)}]})
+        return httpx.Response(200, json=chat_result(json.dumps(reply)))
 
-    settings = get_settings().model_copy(update={"llm_api_key": "k", "llm_base_url": "http://llm"})
-    client = AnthropicClient(settings, transport=httpx.MockTransport(handler))
+    settings = get_settings().model_copy(
+        update={"openrouter_api_key": "k", "llm_base_url": "http://llm/api/v1", "llm_model": "m/x"}
+    )
+    client = OpenRouterClient(settings, httpx.AsyncClient(transport=httpx.MockTransport(handler)))
     out = await client.write_text({"pattern": "P2"})
     assert out["reason"] == "r"
-    assert seen["url"] == "http://llm/v1/messages"
-    assert seen["headers"]["x-api-key"] == "k"
-    assert seen["headers"]["anthropic-version"] == "2023-06-01"
-    assert seen["body"]["model"] == settings.llm_model
+    assert seen["url"] == "http://llm/api/v1/chat/completions"
+    assert seen["headers"]["authorization"] == "Bearer k"
+    assert seen["body"]["model"] == "m/x"
+    assert seen["body"]["response_format"] == {"type": "json_object"}
 
-    bad = AnthropicClient(settings, transport=httpx.MockTransport(lambda r: httpx.Response(500)))
-    with pytest.raises(LLMError):
-        await bad.write_text({})
+    for response in (httpx.Response(500), httpx.Response(200, json=chat_result("no json"))):
+        transport = httpx.MockTransport(lambda r, response=response: response)
+        bad = OpenRouterClient(settings, httpx.AsyncClient(transport=transport))
+        with pytest.raises(LLMError):
+            await bad.write_text({})
+
+
+def test_default_client_needs_key_and_model():
+    settings = get_settings()
+    assert default_client(settings.model_copy(update={"openrouter_api_key": None})) is None
+    no_model = settings.model_copy(update={"openrouter_api_key": "k", "llm_model": None})
+    assert default_client(no_model) is None
+    both = settings.model_copy(update={"openrouter_api_key": "k", "llm_model": "m/x"})
+    assert default_client(both).model == "m/x"
+
+
+def chat_result(content: str) -> dict:
+    return {
+        "id": "gen-1",
+        "object": "chat.completion",
+        "created": 1,
+        "model": "m/x",
+        "system_fingerprint": None,
+        "choices": [
+            {
+                "index": 0,
+                "finish_reason": "stop",
+                "message": {"role": "assistant", "content": content},
+            }
+        ],
+    }
 
 
 async def test_fractional_score_is_stored_exactly(conn):

@@ -2,9 +2,15 @@ import json
 import re
 
 import httpx
+from openrouter import OpenRouter
+from openrouter.errors import NoResponseError, OpenRouterError
+from openrouter.utils import RetryConfig
 
 from src.config import Settings
+from src.logger import get_logger
 from src.services.recommendations.text import TEXT_FIELDS
+
+log = get_logger(__name__)
 
 SYSTEM_PROMPT = (
     "You write short text for a recommendation about AI-agent traffic on a website. "
@@ -15,46 +21,54 @@ SYSTEM_PROMPT = (
     "simulation with a real agent is needed)."
 )
 
+NO_RETRY = RetryConfig("none", None, False)
+
 
 class LLMError(Exception):
     pass
 
 
-class AnthropicClient:
-    def __init__(self, settings: Settings, transport: httpx.AsyncBaseTransport | None = None):
+class OpenRouterClient:
+    def __init__(self, settings: Settings, async_client: httpx.AsyncClient | None = None):
         self.base_url = settings.llm_base_url.rstrip("/")
-        self.api_key = settings.llm_api_key
+        self.api_key = settings.openrouter_api_key
         self.model = settings.llm_model
         self.timeout = settings.llm_timeout_seconds
-        self.transport = transport
+        self.async_client = async_client
 
     async def write_text(self, bundle: dict) -> dict:
-        body = {
-            "model": self.model,
-            "max_tokens": 1024,
-            "system": SYSTEM_PROMPT,
-            "messages": [
-                {"role": "user", "content": json.dumps(bundle, default=str, sort_keys=True)}
-            ],
-        }
-        headers = {
-            "x-api-key": self.api_key or "",
-            "anthropic-version": "2023-06-01",
-            "content-type": "application/json",
-        }
-        async with httpx.AsyncClient(timeout=self.timeout, transport=self.transport) as client:
-            response = await client.post(f"{self.base_url}/v1/messages", json=body, headers=headers)
-        if response.status_code != 200:
-            raise LLMError(f"LLM returned status {response.status_code}")
-        return parse_text(response.json())
+        messages = [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": json.dumps(bundle, default=str, sort_keys=True)},
+        ]
+        try:
+            async with OpenRouter(
+                api_key=self.api_key,
+                server_url=self.base_url,
+                async_client=self.async_client,
+                retry_config=NO_RETRY,
+                timeout_ms=int(self.timeout * 1000),
+            ) as client:
+                result = await client.chat.send_async(
+                    model=self.model,
+                    messages=messages,
+                    max_tokens=1024,
+                    response_format={"type": "json_object"},
+                    stream=False,
+                )
+        except (OpenRouterError, NoResponseError, httpx.HTTPError) as exc:
+            raise LLMError(f"LLM call failed: {exc}") from exc
+        try:
+            content = result.choices[0].message.content
+        except (AttributeError, IndexError) as exc:
+            raise LLMError("LLM response has no choice") from exc
+        return parse_text(content)
 
 
-def parse_text(payload: dict) -> dict:
-    try:
-        raw = "".join(b["text"] for b in payload["content"] if b.get("type") == "text")
-    except (KeyError, TypeError) as exc:
-        raise LLMError("LLM response has no text") from exc
-    match = re.search(r"\{.*\}", raw, re.DOTALL)
+def parse_text(content) -> dict:
+    if not isinstance(content, str):
+        raise LLMError("LLM response has no text")
+    match = re.search(r"\{.*\}", content, re.DOTALL)
     if not match:
         raise LLMError("LLM response has no JSON")
     try:
@@ -66,7 +80,10 @@ def parse_text(payload: dict) -> dict:
     return {k: data[k] for k in TEXT_FIELDS}
 
 
-def default_client(settings: Settings) -> AnthropicClient | None:
-    if not settings.llm_api_key:
+def default_client(settings: Settings) -> OpenRouterClient | None:
+    if not settings.openrouter_api_key:
         return None
-    return AnthropicClient(settings)
+    if not settings.llm_model:
+        log.warning("OPENROUTER_API_KEY is set but LLM_MODEL is not; using template text")
+        return None
+    return OpenRouterClient(settings)

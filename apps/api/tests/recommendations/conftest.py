@@ -26,7 +26,7 @@ access_policy:
 @pytest.fixture(autouse=True)
 def site_and_llm(config_dir: Path, monkeypatch: pytest.MonkeyPatch):
     (config_dir / "sites" / "example.yaml").write_text(textwrap.dedent(SITE))
-    monkeypatch.setenv("LLM_API_KEY", "")
+    monkeypatch.setenv("OPENROUTER_API_KEY", "")
     get_settings.cache_clear()
     yield
     get_settings.cache_clear()

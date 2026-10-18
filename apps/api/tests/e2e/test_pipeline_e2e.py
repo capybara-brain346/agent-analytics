@@ -69,7 +69,7 @@ ORIGIN = [
 @pytest.fixture
 def inbox(config_dir, client, monkeypatch) -> MemoryInbox:
     monkeypatch.setenv("OFFLINE", "true")
-    monkeypatch.setenv("LLM_API_KEY", "")
+    monkeypatch.setenv("OPENROUTER_API_KEY", "")
     get_settings.cache_clear()
     ingest.reset_limits()
     memory = MemoryInbox()
