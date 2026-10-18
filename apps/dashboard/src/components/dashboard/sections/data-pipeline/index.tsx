@@ -11,7 +11,6 @@ import { HealthTab } from "./health-tab";
 import { ImportsTab } from "./imports-tab";
 import { LaneStrip } from "./lane-strip";
 import { RunsTab } from "./runs-tab";
-import { SettingsTab } from "./settings-tab";
 import { SourcesTab } from "./sources-tab";
 
 export {
@@ -67,7 +66,6 @@ export function DataPipeline({ href, open, filters }: Props) {
       {tab === "health" && (
         <HealthTab state={health} lanes={lanes} alerts={alerts} />
       )}
-      {tab === "settings" && <SettingsTab filters={filters} />}
     </>
   );
 }

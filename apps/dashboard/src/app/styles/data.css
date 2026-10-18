@@ -1,4 +1,4 @@
-/* Data screen: lane strip, operations tables, upload group, coverage, settings. */
+/* Data screen: lane strip, operations tables, upload group, coverage. */
 
 /* Lane strip: the metric strip with a live dot in each label */
 .lane-strip {
@@ -246,38 +246,6 @@
   color: var(--grey);
 }
 
-/* Settings: facts grid on hairline seams */
-.facts-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1px;
-  margin: 0;
-  background: var(--hairline);
-}
-
-.facts-grid > div {
-  padding: 14px 18px 16px;
-  background: #fff;
-}
-
-.facts-grid dt {
-  color: var(--muted-text);
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.facts-grid dd {
-  margin: 6px 0 0;
-  color: var(--ink);
-  font-size: 14px;
-  overflow-wrap: anywhere;
-}
-
-.facts-grid dd.mono {
-  font-family: var(--font-mono);
-  font-weight: 500;
-}
-
 @media (max-width: 1000px) {
   .ops-table [data-col="qual"] {
     display: none;
@@ -321,10 +289,6 @@
 
   .upload-group .btn-primary {
     flex: 1;
-  }
-
-  .facts-grid {
-    grid-template-columns: 1fr;
   }
 }
 

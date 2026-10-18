@@ -38,10 +38,8 @@ export function Dashboard() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const route = pathname.split("/").filter(Boolean),
     view = route[0] || "overview";
-  const settings = view === "data" && query.get("tab") === "settings";
-  const active = settings
-    ? "settings"
-    : view === "sessions"
+  const active =
+    view === "sessions"
       ? "events"
       : view === "journeys"
         ? "pages"
