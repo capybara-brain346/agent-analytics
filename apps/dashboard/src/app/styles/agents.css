@@ -1,0 +1,150 @@
+/* Agents: directory table. Order: identity, status, figure, qualifier, time, chevron. */
+@media (min-width: 1101px) {
+  .agents-metrics {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.agents-table .row-link {
+  cursor: pointer;
+}
+
+.agents-table th:first-child,
+.agents-table td:first-child {
+  width: 100%;
+  min-width: 220px;
+  max-width: 0;
+  text-align: left;
+}
+
+/* Status, qualifier and time read left to right; only figures align right */
+.agents-table th:nth-child(2),
+.agents-table td:nth-child(2),
+.agents-table th[data-band],
+.agents-table td[data-band],
+.agents-table th[data-time],
+.agents-table td[data-time] {
+  text-align: left;
+}
+
+.agents-table th .help-icon {
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.agent-identity {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  max-width: 100%;
+  min-width: 0;
+  text-align: left;
+}
+
+.agent-identity > * {
+  max-width: 100%;
+  line-height: 1.35;
+  text-align: left;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.agent-identity strong {
+  display: block;
+  overflow: hidden;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+}
+
+.agent-identity small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.agents-table td.figure {
+  font-size: 19px;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+}
+
+.agents-table td.figure .number-link {
+  font-size: inherit;
+  font-weight: inherit;
+  color: var(--ink);
+}
+
+.agents-table td[data-time] {
+  color: var(--body);
+  font-size: 12px;
+}
+
+.agents-table th[data-chev],
+.agents-table td[data-chev] {
+  width: 44px;
+  padding-left: 0;
+  color: var(--faint);
+  text-align: center;
+}
+
+.agents-table [data-wide] {
+  display: none;
+}
+
+.agents-table td[data-wide] {
+  color: var(--body);
+}
+
+.agents-table td.figure,
+.agents-table th:nth-child(3) {
+  padding-right: 28px;
+}
+
+.agents-note {
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+@media (min-width: 1640px) {
+  .agents-table [data-wide] {
+    display: table-cell;
+  }
+}
+
+@media (max-width: 1000px) {
+  .agents-table [data-band] {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .agents-table th:first-child,
+  .agents-table td:first-child {
+    min-width: 120px;
+  }
+
+  .agent-identity strong {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .agents-table [data-time],
+  .agents-table [data-chev] {
+    display: none;
+  }
+
+  .agents-table th,
+  .agents-table td {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .agents-table td.figure,
+  .agents-table th:nth-child(3) {
+    padding-right: 14px;
+  }
+}

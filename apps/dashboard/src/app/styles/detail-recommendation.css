@@ -1,0 +1,254 @@
+/* Detail sheet: recommendation. Section-specific rules only; shared detail chrome lives in detail.css. */
+.rec-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.rec-detail-head {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rec-detail-pills {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.rec-detail-head h3 {
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.rec-detail-meta {
+  display: block;
+  color: var(--grey);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.rec-links-more {
+  margin-top: 8px;
+}
+
+.rec-detail-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--hairline);
+  background: var(--stone);
+  color: var(--body);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.rec-detail-note > svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--grey);
+}
+
+.rec-detail .detail-section {
+  margin: 0;
+}
+
+.rec-detail .detail-section-heading {
+  margin-bottom: 8px;
+}
+
+.rec-detail .detail-section h3 {
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.rec-detail .detail-section p {
+  color: var(--body);
+  line-height: 1.6;
+}
+
+.rec-detail .detail-fields {
+  border: 1px solid var(--hairline);
+}
+
+.rec-detail .detail-fields > div {
+  grid-template-columns: 110px 1fr;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--seam);
+}
+
+.rec-detail .detail-fields dt {
+  color: var(--grey);
+}
+
+.rec-detail .detail-fields dd {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.rec-detail .detail-fields dd strong {
+  font-size: 19px;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+}
+
+.rec-detail .detail-fields code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.rec-factors {
+  margin: 0;
+  border: 1px solid var(--hairline);
+}
+
+.rec-factors > div {
+  display: grid;
+  grid-template-columns: 110px 28px 1fr;
+  gap: 4px 12px;
+  align-items: baseline;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--seam);
+}
+
+.rec-factors > div:last-child {
+  border-bottom: 0;
+}
+
+.rec-factors dt {
+  color: var(--grey);
+}
+
+.rec-factors dd {
+  margin: 0;
+}
+
+.rec-factor-value {
+  color: var(--ink);
+  font-size: 19px;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums;
+}
+
+.rec-factor-why {
+  color: var(--body);
+  line-height: 1.5;
+}
+
+.rec-links {
+  border: 1px solid var(--hairline);
+}
+
+.rec-links > button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 40px;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--seam);
+  color: var(--body);
+  text-align: left;
+  transition: background var(--duration) var(--ease);
+}
+
+.rec-links > button:last-child {
+  border-bottom: 0;
+}
+
+.rec-links > button:hover {
+  background: var(--row-hover);
+}
+
+.rec-links code {
+  min-width: 0;
+  flex: 1;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.rec-links span {
+  color: var(--grey);
+  font-size: 13px;
+}
+
+.rec-links svg {
+  flex-shrink: 0;
+  color: var(--faint);
+}
+
+.rec-next {
+  padding: 12px;
+  border: 1px solid var(--hairline);
+  background: var(--stone);
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.rec-bundle {
+  border: 1px solid var(--hairline);
+}
+
+.rec-bundle summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 12px;
+  color: var(--body);
+  font-size: 13px;
+  font-weight: 500;
+  list-style: none;
+  cursor: pointer;
+}
+
+.rec-bundle summary:hover {
+  background: var(--row-hover);
+}
+
+.rec-bundle[open] summary svg {
+  transform: rotate(90deg);
+}
+
+.rec-bundle .detail-fields {
+  border-width: 1px 0 0;
+}
+
+.rec-bundle-json {
+  white-space: pre-wrap;
+}
+
+.rec-detail-foot {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 14px;
+  border-top: 1px solid var(--hairline);
+  color: var(--grey);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+@media (max-width: 560px) {
+  .rec-factors > div {
+    grid-template-columns: 90px 24px 1fr;
+  }
+
+  .rec-detail .detail-fields > div {
+    grid-template-columns: 90px 1fr;
+  }
+}

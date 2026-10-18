@@ -1,0 +1,89 @@
+/* Webzero product console tokens. Light theme only. */
+:root {
+  color-scheme: light;
+
+  --ink: #0f1113;
+  --body: #3b434e;
+  --muted-text: #5a6270;
+  --grey: #6b7280;
+  --faint: #a2a8b0;
+
+  --hairline: #e6e8eb;
+  --seam: #f0f1f3;
+  --stone: #fafaf9;
+  --wash: #edeef0;
+  --wash-focus: #d2d6db;
+  --row-hover: #f4f5f6;
+  --border-hover: #c9cdd3;
+  --border-control: #d8dbe0;
+  --menu-item-hover: #e7eaed;
+  --track: #eeeff1;
+  --scrollbar: #e1e3e7;
+
+  --jade: #0ba96c;
+  --jade-deep: #078054;
+  --jade-press: #06603e;
+  --jade-tint: #e6f7f0;
+  --jade-tint-border: #bae9d7;
+  --pass: #1f7a4d;
+  --warn-mark: #cf8b2e;
+  --warn-text: #a0611a;
+  --warn-tint: #faf1e3;
+  --fail: #c33a22;
+  --fail-tint: #fbeeeb;
+  --neutral: #c9cdd3;
+  --secondary-solid: #2a2e34;
+
+  --menu-shadow: 0 18px 44px rgba(14, 17, 22, 0.09);
+  --overlay: rgba(15, 17, 19, 0.18);
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --duration: 180ms;
+
+  --rail-width: 244px;
+  --bar-height: 56px;
+  --control-height: 34px;
+
+  /* shadcn semantic tokens, mapped to Webzero values */
+  --background: #ffffff;
+  --foreground: var(--ink);
+  --card: #ffffff;
+  --popover: #ffffff;
+  --primary: var(--jade-deep);
+  --secondary: var(--secondary-solid);
+  --muted: var(--wash);
+  --muted-foreground: var(--grey);
+  --accent: var(--wash);
+  --destructive: var(--fail);
+  --border: var(--hairline);
+  --green: var(--jade-deep);
+  --amber: var(--warn-text);
+  --red: var(--fail);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: #ffffff;
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: #ffffff;
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--border);
+  --color-ring: var(--wash-focus);
+  --font-sans: var(--font-instrument-sans), system-ui, sans-serif;
+  --font-heading: var(--font-instrument-sans), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+  --radius-sm: 4px;
+  --radius-md: 5px;
+  --radius-lg: 7px;
+  --radius-xl: 8px;
+}

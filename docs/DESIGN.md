@@ -1,118 +1,93 @@
 ---
 name: Agent Analytics
-description: A compact dark console for agent traffic and its evidence.
+description: A light product console for agent traffic and its evidence, built on the Webzero design system.
 colors:
-  primary: "#bba4ef"
-  background: "#17171b"
-  foreground: "#dedee5"
-  card: "#1b1b20"
-  panel-heading: "#202025"
-  popover: "#222228"
-  secondary: "#292830"
-  muted: "#25252c"
-  muted-foreground: "#a2a2af"
-  accent: "#302b3d"
-  border: "#34343d"
-  sidebar: "#141417"
-  nav-active: "#2c2639"
-  nav-active-text: "#cdb8f3"
-  green: "#88c6ac"
-  amber: "#dcbf7a"
-  destructive: "#ee8b8b"
-  search-crawler: "#8c9eff"
-  ai-crawler: "#aa8bea"
-  other-bot: "#d6b773"
-  browser-automation: "#70bfc7"
-  ordinary-browser: "#70b49c"
-  unknown-class: "#72727e"
+  ink: "#0f1113"
+  body: "#3b434e"
+  muted-text: "#5a6270"
+  grey: "#6b7280"
+  faint: "#a2a8b0"
+  hairline: "#e6e8eb"
+  seam: "#f0f1f3"
+  stone: "#fafaf9"
+  wash: "#edeef0"
+  row-hover: "#f4f5f6"
+  border-hover: "#c9cdd3"
+  track: "#eeeff1"
+  jade: "#0ba96c"
+  jade-deep: "#078054"
+  jade-press: "#06603e"
+  jade-tint: "#e6f7f0"
+  pass: "#1f7a4d"
+  warn-mark: "#cf8b2e"
+  warn-text: "#a0611a"
+  warn-tint: "#faf1e3"
+  fail: "#c33a22"
+  fail-tint: "#fbeeeb"
+  neutral: "#c9cdd3"
 typography:
-  headline:
-    fontFamily: '"Segoe UI", -apple-system, BlinkMacSystemFont, Arial, sans-serif'
-    fontSize: "23px"
+  screen-title:
+    fontFamily: "Instrument Sans"
+    fontSize: "16px"
     fontWeight: 600
-    lineHeight: 1.3
-    letterSpacing: "-0.6px"
-  title:
-    fontFamily: '"Segoe UI", -apple-system, BlinkMacSystemFont, Arial, sans-serif'
-    fontSize: "11px"
-    fontWeight: 550
-    lineHeight: 1.5
-  body:
-    fontFamily: '"Segoe UI", -apple-system, BlinkMacSystemFont, Arial, sans-serif'
-    fontSize: "12px"
-    fontWeight: 400
-    lineHeight: 1.5
-    fontFeature: '"cv11", "ss01"'
-  label:
-    fontFamily: '"Segoe UI", -apple-system, BlinkMacSystemFont, Arial, sans-serif'
-    fontSize: "10px"
-    fontWeight: 400
-    lineHeight: 1.5
+    letterSpacing: "-0.02em"
+  panel-title:
+    fontFamily: "Instrument Sans"
+    fontSize: "15px"
+    fontWeight: 600
+    letterSpacing: "-0.015em"
   metric:
-    fontFamily: '"Segoe UI", -apple-system, BlinkMacSystemFont, Arial, sans-serif'
-    fontSize: "25px"
+    fontFamily: "Instrument Sans"
+    fontSize: "38px"
     fontWeight: 500
-    lineHeight: 1.2
-    letterSpacing: "-0.7px"
-  mono:
-    fontFamily: '"SFMono-Regular", Consolas, "Liberation Mono", monospace'
-    fontSize: "11px"
+    letterSpacing: "-0.04em"
+  body:
+    fontFamily: "Instrument Sans"
+    fontSize: "13px"
     fontWeight: 400
-    lineHeight: 1.5
+  table-identity:
+    fontFamily: "JetBrains Mono"
+    fontSize: "14px"
+    fontWeight: 500
+  column-header:
+    fontFamily: "JetBrains Mono"
+    fontSize: "12px"
+    fontWeight: 500
 rounded:
-  sm: "3px"
-  md: "4px"
-  lg: "5px"
-  xl: "6px"
+  key-badge: "4px"
+  pill: "5px"
+  segmented-item: "6px"
+  button: "7px"
+  menu: "8px"
 spacing:
-  xs: "6px"
-  sm: "8px"
-  control: "9px"
-  compact: "10px"
-  md: "12px"
-  panel: "13px"
-  lg: "16px"
-  gutter: "18px"
-  section: "20px"
-  page: "25px"
+  panel-body: "16px 18px 18px"
+  workspace: "18px 20px 28px"
+  metric-cell: "16px 18px 18px"
 components:
-  button-outline:
-    backgroundColor: "#1c1c22"
-    textColor: "#b6b2c2"
-    rounded: "{rounded.md}"
-    padding: "6px 9px"
-  button-ghost:
-    textColor: "#aaaab6"
-    rounded: "{rounded.sm}"
-    size: "24px"
-  button-link:
-    textColor: "{colors.foreground}"
-  input-search:
-    backgroundColor: "#1d1c22"
-    textColor: "#dcd5e5"
-    rounded: "{rounded.md}"
-    padding: "0 9px"
-    height: "31px"
-  nav-item:
-    textColor: "#a7a7b3"
-    rounded: "{rounded.md}"
-    padding: "9px 10px"
+  button-primary:
+    backgroundColor: "{colors.jade-deep}"
+    textColor: "#ffffff"
+    rounded: "{rounded.button}"
+    height: "34px"
+  button-secondary:
+    backgroundColor: "#2a2e34"
+    textColor: "#ffffff"
+    rounded: "{rounded.button}"
+    height: "34px"
+  button-standard:
+    backgroundColor: "#ffffff"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.button}"
+    height: "34px"
   nav-item-active:
-    backgroundColor: "{colors.nav-active}"
-    textColor: "{colors.nav-active-text}"
-    rounded: "{rounded.md}"
-    padding: "9px 10px"
-  status-chip:
-    backgroundColor: "#23332b"
-    textColor: "#9bcab1"
-    rounded: "{rounded.sm}"
-    padding: "1px 5px"
+    backgroundColor: "{colors.wash}"
+    textColor: "{colors.ink}"
+    height: "34px"
   panel:
-    backgroundColor: "{colors.card}"
-    rounded: "{rounded.lg}"
+    backgroundColor: "#ffffff"
   evidence-sheet:
-    backgroundColor: "#1c1b22"
-    width: "610px"
+    backgroundColor: "#ffffff"
+    width: "560px"
 ---
 
 # Design System: Agent Analytics
@@ -121,145 +96,132 @@ components:
 
 **Creative North Star: "The Evidence Console"**
 
-The console uses the user's three dark observability references. Compact controls, aligned numbers, thin borders, and small charts keep records in view. Color marks selection, traffic class, or status.
+The console follows the Webzero product console layer. It is light and flat. Hairlines separate content. Stone is the only workspace ground. Jade marks live things and the main action. Everything else is ink and grey.
 
-The system has no decorative image layer. Panels use a small change in tone. Detail sheets keep the source page visible on wide screens. This record describes the code in `apps/dashboard`; the reference screenshots are review evidence, not shipped assets.
+The system has no decorative image layer, no gradients, and no resting shadows. Records stay in view: dense tables, aligned figures, and small charts. This record describes the code in `apps/dashboard`.
 
 **Key Characteristics:**
-- Dense tables and compact charts.
-- Charcoal surfaces with fine borders.
-- Lavender selection and stable traffic class colors.
+- Light theme only. White panels on a Stone workspace.
+- Square containers with 1px hairline borders.
+- Whole-row clickable tables with seams, no zebra, no vertical rules.
 - Evidence labels beside claims and values.
 - Short state changes and no page-load animation.
 
 ## Colors
 
-The palette uses dark neutral surfaces with muted colors for data and state. The frontmatter holds the source values.
+The frontmatter holds the source values. Tokens are CSS variables in `src/app/styles/tokens.css`. Do not write hex values in other style files.
 
-### Primary
-- **Lavender:** selection, focus outlines, links, and detail actions. Active navigation uses a darker lavender surface and lighter text.
+### Text
+- **Ink:** titles, figures, identity text, and the active nav item.
+- **Body:** running text and controls.
+- **Muted text:** metric labels and secondary text.
+- **Grey:** the lowest text tier: notes, meta lines, column headers.
+- **Faint:** placeholders and disabled marks only.
 
-### Secondary
-- **Periwinkle:** verified search crawler data.
-- **Muted violet:** known AI crawler data.
-- **Sand:** other identifiable bot data.
-- **Cyan:** browser automation data.
-- **Teal:** ordinary browser data.
-- **Sage, amber, and soft red:** healthy, caution, and failure states. Status chips use their own darker fills and borders.
+### Surfaces
+- **White:** rail, top bar, panels, sheets, and menus.
+- **Stone:** the workspace ground and table headers.
+- **Hairline:** borders and the 1px gaps between panels. **Seam:** row dividers.
+- **Wash:** hover, focus, and the active nav item. **Row hover:** table row hover.
 
-### Neutral
-- **Charcoal ground:** page background.
-- **Deep charcoal:** side rail.
-- **Raised charcoal:** panels, panel heads, controls, and popovers.
-- **Soft white:** main text.
-- **Muted gray:** support text.
-- **Fine gray:** borders and dividers.
-- **Unknown gray:** unknown traffic class data.
+### Jade and state
+- **Jade (marks only):** chart primary series, live dots, selected marks. Never body text.
+- **Jade deep:** jade text (links, actions) and the primary button ground. **Press:** its hover.
+- **Pass, warn, fail:** state. Warn has a mark colour for shapes and a darker text colour for words. Each has a tint for pill grounds.
+- **Neutral:** unknown and empty marks.
 
-**The Stable Class Rule.** Use the same class color in charts, legends, and table markers. Keep the text label beside each marker.
+### Traffic classes
+Class colours are defined once in `src/lib/classes.ts`. They differ in lightness so stacked segments stay distinct on white. Use the same colour in charts, legends, and table markers, and keep the class name beside each marker.
 
-**The Status Rule.** Use red for failures, denials, and spoofed identity states. Keep status text visible with its color.
+**The Color Is Never Alone Rule.** Every coloured word has a dot, a square, or a bar beside it.
+
+**The Confidence Rule.** Confidence has no state colour. The word is Body. Bars are ink, with empty bars in neutral.
 
 ## Typography
 
-**Display Font:** No separate display role is used.
-**Body Font:** Segoe UI with platform sans-serif fallbacks.
-**Label/Mono Font:** SFMono-Regular with Consolas, Liberation Mono, and monospace fallbacks.
+**Sans:** Instrument Sans (400, 500, 600) for every human word.
+**Mono:** JetBrains Mono (400, 500) only for machine strings (ids, paths, URLs, versions, times, status codes, key badges) and for uppercase column headers and nav group labels.
 
-The sans-serif face serves the working interface. Monospace separates paths, IDs, methods, and code from prose. Table values and metrics use tabular numbers.
+Both load through `next/font/google`.
 
 ### Hierarchy
-- **Headline:** page title. It becomes (22px) at widths up to (800px).
-- **Title:** panel heading. It becomes (12px) from (1600px), and (10px) at widths up to (640px).
-- **Body:** base text. It becomes (13px) from (1600px). Detail prose often uses (11px).
-- **Label:** compact controls, table text, table headings, and evidence labels.
-- **Metric:** summary values. They use (23px) at intermediate widths.
-- **Mono:** machine values. Table paths use (10px).
+- **Screen title:** 16/600, shown as the breadcrumb in the top bar. No title in the workspace.
+- **Panel title:** 15/600.
+- **Metric figure:** 38/500, tabular. Label 13/500 muted, sentence case. Note 13/400 grey.
+- **Table identity:** mono 14/500 ink, with a mono 12 grey meta line. Table figure 19/500 tabular. Column header mono 12/500 uppercase grey.
+- **Nav item:** 14/400, 600 when active. Controls and pills: 13/500.
 
-**The Numeric Alignment Rule.** Use tabular numbers for values that users compare. Align table number columns to the right.
+**The Text Floor Rule.** No sans text is smaller than 13px. No mono text is smaller than 12px.
 
-**The Text Floor Rule.** No text is smaller than (10px). Linked or clickable text follows the same floor.
+**The Numeric Alignment Rule.** Use tabular numbers on all figures. Right-align table figures.
 
 ## Layout
 
-The wide layout has a fixed side rail (204px), a top bar (50px), and a content area with a maximum width (1900px). Main padding is (24px 25px 0). Panel gaps are (18px). Panel heads are (39px) high. Table rows are usually (39px) high.
+The shell fills the viewport and does not scroll. The rail is 244px. The top bar is 56px. The workspace is the only scroll region (padding 18px 20px 28px). The global filter bar (site, range, class, window caption) is the first item in the workspace. A status row in mono 12 grey ends the workspace and shows data provenance.
 
 ```text
-+----------+-------------------------------------+
-| side rail| top bar                             |
-|          +-------------------------------------+
-|          | page title and filters              |
-|          | full-width panels or metric cells   |
-|          +----------------------+--------------+
-|          | wide data panel      | narrow panel |
-+----------+----------------------+--------------+
++-----------+-------------------------------------+
+| rail 244  | top bar 56 (breadcrumb, freshness)  |
+|           +-------------------------------------+
+|           | filter bar                          |
+|           | metric strip or panels (18px gap)   |
+|           +----------------------+--------------+
+|           | main panel           | insight 336  |
+|           +----------------------+--------------+
+|           | status row                          |
++-----------+-------------------------------------+
 ```
 
-At widths up to (1200px), the rail becomes (184px) and panel gaps become (14px). At widths up to (1020px), standard two-column groups stack; the chart group keeps two columns until (640px). At widths up to (800px), the rail is hidden and a menu control appears. At widths up to (640px), the main horizontal inset is (12px), filters wrap, panel groups stack, and metric cells use three cells above two wider cells. Tables can scroll horizontally.
+Panels in a grid use a 1px gap on a hairline ground. Below 1000px the rail hides and a menu control opens it as a drawer. Two-column groups stack. Tables drop qualifier-type columns first, then keep identity, status, and figure. Tables can scroll horizontally.
 
-The mobile chart uses a separate (340-unit) SVG with (24) bars and (12-unit) axis text. The desktop chart uses (900) units and (96) bars. This keeps chart labels readable without stretching the desktop chart into a narrow space.
+Metric strips use cells of 16px 18px 18px. The label sits at the top of the cell and the figure sits at the bottom, so figures align across a row when a label wraps.
 
 ## Elevation & Depth
 
-Resting panels are flat. Tone and borders separate content. Shadows are reserved for temporary layers. The detail overlay dims the page without blur.
+Containers are square and flat. Tone and hairlines separate content. The only shadow is on menus and popovers (`0 18px 44px rgba(14,17,22,0.09)`, radius 8). The detail overlay dims the page without blur.
 
-### Shadow Vocabulary
-- **Filter popover:** (`0 8px 24px #0005`). Separates an open filter from its panel.
-- **Evidence sheet:** (`-10px 0 40px #0005`). Separates the right sheet from the source page.
-
-**The Flat Panel Rule.** Use a border and a panel-head tone for resting containers. Keep shadows on temporary layers.
-
-## Shapes
-
-Corners are small and regular. Controls and navigation use the medium radius. Panels use the large radius. Status chips use the small radius. Borders are normally (1px). Dots and profile avatars are round. Chart bars and table grids remain square or almost square.
+**The Flat Panel Rule.** Resting containers use a border only.
 
 ## Components
 
-### Buttons
+### Panels
+White, 1px hairline border, 48px header with a 15/600 title, an optional grey count, and at most one right-aligned jade-deep action. Body padding is 16px 18px 18px. Tables and charts run full bleed.
 
-Actions are compact. The outline guide action uses a dark fill and a thin border. Its hover state raises the fill and lightens the text. Icon actions are square and use a tinted hover fill. Text actions use a lavender hover color and an underline. Linked numbers show a dotted underline at rest, so a reader can tell a link from a static value. Global keyboard focus uses a lavender outline (2px) with an offset (3px). Disabled buttons use half opacity and a disabled cursor. The shared library also has a ghost close button; unused library variants are not a screen design rule.
+### Tables
+Header 34px on Stone. Rows are 52px (compact 44px) and whole-row clickable. Order: identity, status, figure, qualifier, time, then a chevron. A footer shows `Showing N ...` on the left and page buttons on the right. Never explain a table in a paragraph above it; use header tooltips.
 
-### Chips
+### Pills and qualifiers
+A status pill is sans 12/500 with a tinted ground, a 6px dot, and radius 5. Running pills pulse; nothing else does. A qualifier is a 7px square plus a word.
 
-Status chips pair text with a small dot. Green, amber, red, purple, and neutral variants each have a dark fill and a fine matching border. Selected filter chips have a stronger lavender border and fill. Evidence labels use a dot and the words Observed, Inferred, or Unknown; they are not decorative headings.
-
-### Cards / Containers
-
-Panels have a fine neutral border, a dark body, and a slightly lighter head. Horizontal panel padding commonly uses the panel spacing token. Tables use alternate row tones and a brighter hover row. Metric cells share one bordered strip rather than separate floating cards.
-
-### Inputs / Fields
-
-Search fields have a thin border, a dark fill, a search icon, and a clear action when text is present. Focus changes the wrapper border. Select controls are compact native selects inside a styled wrapper; keyboard focus adds a lavender outline. Keep a text label available to assistive technology.
+### Buttons and controls
+All controls are 34px tall. One primary button per screen at most (jade-deep). Secondary uses a dark ground. Standard is white with a hairline. Segmented filters have a 3px white shell, 28px items, and an ink fill when active. Search is a 34px hairline field.
 
 ### Navigation
-
-Navigation rows pair line icons with labels. The active row has a lavender tint and a slim marker at the left edge. Hover raises the neutral fill and text. On smaller screens, a menu control replaces the fixed rail. Tabs use a slim active underline.
+Group labels are mono 12 uppercase grey. Items are 34px with a 6px dot (idle light grey, active ink). The active item has a wash ground and ink 600 text. There is no accent bar.
 
 ### Evidence Sheet
-
-The right sheet has a tinted head, a scrollable body, and a close action. Its desktop width uses the component token, capped at the viewport minus (34px). At widths up to (640px), it fills the viewport width. Sheet state changes take (200ms); the overlay fades in (150ms). Reduced-motion settings remove transitions and animations.
-
-A sheet opened from another sheet shows a "Back to <previous>" control above the title. Close returns through the same history entries, so browser Back does not reopen a closed sheet. A request sheet steps to the previous or next request of its session.
+A right sheet, 560px wide (capped to the viewport on small screens), white with a hairline left border and a 48px header. A sheet opened from another sheet shows a "Back to <previous>" control. A request sheet steps to the previous or next request of its session.
 
 ### Evidence Context Bar
+A list opened from a recommendation shows a bar above the table: the recommendation title, the sample count against the full count, a link back, and a remove action. Filters with no control on the page show as removable chips.
 
-A list opened from a recommendation shows a tinted bar above the table: the recommendation title, the sample count against the full count, a link back to the recommendation, and a remove action. Filters that have no control on the page show as removable chips.
+### Empty and error states
+An empty state is one 13px sentence and one control. An error keeps the row shape.
 
-### Help Popover
+## Motion and interaction
 
-Help icons open a small popover on click, tap, or hover. It uses the popover surface, a fine border, and the temporary-layer shadow.
+Hover and focus change the background to wash. They never add a ring, underline, or accent border. Keyboard focus uses a visible wash-focus outline. Transitions use 180ms with `cubic-bezier(0.2, 0.7, 0.2, 1)`. There are no entrance animations, counters, or staggers. Reduced-motion settings remove transitions and animations.
 
 ## Do's and Don'ts
 
 ### Do:
 - **Do** keep evidence labels and data limits beside the relevant content.
-- **Do** keep class colors consistent across charts, legends, and tables.
-- **Do** keep paths in monospace and comparable numbers aligned.
-- **Do** use borders and tone to separate resting panels.
-- **Do** keep keyboard focus visible and charts readable on small screens.
+- **Do** keep class colours consistent across charts, legends, and tables.
+- **Do** keep machine strings in mono and figures aligned.
+- **Do** use sentence case. Use an en dash for ranges.
 
 ### Don't:
-- **Don't** use decorative imagery, gradients, or glow in this console.
-- **Don't** use color alone to state identity, confidence, or outcome.
-- **Don't** add display type or large rounded cards to the compact working interface.
-- **Don't** use the smallest support-text sizes as a default for new content.
+- **Don't** use shadows, gradients, glow, or decorative imagery.
+- **Don't** use colour alone to state identity, confidence, or outcome.
+- **Don't** use jade for body text, or more than one primary button per screen.
+- **Don't** use em dashes, exclamation marks, or emoji.

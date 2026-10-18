@@ -1,0 +1,194 @@
+/* Recommendations screen: toolbar, run strip, ranked table, run history. */
+
+@media (min-width: 1101px) {
+  .rec-strip {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.rec-table th:first-child,
+.rec-table td:first-child {
+  width: 100%;
+  white-space: normal;
+}
+
+.rec-table tbody tr {
+  cursor: pointer;
+}
+
+.rec-table td {
+  height: 60px;
+}
+
+.rec-table th .help-icon {
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.rec-identity {
+  display: block;
+  max-width: 640px;
+  padding: 0;
+  text-align: left;
+}
+
+.rec-name {
+  display: block;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.rec-name .page-tag {
+  margin-left: 8px;
+}
+
+.rec-figure {
+  color: var(--ink);
+  font-size: 19px;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums;
+}
+
+.rec-figure-sm,
+.rec-sessions {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.rec-time {
+  color: var(--grey);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.rec-none {
+  color: var(--faint);
+}
+
+.rec-table td[data-col="chevron"],
+.rec-table th[data-col="chevron"] {
+  width: 36px;
+  padding-left: 0;
+  color: var(--faint);
+}
+
+.rec-table td[data-col="chevron"] svg {
+  vertical-align: middle;
+}
+
+.rec-history td {
+  height: 52px;
+}
+
+.rec-history td:first-child {
+  white-space: normal;
+}
+
+.rec-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: 1px solid var(--hairline);
+  background: #fff;
+  color: var(--body);
+  font-size: 13px;
+}
+
+.rec-notice > svg {
+  flex-shrink: 0;
+  color: var(--grey);
+}
+
+.rec-notice.fail > svg {
+  color: var(--fail);
+}
+
+.rec-notice code {
+  margin-left: 6px;
+  color: var(--grey);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.rec-provenance {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  color: var(--grey);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+@media (max-width: 1240px) {
+  .rec-table [data-col="confidence"] {
+    display: none;
+  }
+}
+
+@media (max-width: 1000px) {
+  .rec-history [data-col="window"] {
+    display: none;
+  }
+}
+
+.rec-change-inline {
+  display: none;
+}
+
+@media (max-width: 560px) {
+  .filter-toolbar .toolbar-end {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .filter-toolbar .toolbar-end .btn-primary {
+    width: 100%;
+  }
+
+  .rec-table [data-col="status"] {
+    display: none;
+  }
+
+  .rec-change-inline {
+    display: inline;
+  }
+
+  .rec-name {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 720px) {
+  .rec-table [data-col="evidence"],
+  .rec-table [data-col="chevron"],
+  .rec-history [data-col="evidence"],
+  .rec-history [data-col="confidence"] {
+    display: none;
+  }
+
+  .rec-table td,
+  .rec-table th {
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+}
+
+/* Legacy rules still used by the overview screen */
+
+.rank {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 24px;
+  height: 25px;
+  border-radius: 4px;
+  background: var(--wash);
+  color: var(--body);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}

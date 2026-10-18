@@ -1,0 +1,64 @@
+/* Detail sheet: journey. Section-specific rules only; step bars come from pages.css. */
+
+.dj-steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--hairline);
+}
+
+.dj-steps > li {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 150px) minmax(40px, 1fr) 64px;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--seam);
+}
+
+.dj-steps > li:last-child {
+  border-bottom: 0;
+}
+
+.dj-path {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dj-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  color: var(--ink);
+  font-size: 19px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+a.dj-count:hover {
+  background: var(--wash);
+}
+
+.dj-count svg {
+  color: var(--faint);
+}
+
+.dj-count.count-static {
+  color: var(--grey);
+}
+
+@media (max-width: 640px) {
+  .dj-steps > li {
+    grid-template-columns: 22px minmax(0, 1fr) 64px;
+  }
+
+  .dj-steps .step-bar {
+    grid-column: 2 / -1;
+    grid-row: 2;
+  }
+}

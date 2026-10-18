@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { ArrowRight, Check, ChevronRight, X } from "lucide-react";
+import { ArrowRight, ChevronRight } from "lucide-react";
 import { scopeFromQuery } from "@/lib/api/filters";
 import { useScopedApi } from "@/lib/api/use-api";
 import type { PageDetail as PageDetailData } from "@/lib/api/types";
-import { formatBytes, number, percent } from "@/lib/format";
+import { dateUTC, formatBytes, number, percent, timeUTC } from "@/lib/format";
 import {
   ApiGate,
   ClassName,
@@ -17,7 +17,20 @@ import {
   NumberLink,
   Status,
 } from "../shared";
-import { DetailSection, Fields, DetailProps } from "./common";
+import { DetailSection, DetailProps } from "./common";
+
+const Unknown = () => (
+  <span className="unknown-dash" title="Unknown: no requests in this window">
+    —
+  </span>
+);
+
+/** "Oct 16, 14:00"; falls back to the raw value when it is not a time. */
+function hourLabel(hour: string) {
+  return Number.isNaN(new Date(hour).getTime())
+    ? hour
+    : `${dateUTC(hour)}, ${timeUTC(hour)}`;
+}
 
 export function PageDetail({ id, href, open }: DetailProps) {
   const state = useScopedApi<PageDetailData>(
@@ -40,8 +53,8 @@ export function PageDetail({ id, href, open }: DetailProps) {
                   {t}
                 </span>
               ))}
-              <span className="muted">
-                {d.in_sitemap ? <Check size={12} /> : <X size={12} />}
+              <span className="qualifier">
+                <i className={d.in_sitemap ? "ok" : ""} />
                 {d.in_sitemap ? "In sitemap" : "Not in sitemap"}
               </span>
               <Status
@@ -53,22 +66,25 @@ export function PageDetail({ id, href, open }: DetailProps) {
               />
             </div>
             <DetailSection title="Page traffic" label="Observed">
-              <div className="detail-metrics">
-                <Link href={events()}>
-                  <strong>{number(p.agent_requests)}</strong>agent requests
+              <div className="dp-facts dp-facts-3">
+                <Link className="dp-fact" href={events()}>
+                  <span>Agent requests</span>
+                  <strong>{number(p.agent_requests)}</strong>
                 </Link>
-                <span className="count-static">
-                  <strong>{number(p.requests)}</strong>all requests
-                </span>
-                <span className="count-static">
-                  <strong>{number(p.sessions)}</strong>sessions
-                </span>
+                <div className="dp-fact">
+                  <span>All requests</span>
+                  <strong>{number(p.requests)}</strong>
+                </div>
+                <div className="dp-fact">
+                  <span>Sessions</span>
+                  <strong>{number(p.sessions)}</strong>
+                </div>
               </div>
             </DetailSection>
             <DetailSection title="Response by traffic class" label="Observed">
               {d.by_class.length ? (
-                <div className="detail-table-wrap">
-                  <table>
+                <div className="dp-table">
+                  <table aria-label="Response by traffic class">
                     <thead>
                       <tr>
                         <th>Class</th>
@@ -121,73 +137,89 @@ export function PageDetail({ id, href, open }: DetailProps) {
               )}
             </DetailSection>
             <DetailSection title="Page signals" label="Observed">
-              <Fields
-                items={[
-                  [
-                    "Errors",
-                    p.error_rate_pct === null ? (
-                      <Gap>Unknown</Gap>
+              <div className="dp-facts">
+                <div className="dp-fact">
+                  <span>Error rate</span>
+                  <strong>
+                    {p.error_rate_pct === null ? (
+                      <Unknown />
                     ) : (
                       <NumberLink
                         value={percent(p.error_rate_pct)}
                         href={events({ status: "4xx,5xx" })}
                       />
-                    ),
-                  ],
-                  [
-                    "Blocked requests (403 / 429)",
-                    p.block_rate_pct === null ? (
-                      <Gap>Unknown</Gap>
+                    )}
+                  </strong>
+                </div>
+                <div className="dp-fact">
+                  <span>Block rate (403 / 429)</span>
+                  <strong>
+                    {p.block_rate_pct === null ? (
+                      <Unknown />
                     ) : (
                       <NumberLink
                         value={percent(p.block_rate_pct)}
                         href={events({ status: "403,429" })}
                       />
-                    ),
-                  ],
-                  ["Retries", number(p.retries)],
-                  [
-                    "Median response size",
-                    formatBytes(p.median_bytes) ?? <Gap>Unknown</Gap>,
-                  ],
-                  ["Agents", number(p.distinct_agents)],
-                ]}
-              />
+                    )}
+                  </strong>
+                </div>
+                <div className="dp-fact">
+                  <span>Retries</span>
+                  <strong>{number(p.retries)}</strong>
+                </div>
+                <div className="dp-fact">
+                  <span>Median response size</span>
+                  <strong>{formatBytes(p.median_bytes) ?? <Unknown />}</strong>
+                </div>
+                <div className="dp-fact">
+                  <span>Agents</span>
+                  <strong>{number(p.distinct_agents)}</strong>
+                </div>
+              </div>
             </DetailSection>
             <DetailSection title="Over time" label="Observed">
               {d.over_time.length ? (
-                <div
-                  role="img"
-                  aria-label={`Requests per hour, peak ${peak}`}
-                  style={{
-                    display: "flex",
-                    alignItems: "flex-end",
-                    gap: 1,
-                    height: 56,
-                  }}
-                >
-                  {d.over_time.map((h) => (
-                    <span
-                      key={h.hour}
-                      title={`${h.hour}: ${h.requests} requests, ${h.errors} errors`}
-                      style={{
-                        flex: 1,
-                        height: `${Math.max(4, (h.requests / peak) * 100)}%`,
-                        background: h.errors
-                          ? "var(--negative, #d66)"
-                          : "var(--muted, #888)",
-                      }}
-                    />
-                  ))}
-                </div>
+                <>
+                  <div
+                    className="dp-bars"
+                    role="img"
+                    aria-label={`Requests per hour, peak ${peak}`}
+                  >
+                    {d.over_time.map((h) => (
+                      <span
+                        key={h.hour}
+                        title={`${h.hour}: ${h.requests} requests, ${h.errors} errors`}
+                        style={{
+                          height: `${Math.max(4, (h.requests / peak) * 100)}%`,
+                        }}
+                      >
+                        <i
+                          style={{
+                            height: `${h.requests ? (h.errors / h.requests) * 100 : 0}%`,
+                          }}
+                        />
+                      </span>
+                    ))}
+                  </div>
+                  <div className="dp-bars-axis">
+                    <span>{hourLabel(d.over_time[0].hour)}</span>
+                    <span className="dp-bars-key">
+                      <i /> Requests <i className="has-errors" /> Errors
+                    </span>
+                    <span>
+                      {hourLabel(d.over_time[d.over_time.length - 1].hour)}
+                    </span>
+                  </div>
+                </>
               ) : (
                 <Gap>No hourly data in this window.</Gap>
               )}
             </DetailSection>
             <DetailSection title="Agents" label="Observed">
               {d.agents.length ? (
-                <div className="detail-table-wrap">
-                  <table>
+                <div className="dp-table">
+                  <table aria-label="Agents">
                     <thead>
                       <tr>
                         <th>Claimed agent</th>
@@ -198,11 +230,7 @@ export function PageDetail({ id, href, open }: DetailProps) {
                     <tbody>
                       {d.agents.map((a, i) => (
                         <tr key={i}>
-                          <td>
-                            {a.claimed_agent ?? (
-                              <span className="muted">Unknown</span>
-                            )}
-                          </td>
+                          <td>{a.claimed_agent ?? <Unknown />}</td>
                           <td>
                             {a.traffic_class ? (
                               <ClassName id={a.traffic_class} />
@@ -221,7 +249,7 @@ export function PageDetail({ id, href, open }: DetailProps) {
               )}
             </DetailSection>
             <DetailSection title="Sessions on this page">
-              <div className="detail-link-list">
+              <div className="dp-list">
                 {d.sessions.map((s) => (
                   <button
                     key={s.session_id}
@@ -229,7 +257,8 @@ export function PageDetail({ id, href, open }: DetailProps) {
                   >
                     <span>
                       {s.agent ?? s.class_name ?? "Unknown client"} ·{" "}
-                      {number(s.requests)} requests
+                      {number(s.requests)}{" "}
+                      {s.requests === 1 ? "request" : "requests"}
                     </span>
                     <ChevronRight size={13} />
                   </button>
@@ -240,7 +269,7 @@ export function PageDetail({ id, href, open }: DetailProps) {
               </div>
             </DetailSection>
             <DetailSection title="Related recommendations">
-              <div className="detail-link-list">
+              <div className="dp-list">
                 {d.recommendations.map((r) => (
                   <button
                     key={r.id}
@@ -265,13 +294,13 @@ export function PageDetail({ id, href, open }: DetailProps) {
                 )}
               </div>
             </DetailSection>
-            <Link className="detail-related-link" href={events()}>
-              Inspect requests for this page
-              <ArrowRight size={16} />
-            </Link>
-            <div className="outcome-panel">
-              <Label type="Unknown" />
+            <div className="dp-foot">
+              <Link className="btn-standard" href={events()}>
+                Inspect requests for this page
+                <ArrowRight size={14} />
+              </Link>
               <p>
+                <Label type="Unknown" />
                 Page content and task completion cannot be measured from request
                 logs.
               </p>

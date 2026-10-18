@@ -1,0 +1,124 @@
+@layer base {
+  * {
+    box-sizing: border-box;
+    border-color: var(--hairline);
+  }
+
+  html,
+  body {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--stone);
+    color: var(--body);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.5;
+    /* Instrument Sans has a 0.2em space. At 12–13px words run together. */
+    word-spacing: 0.06em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  button,
+  input,
+  select {
+    font: inherit;
+  }
+
+  button,
+  summary,
+  select {
+    cursor: pointer;
+  }
+
+  button {
+    color: inherit;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  button,
+  a,
+  input,
+  summary,
+  select {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--wash-focus);
+    outline-offset: 1px;
+  }
+
+  ::selection {
+    color: var(--ink);
+    background: var(--wash-focus);
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar) transparent;
+  }
+
+  input::placeholder {
+    color: var(--faint);
+    opacity: 1;
+  }
+
+  input[type="checkbox"] {
+    accent-color: var(--jade-deep);
+  }
+
+  code,
+  .mono {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  strong {
+    font-weight: 600;
+  }
+
+  h1,
+  h2,
+  h3,
+  p {
+    margin: 0;
+  }
+
+  svg {
+    flex-shrink: 0;
+    vertical-align: middle;
+  }
+
+  table,
+  td,
+  th {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .muted {
+    color: var(--grey);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
+}

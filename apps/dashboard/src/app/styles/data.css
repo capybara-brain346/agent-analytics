@@ -1,0 +1,311 @@
+/* Data screen: lane strip, operations tables, upload group, coverage, settings. */
+
+/* Lane strip: the metric strip with a live dot in each label */
+.lane-strip {
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+}
+
+.lane-link {
+  display: block;
+  transition: background var(--duration) var(--ease);
+}
+
+.lane-link:hover {
+  background: var(--row-hover);
+}
+
+.lane-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lane-dot {
+  width: 7px;
+  height: 7px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--neutral);
+}
+
+.lane-state {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.lane-cell[data-state="live"] .lane-dot {
+  background: var(--jade);
+  animation: live-pulse 1.8s ease-in-out infinite;
+}
+
+.lane-cell[data-state="live"] .lane-state {
+  color: var(--jade-deep);
+}
+
+.lane-cell[data-state="stale"] .lane-dot {
+  background: var(--warn-mark);
+}
+
+.lane-cell[data-state="stale"] .lane-state,
+.lane-cell[data-state="stale"] > strong {
+  color: var(--warn-text);
+}
+
+.lane-cell[data-state="late"] .lane-dot {
+  background: var(--fail);
+}
+
+.lane-cell[data-state="late"] .lane-state,
+.lane-cell[data-state="late"] > strong {
+  color: var(--fail);
+}
+
+/* Toolbar above a table */
+.toolbar-count {
+  color: var(--grey);
+  font-size: 13px;
+}
+
+.upload-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Operations table: 60px rows, identity -> status -> figure -> qualifier -> time -> chevron */
+.ops-table td {
+  height: 60px;
+}
+
+.ops-table th[data-col="status"],
+.ops-table td[data-col="status"],
+.ops-table th[data-col="qual"],
+.ops-table td[data-col="qual"] {
+  text-align: left;
+}
+
+.ops-table td[data-col="chev"],
+.ops-table th[data-col="chev"] {
+  width: 44px;
+  padding-left: 0;
+  color: var(--faint);
+  text-align: center;
+}
+
+.ops-table .row-click {
+  cursor: pointer;
+}
+
+.ops-table .row-click:hover td[data-col="chev"] {
+  color: var(--ink);
+}
+
+.row-identity {
+  display: block;
+  padding: 0;
+  text-align: left;
+}
+
+.row-identity strong,
+.ops-table td > strong {
+  display: block;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.ops-table .alert-sentence {
+  display: inline;
+  color: var(--warn-text);
+  font-family: var(--font-sans);
+  font-size: 14px;
+}
+
+.alert-meta {
+  padding-left: 15px;
+}
+
+.ops-table td.figure {
+  color: var(--ink);
+  font-size: 19px;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+}
+
+.ops-table td.figure small {
+  margin-left: 8px;
+  color: var(--grey);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.ops-table td.mono-time {
+  color: var(--body);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.ops-table .faint {
+  color: var(--faint);
+}
+
+/* Coverage and gaps */
+.coverage-figure {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 18px 14px;
+  border-bottom: 1px solid var(--seam);
+  color: var(--grey);
+  font-size: 13px;
+}
+
+.coverage-figure strong {
+  color: var(--ink);
+  font-size: 38px;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.square-rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.square-rows li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  padding: 0 18px;
+  border-bottom: 1px solid var(--seam);
+  font-size: 13px;
+}
+
+.square-rows li:last-child {
+  border-bottom: 0;
+}
+
+.square-rows .qualifier {
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.square-rows li > span {
+  color: var(--grey);
+}
+
+/* Settings: facts grid on hairline seams */
+.facts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0;
+  background: var(--hairline);
+}
+
+.facts-grid > div {
+  padding: 14px 18px 16px;
+  background: #fff;
+}
+
+.facts-grid dt {
+  color: var(--muted-text);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.facts-grid dd {
+  margin: 6px 0 0;
+  color: var(--ink);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.facts-grid dd.mono {
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+@media (max-width: 1000px) {
+  .ops-table [data-col="qual"] {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .ops-table [data-col="site"],
+  .ops-table [data-col="time"],
+  .ops-table [data-col="chev"] {
+    display: none;
+  }
+
+  .ops-table th,
+  .ops-table td {
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+
+  .ops-table td.figure small {
+    display: none;
+  }
+
+  .ops-table td .qualifier,
+  .ops-table .alert-meta {
+    white-space: normal;
+  }
+
+  .toolbar-count {
+    display: none;
+  }
+
+  .filter-toolbar .toolbar-end {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .upload-group {
+    width: 100%;
+  }
+
+  .upload-group .btn-primary {
+    flex: 1;
+  }
+
+  .facts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.square-rows .qualifier {
+  min-width: 0;
+  white-space: normal;
+}
+
+.square-rows li > span:last-child {
+  flex-shrink: 0;
+}
+
+.square-rows li > .qualifier {
+  flex-shrink: 1;
+}
+
+.square-rows li {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+/* Lane name in the Lanes table: a human label, so sans */
+.ops-table td > .lane-title {
+  font-family: var(--font-sans);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 500;
+}

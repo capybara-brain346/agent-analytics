@@ -1,0 +1,337 @@
+/* Overview: recommendations list, main + insight columns, class rows, coverage facts. */
+
+.ov-note {
+  white-space: nowrap;
+}
+
+.ov-metric:hover {
+  background: var(--row-hover);
+}
+
+/* Layout */
+
+.ov-main,
+.ov-side {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.ov-grid {
+  align-items: start;
+}
+
+/* Recommendations: ranked rows, whole row opens the detail */
+
+.ov-rec {
+  display: grid;
+  width: 100%;
+  min-height: 60px;
+  align-items: center;
+  grid-template-columns: 24px minmax(0, 1fr) 72px 120px 15px;
+  gap: 16px;
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--seam);
+  text-align: left;
+  transition: background var(--duration) var(--ease);
+}
+
+.ov-rec:last-child {
+  border-bottom: 0;
+}
+
+.ov-rec:hover {
+  background: var(--row-hover);
+}
+
+.ov-rec-rank {
+  color: var(--grey);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ov-rec-main {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ov-rec-target {
+  overflow: hidden;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ov-rec-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--grey);
+  font-size: 13px;
+}
+
+.ov-rec-score {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 6px;
+  color: var(--grey);
+  font-size: 13px;
+}
+
+.ov-rec-score strong {
+  color: var(--ink);
+  font-size: 19px;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums;
+}
+
+.ov-rec-conf {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.ov-chevron {
+  color: var(--faint);
+}
+
+/* Top pages */
+
+.ov-pages th:first-child,
+.ov-pages td:first-child {
+  width: 100%;
+}
+
+.ov-pages th .help-icon {
+  margin-left: 6px;
+}
+
+.ov-page-row {
+  cursor: pointer;
+}
+
+.ov-path {
+  max-width: 480px;
+  overflow: hidden;
+  border-radius: 4px;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ov-path:hover {
+  background: var(--wash);
+}
+
+.ov-figure .number-link,
+.ov-figure .number-static {
+  font-size: 19px;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+}
+
+.ov-denied {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ov-denied > i {
+  width: 7px;
+  height: 7px;
+  background: var(--fail);
+}
+
+.ov-denied .number-link {
+  color: var(--fail);
+}
+
+/* Traffic by class */
+
+.ov-dist {
+  display: flex;
+  height: 8px;
+  margin: 16px 18px 6px;
+  gap: 1px;
+  overflow: hidden;
+}
+
+.ov-dist a {
+  display: block;
+  min-width: 2px;
+}
+
+.ov-class-rows {
+  padding: 0 0 4px;
+}
+
+.ov-class-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 52px;
+  align-items: center;
+  column-gap: 12px;
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--seam);
+}
+
+.ov-class-row:last-child {
+  border-bottom: 0;
+}
+
+.ov-class-name {
+  justify-self: start;
+  border-radius: 4px;
+}
+
+.ov-class-name:hover {
+  background: var(--wash);
+}
+
+.ov-class-figure {
+  text-align: right;
+  font-size: 15px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.ov-class-share {
+  color: var(--grey);
+  font-size: 13px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.ov-class-conf {
+  display: flex;
+  grid-column: 1 / -1;
+  gap: 14px;
+  margin: 3px 0 0 15px;
+  color: var(--grey);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ov-class-conf .number-link {
+  color: var(--body);
+  font-weight: 400;
+}
+
+/* Coverage facts */
+
+.ov-facts > div {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 18px;
+  border-bottom: 1px solid var(--seam);
+  font-size: 13px;
+}
+
+.ov-facts dt {
+  color: var(--muted-text);
+}
+
+.ov-facts dd {
+  color: var(--ink);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.ov-fact-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 4px;
+  color: var(--warn-text);
+}
+
+.ov-fact-link::before {
+  width: 7px;
+  height: 7px;
+  background: var(--warn-mark);
+  content: "";
+}
+
+.ov-fact-link:hover {
+  background: var(--wash);
+}
+
+/* Responsive: drop low-priority columns */
+
+@media (max-width: 1100px) {
+  .ov-rec {
+    grid-template-columns: 24px minmax(0, 1fr) 72px 15px;
+  }
+
+  .ov-rec-conf {
+    display: none;
+  }
+
+  .ov-side {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+}
+
+@media (max-width: 720px) {
+  .ov-side {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ov-rec {
+    grid-template-columns: minmax(0, 1fr) 72px;
+    gap: 12px;
+    padding-inline: 14px;
+  }
+
+  .ov-rec-rank,
+  .ov-chevron {
+    display: none;
+  }
+
+  .ov-pages [data-col] {
+    display: none;
+  }
+
+  .ov-path {
+    max-width: 200px;
+  }
+
+  .ov-dist,
+  .ov-class-row,
+  .ov-facts > div,
+  .ov-dist {
+    margin-inline: 14px;
+    padding-inline: 0;
+  }
+}
+
+.ov-recs .empty-state {
+  padding-block: 28px;
+}
+
+.ov-panel .panel-heading h2,
+.ov-panel .panel-action {
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .ov-panel .panel-heading .evidence-label {
+    display: none;
+  }
+}

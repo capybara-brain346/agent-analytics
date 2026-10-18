@@ -1,0 +1,101 @@
+/* Data table: header 34px Stone, whole-row hover, seams, no zebra, no vertical rules. */
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--body);
+  font-size: 13px;
+  text-align: left;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+th {
+  height: 34px;
+  padding: 0 18px;
+  border-bottom: 1px solid var(--hairline);
+  background: var(--stone);
+  color: var(--grey);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+td {
+  height: 52px;
+  padding: 8px 18px;
+  border-bottom: 1px solid var(--seam);
+}
+
+tr:last-child td {
+  border-bottom: 0;
+}
+
+tbody tr {
+  transition: background var(--duration) var(--ease);
+}
+
+tbody tr:hover {
+  background: var(--row-hover);
+}
+
+/* Figures sit to the right of the identity column */
+
+th:not(:first-child),
+td:not(:first-child) {
+  text-align: right;
+}
+
+.table-subline {
+  display: block;
+  margin-top: 3px;
+  color: var(--grey);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.table-subline .status {
+  margin-left: 8px;
+}
+
+.table-subline .class-name {
+  font-family: var(--font-sans);
+  font-size: 13px;
+}
+
+.table-subline a:hover {
+  background: var(--wash);
+}
+
+.table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 18px;
+  border-top: 1px solid var(--hairline);
+  color: var(--grey);
+  font-size: 13px;
+}
+
+.row-chevron {
+  margin-left: 10px;
+  color: var(--faint);
+}
+
+.sort-arrow {
+  margin-left: 4px;
+  color: var(--ink);
+}
+
+@media (max-width: 1000px) {
+  .table-scroll {
+    overflow-x: auto;
+  }
+}

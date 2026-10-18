@@ -1,0 +1,75 @@
+/* Charts: jade marks, hairline grid, mono 12 grey axis. Series colours live in src/lib/classes.ts. */
+
+.traffic-chart {
+  padding: 16px 18px 0;
+}
+
+.traffic-chart > svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 176px;
+}
+
+.traffic-chart rect {
+  stroke: #fff;
+  stroke-width: 1px;
+}
+
+.traffic-chart a:hover rect {
+  opacity: 0.8;
+}
+
+.chart-axis {
+  fill: var(--grey);
+  font-family: var(--font-mono);
+}
+
+.chart-grid {
+  stroke: var(--hairline);
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  padding: 10px 0 16px;
+  color: var(--body);
+  font-size: 13px;
+}
+
+.chart-legend a,
+.chart-legend > span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border-radius: 4px;
+}
+
+.chart-legend a:hover {
+  background: var(--wash);
+}
+
+.chart-legend i {
+  width: 7px;
+  height: 7px;
+}
+
+.traffic-chart > .mobile-chart {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .traffic-chart {
+    padding: 12px 14px 0;
+  }
+
+  .traffic-chart > .desktop-chart {
+    display: none;
+  }
+
+  .traffic-chart > .mobile-chart {
+    display: block;
+    min-height: 180px;
+  }
+}

@@ -1,0 +1,21 @@
+/* Detail sheet: import. Figures, facts and notes come from detail-run.css. */
+.ops-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 12px 0;
+  padding: 12px 14px;
+  border: 1px solid var(--hairline);
+  background: var(--warn-tint);
+  color: var(--body);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.ops-warning > i {
+  width: 7px;
+  height: 7px;
+  margin-top: 6px;
+  flex-shrink: 0;
+  background: var(--warn-mark);
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Info } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { scopeFromQuery } from "@/lib/api/filters";
 import type { AgentRow } from "@/lib/api/types";
 import { useScopedApi } from "@/lib/api/use-api";
@@ -10,17 +10,15 @@ import {
   ClassName,
   Empty,
   Gap,
-  Label,
   LoadingState,
   NumberLink,
   Panel,
   SearchField,
   Select,
-  Status,
   TableFooter,
   Tip,
 } from "../shared";
-import { Props, option } from "./common";
+import type { Props } from "./common";
 
 // Names the API gives to clients without a bot name (for example "unknown:browser").
 export function agentTitle(a: Pick<AgentRow, "name" | "traffic_class">) {
@@ -37,12 +35,30 @@ export function agentSubtitle(a: AgentRow) {
     : a.verification_note;
 }
 
-const when = (iso: string | null) =>
-  iso ? (
-    <span className="mono muted">{dateTimeUTC(iso)}</span>
-  ) : (
-    <Gap>None</Gap>
+const VERIFICATION: Record<string, [string, string]> = {
+  VERIFIED: ["green", "Verified"],
+  CLAIMED: ["amber", "Claimed"],
+  UNVERIFIED: ["amber", "Unverified"],
+  SPOOFED: ["red", "Spoofed"],
+  UNKNOWN: ["neutral", "Unknown"],
+};
+
+// Sentence-case verification pill. Colour is never the only signal: the dot and the word stay.
+export function VerificationPill({ value }: { value: string | null }) {
+  const [tone, word] = (value && VERIFICATION[value]) || [
+    "neutral",
+    value ?? "Not checked",
+  ];
+  return (
+    <span className={`status ${tone}`}>
+      <span className="status-dot" />
+      {word}
+    </span>
   );
+}
+
+const when = (iso: string | null) =>
+  iso ? <span className="mono">{dateTimeUTC(iso)}</span> : <Gap>None</Gap>;
 
 export function Agents({ href, open, filters, setFilter, reset }: Props) {
   const search = filters.get("q") || "",
@@ -65,140 +81,130 @@ export function Agents({ href, open, filters, setFilter, reset }: Props) {
           label="Verification"
           value={verification}
           onChange={(v) => setFilter("verdict", v)}
-          options={option(
-            ["VERIFIED", "CLAIMED", "UNVERIFIED", "SPOOFED", "UNKNOWN"],
-            "All verification",
-          )}
+          options={[
+            { value: "", label: "All verification" },
+            ...Object.entries(VERIFICATION).map(([value, [, label]]) => ({
+              value,
+              label,
+            })),
+          ]}
         />
         <span className="toolbar-end">
           {state.data ? `${state.data.length} agent groups` : ""}
         </span>
       </div>
       <ApiGate state={state} skeleton={<LoadingState rows={6} />}>
-        {(list) => (
-          <>
-            <div className="inline-stats">
-              <span>
-                <strong>{number(list.length)}</strong> agent groups <Label />
-              </span>
-              <span>
-                <strong>
-                  {number(
-                    list.filter((a) => a.verification === "VERIFIED").length,
-                  )}
-                </strong>{" "}
-                verified identities
-              </span>
-              <span className="muted">
-                <Info size={13} />A user agent is a claim, not proof of
-                identity.
-              </span>
-            </div>
-            <Panel
-              title="Agent directory"
-              label="Observed"
-              action={
-                <Tip text="Verified means the source matched the vendor's published list. Other names are claims. Rows with the same name can differ by traffic class." />
-              }
-            >
-              {list.length ? (
-                <div className="table-scroll">
-                  <table className="agents-table">
-                    <thead>
-                      <tr>
-                        <th>Agent / client</th>
-                        <th>Traffic class</th>
-                        <th>Verification</th>
-                        <th>First seen</th>
-                        <th>Last seen</th>
-                        <th aria-sort="descending">Requests ↓</th>
-                        <th>Sessions</th>
-                        <th>Pages</th>
-                        <th>Common paths</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {list.map((a) => (
-                        <tr key={`${a.agent_id}|${a.traffic_class}`}>
-                          <td>
-                            <button
-                              className="agent-cell"
-                              onClick={() => open("agent", a.agent_id)}
-                            >
-                              <span>
-                                <strong>{agentTitle(a)}</strong>
-                                <small>{agentSubtitle(a)}</small>
-                              </span>
-                            </button>
-                          </td>
-                          <td>
-                            <ClassName id={a.traffic_class} />
-                          </td>
-                          <td>
-                            {a.verification ? (
-                              <Status value={a.verification} />
-                            ) : (
-                              <Gap>Not checked</Gap>
-                            )}
-                          </td>
-                          <td>{when(a.first_seen)}</td>
-                          <td>{when(a.last_seen)}</td>
-                          <td>
-                            <NumberLink
-                              value={a.requests}
-                              href={href("/events", { agent: a.agent_id })}
-                            />
-                          </td>
-                          <td>
-                            <NumberLink
-                              value={a.sessions}
-                              href={href("/sessions", { agent: a.agent_id })}
-                            />
-                          </td>
-                          <td>{number(a.distinct_pages)}</td>
-                          <td>
-                            {a.common_paths.length ? (
-                              <code>
-                                {a.common_paths.slice(0, 3).join(" ")}
-                              </code>
-                            ) : (
-                              <span className="muted">None</span>
-                            )}
-                          </td>
+        {(list) => {
+          const verified = list.filter((a) => a.verification === "VERIFIED");
+          const unproven = list.filter(
+            (a) => a.verification && a.verification !== "VERIFIED",
+          );
+          const requests = list.reduce((n, a) => n + a.requests, 0);
+          const stats: [string, number, string][] = [
+            ["Agent groups", list.length, "name and traffic class"],
+            ["Verified identities", verified.length, "matched a vendor list"],
+            ["Claims only", unproven.length, "not proven by evidence"],
+            ["Requests", requests, "across these groups"],
+          ];
+          return (
+            <>
+              <div className="metrics-strip agents-metrics">
+                {stats.map(([label, value, note]) => (
+                  <div className="metric-cell" key={label}>
+                    <div className="metric-label">{label}</div>
+                    <strong>{number(value)}</strong>
+                    <div className="metric-bottom">{note}</div>
+                  </div>
+                ))}
+              </div>
+              <Panel title="Agent directory">
+                {list.length ? (
+                  <div className="table-scroll">
+                    <table className="agents-table" aria-label="Agents">
+                      <thead>
+                        <tr>
+                          <th>Agent</th>
+                          <th>
+                            Verification
+                            <Tip text="Verified means the source matched the vendor's published list. Other names are claims. Rows with the same name can differ by traffic class." />
+                          </th>
+                          <th aria-sort="descending">Requests</th>
+                          <th data-band>Traffic class</th>
+                          <th data-time>Last seen</th>
+                          <th data-wide>Sessions</th>
+                          <th data-chev aria-label="Open" />
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {list.map((a) => (
+                          <tr
+                            key={`${a.agent_id}|${a.traffic_class}`}
+                            className="row-link"
+                            onClick={(e) =>
+                              !(e.target as HTMLElement).closest("a, button") &&
+                              open("agent", a.agent_id)
+                            }
+                          >
+                            <td>
+                              <button
+                                className="agent-identity"
+                                onClick={() => open("agent", a.agent_id)}
+                              >
+                                <strong>{agentTitle(a)}</strong>
+                                <small className="table-subline">
+                                  {agentSubtitle(a)}
+                                </small>
+                              </button>
+                            </td>
+                            <td>
+                              <VerificationPill value={a.verification} />
+                            </td>
+                            <td className="figure">
+                              <NumberLink
+                                value={a.requests}
+                                href={href("/events", { agent: a.agent_id })}
+                              />
+                            </td>
+                            <td data-band>
+                              <ClassName id={a.traffic_class} full />
+                            </td>
+                            <td data-time>{when(a.last_seen)}</td>
+                            <td data-wide>
+                              <NumberLink
+                                value={a.sessions}
+                                href={href("/sessions", { agent: a.agent_id })}
+                              />
+                            </td>
+                            <td data-chev>
+                              <ChevronRight size={14} />
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <Empty
+                    reset={reset}
+                    active={[
+                      search && `“${search}”`,
+                      verification,
+                      selected && `class ${selected}`,
+                    ].filter(Boolean)}
+                  />
+                )}
+                <TableFooter count={list.length} noun="agent groups" />
+                <div className="panel-footnote agents-note">
+                  <span>
+                    A user agent is a claim, not proof. Browser requests without
+                    an edge signal stay unknown.
+                  </span>
                 </div>
-              ) : (
-                <Empty
-                  reset={reset}
-                  active={[
-                    search && `“${search}”`,
-                    verification,
-                    selected && `class ${selected}`,
-                  ].filter(Boolean)}
-                />
-              )}
-              <TableFooter count={list.length} noun="agent groups" />
-            </Panel>
-          </>
-        )}
+              </Panel>
+            </>
+          );
+        }}
       </ApiGate>
-      <div className="notice">
-        <Info size={15} />
-        <div>
-          <strong>Some traffic cannot be identified.</strong>
-          <p>
-            Browser requests without an edge signal remain Unknown. A shared IP
-            can include more than one agent.
-          </p>
-        </div>
-        <button className="text-link" onClick={() => open("legend", "labels")}>
-          Read the label guide
-          <ArrowRight size={13} />
-        </button>
-      </div>
     </>
   );
 }

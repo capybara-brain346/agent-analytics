@@ -1,0 +1,204 @@
+/* Detail sheet: page. Section-specific rules only; shared detail chrome lives in detail.css. */
+
+/* Facts grid: 1px hairline gaps, same shape as the metric strip */
+.dp-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  border: 1px solid var(--hairline);
+  background: var(--hairline);
+}
+
+.dp-facts > :last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+
+.dp-facts-3 > :last-child:nth-child(odd) {
+  grid-column: auto;
+}
+
+.dp-facts-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.dp-fact {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 12px 14px 14px;
+  background: #fff;
+  color: var(--muted-text);
+  font-size: 13px;
+  font-weight: 500;
+  transition: background var(--duration) var(--ease);
+}
+
+a.dp-fact:hover {
+  background: var(--row-hover);
+}
+
+.dp-fact strong {
+  color: var(--ink);
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+.dp-fact strong .number-link {
+  color: inherit;
+  font-size: inherit;
+}
+
+/* Tables and lists inside the sheet */
+.dp-table {
+  overflow-x: auto;
+  border: 1px solid var(--hairline);
+}
+
+.dp-table td {
+  height: 44px;
+  padding: 6px 14px;
+}
+
+.dp-table th {
+  padding: 0 10px;
+  letter-spacing: 0.04em;
+}
+
+.dp-table td {
+  padding-right: 10px;
+  padding-left: 10px;
+}
+
+.dp-list {
+  border: 1px solid var(--hairline);
+}
+
+.dp-list > button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--seam);
+  color: var(--body);
+  font-size: 13px;
+  text-align: left;
+  transition: background var(--duration) var(--ease);
+}
+
+.dp-list > button:last-child {
+  border-bottom: 0;
+}
+
+.dp-list > button:hover {
+  background: var(--row-hover);
+}
+
+.dp-list > button > span:first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.dp-list > button > svg {
+  flex-shrink: 0;
+  margin-left: auto;
+  color: var(--faint);
+}
+
+.dp-list > p {
+  padding: 12px 14px;
+  color: var(--grey);
+}
+
+/* Over time bars: square, jade, fail where the hour had errors */
+.dp-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 1px;
+  height: 64px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.dp-bars > span {
+  display: flex;
+  flex: 1;
+  flex-direction: column-reverse;
+  max-width: 28px;
+  min-width: 1px;
+  background: var(--jade);
+}
+
+.dp-bars > span > i {
+  display: block;
+  background: var(--fail);
+}
+
+.dp-bars-key > i.has-errors {
+  background: var(--fail);
+}
+
+.dp-bars-axis {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+  color: var(--grey);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.dp-bars-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+}
+
+.dp-bars-key > i {
+  width: 7px;
+  height: 7px;
+  background: var(--jade);
+}
+
+.dp-bars-key > i + i {
+  margin-left: 8px;
+}
+
+/* Sitemap qualifier square: pass when listed */
+.detail-chips .qualifier > i.ok {
+  background: var(--pass);
+}
+
+/* Foot: one action and one grey line */
+.dp-foot {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--hairline);
+}
+
+.dp-foot > p {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--grey);
+  font-size: 13px;
+}
+
+.dp-foot .btn-standard {
+  gap: 8px;
+}
+
+.dp-foot .btn-standard,
+.dp-foot .btn-standard:hover {
+  text-decoration: none;
+}

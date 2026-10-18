@@ -19,10 +19,10 @@ This delivery is a complete frontend with fixed mock data. It has no API, import
 Keep the six sections from dashboard.md. Label evidence Observed, Inferred, or Unknown. Identity claims remain unverified until verified. HTTP 200 does not prove task completion.
 
 ## Brand Commitments
-Use the supplied three dark observability UI references: dense tables, compact charts, thin rules, and restrained color.
+Use the Webzero product console layer: a light interface with Stone workspace, hairline rules, dense tables, compact charts, and jade only for marks and the main action. See `DESIGN.md`.
 
 ## Evidence on Hand
-dashboard.md and mvp-flows.md contain the product requirements. Three user-supplied reference images contain the visual direction. All displayed traffic records are synthetic.
+dashboard.md and mvp-flows.md contain the product requirements. `DESIGN.md` holds the visual direction. All displayed traffic records are synthetic.
 
 ## Product Principles
 - Show evidence and its limits together.
@@ -31,4 +31,4 @@ dashboard.md and mvp-flows.md contain the product requirements. Three user-suppl
 - Do not claim task completion from logs.
 
 ## Sample Workspace
-Use the generic name Agent Analytics and example.com, as requested. Build directly from the supplied references.
+Use the generic name Agent Analytics and example.com, as requested. Follow `DESIGN.md`.

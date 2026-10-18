@@ -1,0 +1,139 @@
+/* Detail sheet: agent. Section-specific rules only; shared detail chrome lives in detail.css. */
+.agent-head {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.agent-head-name {
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.agent-head-meta {
+  margin: 0;
+  color: var(--grey);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.agent-head-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+}
+
+.agent-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 56px;
+  margin-top: 14px;
+  padding-bottom: 1px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.agent-bars > i {
+  flex: 1 1 0;
+  min-width: 2px;
+  max-width: 24px;
+  background: var(--jade);
+}
+
+.agent-bars-caption {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  color: var(--grey);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.agent-rows {
+  margin-top: 14px;
+  border: 1px solid var(--hairline);
+}
+
+.agent-rows > a,
+.agent-rows > button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--seam);
+  color: var(--body);
+  font-size: 13px;
+  text-align: left;
+  transition: background var(--duration) var(--ease);
+}
+
+.agent-rows > *:last-child {
+  border-bottom: 0;
+}
+
+.agent-rows > a:hover,
+.agent-rows > button:hover {
+  background: var(--row-hover);
+}
+
+.agent-rows code {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 13px;
+  text-overflow: ellipsis;
+}
+
+.agent-rows span {
+  color: var(--grey);
+  font-variant-numeric: tabular-nums;
+}
+
+.agent-rows svg {
+  flex-shrink: 0;
+  margin-left: 0;
+  color: var(--faint);
+}
+
+.agent-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  border: 1px solid var(--hairline);
+  background: var(--hairline);
+}
+
+.agent-facts > a,
+.agent-facts > div {
+  padding: 12px 14px;
+  background: #fff;
+  color: var(--muted-text);
+  font-size: 13px;
+}
+
+.agent-facts strong {
+  display: block;
+  color: var(--ink);
+  font-size: 23px;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.agent-facts > a:hover {
+  background: var(--row-hover);
+}
+
+.agent-rows + .text-link {
+  margin-top: 10px;
+}

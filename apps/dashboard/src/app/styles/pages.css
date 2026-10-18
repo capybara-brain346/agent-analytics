@@ -1,0 +1,272 @@
+/* Pages & journeys. Section-specific rules only. */
+
+.pages-hint {
+  color: var(--grey);
+  font-size: 13px;
+}
+
+.pages-hint .text-link {
+  display: inline;
+  padding: 0;
+}
+
+.unknown-dash {
+  color: var(--faint);
+}
+
+/* Pages table */
+.pages-table tbody tr {
+  cursor: pointer;
+}
+
+.pages-table td:first-child {
+  min-width: 200px;
+}
+
+.pages-table .path-link {
+  display: inline-block;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.pages-table .table-subline .page-tag {
+  margin: 0 6px 0 0;
+  line-height: 18px;
+}
+
+.pages-table td.figure,
+.pages-table td.figure .number-link,
+.pages-table td.figure .number-static {
+  color: var(--ink);
+  font-size: 19px;
+  font-weight: 500;
+}
+
+.pages-table td.figure .number-static {
+  color: var(--grey);
+}
+
+.pages-table th[data-col="status"],
+.pages-table td[data-col="status"] {
+  padding-left: 8px;
+  text-align: left;
+}
+
+.pages-table .qualifier {
+  justify-content: flex-end;
+}
+
+.pages-table .qualifier .number-static {
+  color: var(--grey);
+}
+
+.pages-table [data-col="open"] {
+  width: 40px;
+  padding-left: 0;
+}
+
+.pages-table .row-chevron {
+  margin: 0;
+  vertical-align: middle;
+}
+
+.pages-table [data-col="bytes"] {
+  color: var(--grey);
+}
+
+@media (max-width: 1180px) {
+  .pages-table [data-col="sessions"],
+  .pages-table [data-col="agents"],
+  .pages-table [data-col="retries"],
+  .pages-table [data-col="bytes"] {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .pages-table [data-col="errors"],
+  .pages-table [data-col="blocks"],
+  .pages-table [data-col="open"] {
+    display: none;
+  }
+
+  .pages-table td:first-child {
+    min-width: 0;
+  }
+
+  .pages-table th {
+    height: 40px;
+    line-height: 1.25;
+    white-space: normal;
+  }
+
+  .pages-table th,
+  .pages-table td {
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+
+  .pages-table th:nth-child(3) {
+    width: 76px;
+  }
+}
+
+/* Journeys */
+.journey-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.journey-list .panel-action {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.journey-steps {
+  margin: 0;
+  padding: 6px 0;
+  list-style: none;
+}
+
+.journey-step {
+  display: grid;
+  grid-template-columns: 22px minmax(150px, 260px) minmax(80px, 1fr) 72px 120px;
+  align-items: center;
+  gap: 18px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--seam);
+}
+
+.journey-step:last-child {
+  border-bottom: 0;
+}
+
+.step-index {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border-radius: 4px;
+  background: var(--wash);
+  color: var(--body);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.step-id {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.step-path {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+}
+
+.step-sub {
+  color: var(--grey);
+  font-size: 13px;
+}
+
+.step-bar {
+  display: block;
+  height: 7px;
+  background: var(--track);
+}
+
+.step-bar > i {
+  display: block;
+  height: 100%;
+  background: var(--jade);
+}
+
+.step-bar > i.warn {
+  background: var(--warn-mark);
+}
+
+.step-bar > i.fail {
+  background: var(--fail);
+}
+
+.step-figure {
+  color: var(--ink);
+  font-size: 19px;
+  font-weight: 500;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.step-figure .number-static {
+  color: var(--grey);
+}
+
+.step-drop {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.step-note {
+  color: var(--grey);
+  font-size: 13px;
+}
+
+.journey-classes {
+  border-top: 1px solid var(--hairline);
+}
+
+.journey-foot {
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.journey-outcome {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (max-width: 1000px) {
+  .journey-step {
+    grid-template-columns: 22px minmax(0, 1fr) 72px 120px;
+    row-gap: 10px;
+  }
+
+  .step-bar {
+    grid-column: 2 / -1;
+    grid-row: 2;
+  }
+}
+
+@media (max-width: 720px) {
+  .journey-step {
+    grid-template-columns: 22px minmax(0, 1fr) auto;
+    gap: 10px 12px;
+    padding: 12px 14px;
+  }
+
+  .step-drop {
+    grid-column: 2 / -1;
+    grid-row: 3;
+    justify-content: flex-start;
+  }
+
+  .step-figure {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  .step-bar {
+    grid-row: 2;
+  }
+}

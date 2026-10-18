@@ -1,7 +1,13 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { ArrowLeft, ArrowRight, ArrowUpRight, Info } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  ArrowUpRight,
+  ChevronRight,
+  Info,
+} from "lucide-react";
 import { useApi } from "@/lib/api/use-api";
 import type {
   EventDetail as EventData,
@@ -12,19 +18,16 @@ import {
   ApiGate,
   ClassName,
   Confidence,
-  Gap,
   LoadingState,
-  Status,
   TextLink,
 } from "../shared";
-import { DetailSection, Fields, DetailProps } from "./common";
+import { HttpPill, VerdictPill } from "../sections/activity/cells";
+import { DetailSection, DetailProps } from "./common";
+import { sourceLabel } from "../sections/activity/config";
+import { Dash, Facts, Note } from "./facts";
 
 const text = (v: string | number | null | undefined, unit = "") =>
-  v === null || v === undefined || v === "" ? (
-    <Gap>Not recorded</Gap>
-  ) : (
-    `${v}${unit}`
-  );
+  v === null || v === undefined || v === "" ? <Dash /> : `${v}${unit}`;
 
 function SessionNav({
   sessionId,
@@ -42,29 +45,31 @@ function SessionNav({
   const site = useSearchParams().get("site") || undefined;
   const state = useApi<SessionData>(
     `sessions/${encodeURIComponent(sessionId)}`,
-    {
-      site,
-    },
+    { site },
   );
   const steps = state.data?.steps ?? [];
   const at = steps.findIndex((s) => s.event_id === eventId);
   const prev = at > 0 ? steps[at - 1] : undefined;
   const next = at >= 0 ? steps[at + 1] : undefined;
+
   return (
     <>
-      <button
-        className="detail-related-link"
-        onClick={() => open("session", sessionId)}
-      >
-        <span>
-          <code>{sessionId}</code>
-          <small>
-            Request {position} of {of}
-          </small>
-        </span>
-        <ArrowRight size={16} />
-      </button>
-      <div className="sibling-nav">
+      <div className="detail-rows">
+        <button
+          className="detail-row"
+          onClick={() => open("session", sessionId)}
+        >
+          <span className="detail-row-main">
+            <strong>{sessionId}</strong>
+            <span className="sans">
+              Request {position} of {of}
+            </span>
+          </span>
+          <ChevronRight size={14} />
+        </button>
+      </div>
+
+      <div className="sibling-buttons">
         <button
           disabled={!prev}
           onClick={() => prev && open("event", String(prev.event_id))}
@@ -87,6 +92,7 @@ function SessionNav({
 export function EventDetail({ id, open }: DetailProps) {
   const site = useSearchParams().get("site") || undefined;
   const state = useApi<EventData>(`events/${encodeURIComponent(id)}`, { site });
+
   return (
     <ApiGate state={state} skeleton={<LoadingState rows={8} />}>
       {(e) => {
@@ -94,38 +100,34 @@ export function EventDetail({ id, open }: DetailProps) {
           s = e.source,
           v = e.verdict,
           c = e.classification;
+
         return (
           <>
-            <div className="request-heading">
+            <div className="event-head">
               <span className="method">{r.method ?? "—"}</span>
               <code>{r.path}</code>
-              {r.status !== null && (
-                <span
-                  className={`http-code ${r.status >= 400 ? "error" : "ok"}`}
-                >
-                  {r.status}
-                </span>
-              )}
+              <HttpPill code={r.status} />
             </div>
+            <p className="event-sub">{dateTimeUTC(r.ts)} UTC</p>
+
             <DetailSection title="Request" label={capitalize(e.request_label)}>
-              <Fields
+              <Facts
                 items={[
-                  ["Time", `${dateTimeUTC(r.ts)} UTC`],
                   ["Host", text(r.host)],
-                  ["Response", text(r.status)],
                   ["Response time", text(r.response_time_ms, " ms")],
-                  ["Bytes", text(r.bytes_sent)],
+                  ["Bytes sent", text(r.bytes_sent)],
                   ["Referrer", text(r.referrer)],
-                  ["User agent", text(r.user_agent)],
                   ["Client IP", text(r.client_ip)],
                   ["Client key", text(r.client_key)],
+                  ["User agent", text(r.user_agent)],
                 ]}
               />
             </DetailSection>
+
             <DetailSection title="Source" label="Observed">
-              <Fields
+              <Facts
                 items={[
-                  ["Record type", `${capitalize(s.source)} · ${s.pair_state}`],
+                  ["Record type", `${sourceLabel(s.source)} · ${s.pair_state}`],
                   [
                     "CDN / origin status",
                     `${s.edge_status ?? "not seen"} / ${s.origin_status ?? "not seen"}`,
@@ -140,30 +142,35 @@ export function EventDetail({ id, open }: DetailProps) {
                         {e.import_file.id}
                       </TextLink>
                     ) : (
-                      <Gap>Not recorded</Gap>
+                      <Dash />
                     ),
                   ],
                   [
-                    "File / line",
-                    s.line_no !== null
-                      ? `${e.import_file?.object_key ?? s.file_id ?? "file"} · line ${s.line_no}`
-                      : text(null),
+                    "CDN bypass",
+                    s.cdn_bypass === null ? (
+                      <Dash />
+                    ) : s.cdn_bypass ? (
+                      "Yes"
+                    ) : (
+                      "No"
+                    ),
                   ],
                   ["Request ID", text(s.request_id ?? s.edge_request_id)],
                   [
-                    "CDN bypass",
-                    s.cdn_bypass === null
-                      ? text(null)
-                      : s.cdn_bypass
-                        ? "Yes"
-                        : "No",
+                    "File / line",
+                    s.line_no !== null ? (
+                      `${e.import_file?.object_key ?? s.file_id ?? "file"} · line ${s.line_no}`
+                    ) : (
+                      <Dash />
+                    ),
                   ],
                 ]}
               />
             </DetailSection>
-            <DetailSection title="Identity & classification" label="Inferred">
+
+            <DetailSection title="Identity and classification" label="Inferred">
               {v ? (
-                <Fields
+                <Facts
                   items={[
                     [
                       "Identity",
@@ -173,19 +180,17 @@ export function EventDetail({ id, open }: DetailProps) {
                           ? `Claims to be ${v.claimed_agent}, unverified`
                           : "No agent name in the request",
                     ],
-                    ["Verdict", <Status key="verdict" value={v.verdict} />],
-                    ["Method", v.method],
-                    ["Evidence", text(v.evidence)],
                     [
-                      "Registry / IP list",
-                      `${v.registry_version ?? "unknown"} / ${v.ip_snapshot_version ?? "none"} · checked ${dateTimeUTC(v.checked_at)}`,
+                      "Verdict",
+                      <VerdictPill key="verdict" verdict={v.verdict} />,
                     ],
+                    ["Method", v.method],
                     [
                       "Class",
                       c ? (
                         <ClassName key="class" id={c.traffic_class} full />
                       ) : (
-                        <Gap>Not classified</Gap>
+                        <Dash why="Not classified" />
                       ),
                     ],
                     [
@@ -196,7 +201,7 @@ export function EventDetail({ id, open }: DetailProps) {
                           value={capitalize(c.confidence)}
                         />
                       ) : (
-                        text(null)
+                        <Dash />
                       ),
                     ],
                     ...(c
@@ -205,13 +210,22 @@ export function EventDetail({ id, open }: DetailProps) {
                             "Rule",
                             `${c.rule_id ?? "unknown"} v${c.rule_version ?? "?"}`,
                           ],
+                        ] as [string, React.ReactNode][])
+                      : []),
+                    ["Evidence", text(v.evidence)],
+                    ...(c
+                      ? ([
+                          ["Class evidence", text(c.evidence)],
                           [
                             "Inputs",
                             `verdict ${c.inputs.verdict ?? "none"} · category ${c.inputs.registry_category ?? "none"} · UA type ${c.inputs.ua_type ?? "none"} · edge signal ${c.inputs.edge_signal ?? "none"}`,
                           ],
-                          ["Class evidence", text(c.evidence)],
                         ] as [string, React.ReactNode][])
                       : []),
+                    [
+                      "Registry / IP list",
+                      `${v.registry_version ?? "unknown"} / ${v.ip_snapshot_version ?? "none"} · checked ${dateTimeUTC(v.checked_at)}`,
+                    ],
                     [
                       "Verdict row",
                       v.claimed_agent ? (
@@ -229,9 +243,10 @@ export function EventDetail({ id, open }: DetailProps) {
                   ]}
                 />
               ) : (
-                <Gap>No verdict for this request yet.</Gap>
+                <p className="detail-empty">No verdict for this request yet.</p>
               )}
             </DetailSection>
+
             <DetailSection title="Session">
               {e.session ? (
                 <SessionNav
@@ -242,36 +257,43 @@ export function EventDetail({ id, open }: DetailProps) {
                   open={open}
                 />
               ) : (
-                <Gap>This request is not part of a session.</Gap>
+                <p className="detail-empty">
+                  This request is not part of a session.
+                </p>
               )}
             </DetailSection>
+
             <DetailSection title="Recommendations">
               {e.recommendations.length ? (
-                <ul className="plain-list">
+                <div className="detail-rows">
                   {e.recommendations.map((rec) => (
-                    <li key={rec.id}>
-                      <TextLink
-                        onClick={() => open("recommendation", String(rec.id))}
-                      >
-                        {rec.target} · {rec.pattern} · score {rec.score}
-                      </TextLink>
-                    </li>
+                    <button
+                      key={rec.id}
+                      className="detail-row"
+                      onClick={() => open("recommendation", String(rec.id))}
+                    >
+                      <span className="detail-row-main">
+                        <span className="sans">{rec.target}</span>
+                        <span>
+                          {rec.pattern} · score {rec.score}
+                        </span>
+                      </span>
+                      <ChevronRight size={14} />
+                    </button>
                   ))}
-                </ul>
+                </div>
               ) : (
-                <p className="muted">
+                <p className="detail-empty">
                   No recommendation uses this request as evidence.
                 </p>
               )}
             </DetailSection>
-            <div className="detail-notice">
-              <Info size={14} />
-              <p>
-                {r.status !== null && r.status < 400
-                  ? "The status code is observed. It does not prove that the task was completed."
-                  : "This status is observed. Its effect on the agent’s task is unknown."}
-              </p>
-            </div>
+
+            <Note label={<Info size={14} />}>
+              {r.status !== null && r.status < 400
+                ? "The status code is observed. It does not prove that the task was completed."
+                : "This status is observed. Its effect on the agent’s task is unknown."}
+            </Note>
           </>
         );
       }}

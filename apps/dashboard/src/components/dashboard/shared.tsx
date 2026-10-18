@@ -6,7 +6,6 @@ import {
   ChevronDown,
   CircleAlert,
   CircleHelp,
-  Database,
   Filter,
   Search,
   X,
@@ -18,6 +17,8 @@ import { classMeta as classes, classOf } from "@/lib/classes";
 import { number } from "@/lib/format";
 import type { ApiState } from "@/lib/api/use-api";
 import type { KeyboardEvent, ReactNode } from "react";
+
+const WIDE_SEGMENTED = 4;
 
 export type Href = (path: string, filters?: Record<string, string>) => string;
 export type OpenDetail = (type: string, id: string) => void;
@@ -55,6 +56,13 @@ export function Tip({
     </Popover.Root>
   );
 }
+// The API sends verdicts in upper case. Console labels are sentence case.
+function sentenceCase(value: string) {
+  return value === value.toUpperCase()
+    ? value.charAt(0) + value.slice(1).toLowerCase()
+    : value;
+}
+
 export function Status({ value }: { value: string }) {
   const tone = ["VERIFIED", "Complete", "Healthy", "High"].includes(value)
     ? "green"
@@ -68,7 +76,7 @@ export function Status({ value }: { value: string }) {
   return (
     <Badge variant="outline" className={`status ${tone}`}>
       <span className="status-dot" />
-      {value}
+      {sentenceCase(value)}
     </Badge>
   );
 }
@@ -307,9 +315,11 @@ export function Segmented({
       .querySelectorAll<HTMLButtonElement>("button")
       [next]?.focus();
   }
-  return (
+  // Many options do not fit on a phone, so a select takes over there.
+  const wide = options.length > WIDE_SEGMENTED;
+  const group = (
     <div
-      className="segmented"
+      className={wide ? "segmented segmented-wide" : "segmented"}
       role="radiogroup"
       aria-label={label}
       onKeyDown={key}
@@ -331,6 +341,23 @@ export function Segmented({
         );
       })}
     </div>
+  );
+  if (!wide) return group;
+  return (
+    <>
+      {group}
+      <span className="segmented-select">
+        <Select
+          label={label}
+          value={value}
+          onChange={onChange}
+          options={options.map((o) => ({
+            value: o.value,
+            label: o.count === undefined ? o.label : `${o.label} (${o.count})`,
+          }))}
+        />
+      </span>
+    </>
   );
 }
 export function SearchField({
@@ -368,8 +395,6 @@ export function Empty({
 }) {
   return (
     <div className="empty-state" role="status">
-      <Search size={24} />
-      <h3>No matching records</h3>
       <p>
         {active.length
           ? `No records match ${active.join(" · ")}.`
@@ -447,9 +472,10 @@ export function NoData({
 }) {
   return (
     <div className="empty-state" role="status">
-      <Database size={24} />
-      <h3>{title}</h3>
-      {children && <p>{children}</p>}
+      <p>
+        <strong>{title}.</strong>
+        {children && <> {children}</>}
+      </p>
       {action}
     </div>
   );

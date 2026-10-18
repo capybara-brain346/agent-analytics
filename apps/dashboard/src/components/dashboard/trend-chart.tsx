@@ -87,15 +87,14 @@ export function TrendChart({
                     x2={width - 6}
                     y1={y}
                     y2={y}
-                    stroke="#323239"
-                    strokeDasharray="2 4"
+                    className="chart-grid"
                   />
                   <text
                     x="31"
                     y={y + 4}
                     textAnchor="end"
-                    fill="#a6a6b4"
-                    fontSize={mobile ? 12 : 10}
+                    className="chart-axis"
+                    fontSize={12}
                   >
                     {axis((top * (3 - i)) / 3)}
                   </text>
@@ -120,7 +119,6 @@ export function TrendChart({
                         width={barWidth}
                         height={h}
                         fill={meta(k).color}
-                        opacity=".9"
                       >
                         <title>{`${meta(k).name} · ${label(p)} UTC · ${number(n)} requests`}</title>
                       </rect>
@@ -136,8 +134,8 @@ export function TrendChart({
                   key={i}
                   x={43 + at * slot + slot / 2}
                   y={height - 4}
-                  fill="#a6a6b4"
-                  fontSize={mobile ? 12 : 10}
+                  className="chart-axis"
+                  fontSize={12}
                   textAnchor={
                     i === 0 ? "start" : i === tickCount ? "end" : "middle"
                   }

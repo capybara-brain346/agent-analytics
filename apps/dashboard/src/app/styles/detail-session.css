@@ -1,0 +1,84 @@
+/* Detail sheet: session. Metric strip; facts, rows and notes are shared with detail-event.css. */
+.session-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  margin-bottom: 10px;
+  border: 1px solid var(--hairline);
+  background: var(--hairline);
+}
+
+.session-metrics > a,
+.session-metrics > div {
+  padding: 12px 14px 13px;
+  background: var(--background);
+  color: var(--muted-text);
+  font-size: 13px;
+  font-weight: 500;
+  transition: background var(--duration) var(--ease);
+}
+
+.session-metrics > a:hover {
+  background: var(--row-hover);
+}
+
+.session-metrics strong {
+  display: block;
+  color: var(--ink);
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+.outcome-note {
+  margin: 18px 0;
+  padding: 12px 14px;
+  border: 1px solid var(--hairline);
+  background: var(--stone);
+}
+
+.outcome-note strong {
+  display: block;
+  margin: 8px 0 4px;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.outcome-note p {
+  margin: 0;
+  color: var(--body);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.outcome-note .gap-list {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--hairline);
+}
+
+.gap-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--body);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.gap-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.gap-list .evidence-label {
+  margin-top: 2px;
+  flex-shrink: 0;
+}

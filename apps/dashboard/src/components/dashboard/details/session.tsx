@@ -6,16 +6,10 @@ import { ArrowUpRight, ChevronRight } from "lucide-react";
 import { useApi } from "@/lib/api/use-api";
 import type { SessionDetail as SessionData } from "@/lib/api/types";
 import { capitalize, dateTimeUTC, number } from "@/lib/format";
-import {
-  ApiGate,
-  ClassName,
-  Confidence,
-  Gap,
-  Label,
-  LoadingState,
-  Status,
-} from "../shared";
-import { DetailSection, Fields, DetailProps } from "./common";
+import { ApiGate, ClassName, Confidence, Label, LoadingState } from "../shared";
+import { HttpPill, Pill } from "../sections/activity/cells";
+import { DetailSection, DetailProps } from "./common";
+import { Dash, Facts, Note } from "./facts";
 
 const flagNames: Record<string, string> = {
   retry: "Retry",
@@ -24,20 +18,32 @@ const flagNames: Record<string, string> = {
   conversion_page: "Conversion page",
 };
 
+// The outcome block already states this gap.
+const outcomeGap = /outcome|task completion|completed/i;
+
+// The API text always says "These N requests". Singular needs its own wording.
+const groupingText = (text: string, requests: number) =>
+  requests === 1
+    ? text.replace(/^These 1 requests likely form/, "This request likely forms")
+    : text;
+
 export function SessionDetail({ id, href, open }: DetailProps) {
   const site = useSearchParams().get("site") || undefined;
   const state = useApi<SessionData>(`sessions/${encodeURIComponent(id)}`, {
     site,
   });
+
   return (
     <ApiGate state={state} skeleton={<LoadingState rows={8} />}>
       {(d) => {
         const s = d.session,
           f = d.facts;
         const journeys = Object.entries(f.journeys_reached);
+        const gaps = d.gaps.filter((g) => !outcomeGap.test(g.text));
+
         return (
           <>
-            <div className="detail-chips">
+            <div className="detail-links">
               {s.agent ? (
                 <button
                   className="text-link"
@@ -50,40 +56,41 @@ export function SessionDetail({ id, href, open }: DetailProps) {
                 <span className="muted">No agent name</span>
               )}
               {s.traffic_class && <ClassName id={s.traffic_class} />}
-              <Status value={s.in_progress ? "In progress" : "Closed"} />
+              <Pill tone={s.in_progress ? "green" : "neutral"}>
+                {s.in_progress ? "In progress" : "Closed"}
+              </Pill>
             </div>
+
             <DetailSection
               title="Session summary"
               label={capitalize(d.facts_label)}
             >
-              <div className="detail-metrics">
+              <div className="session-metrics">
                 <Link href={href("/events", { session: s.session_id })}>
-                  <strong>{number(f.requests)}</strong>requests
+                  <strong>{number(f.requests)}</strong>Requests
                 </Link>
                 <div>
-                  <strong>{number(f.distinct_pages)}</strong>distinct pages
+                  <strong>{number(f.distinct_pages)}</strong>Distinct pages
                 </div>
                 <div>
-                  <strong>{f.key_pages_visited}</strong>key pages visited
+                  <strong>{f.key_pages_visited}</strong>Key pages visited
                 </div>
               </div>
-              <Fields
+
+              <Facts
                 items={[
                   ["Started", `${dateTimeUTC(s.started)} UTC`],
                   ["Last seen", `${dateTimeUTC(s.last_seen)} UTC`],
-                  ["State", f.state],
+                  ["State", capitalize(f.state)],
                   [
                     "Confidence",
                     s.confidence ? (
                       <Confidence key="c" value={capitalize(s.confidence)} />
                     ) : (
-                      <Gap>Not recorded</Gap>
+                      <Dash />
                     ),
                   ],
-                  [
-                    "Confidence reason",
-                    d.confidence_reason.text ?? <Gap>Not recorded</Gap>,
-                  ],
+                  ["Confidence reason", d.confidence_reason.text ?? <Dash />],
                   [
                     "Status counts",
                     Object.entries(f.status_counts)
@@ -95,91 +102,91 @@ export function SessionDetail({ id, href, open }: DetailProps) {
                     `${f.has_retry ? `Retry detected (${f.retries})` : "No retry"} · ${f.has_loop ? "Loop detected" : "No loop"}`,
                   ],
                   [
+                    "Conversion page",
+                    f.reached_conversion ? "Reached" : "Not reached",
+                  ],
+                  [
                     "Journey steps reached",
                     journeys.length
                       ? journeys.map(([j, n]) => `${j}: step ${n}`).join(" · ")
                       : "No journey step",
                   ],
-                  [
-                    "Conversion page",
-                    f.reached_conversion ? "Reached" : "Not reached",
-                  ],
                 ]}
               />
             </DetailSection>
-            <div className="detail-notice">
-              <Label type={capitalize(d.grouping.label)} />
-              <p>{d.grouping.text}</p>
-            </div>
+
+            <Note label={<Label type={capitalize(d.grouping.label)} />}>
+              {groupingText(d.grouping.text ?? "", f.requests)}
+            </Note>
+
             <DetailSection title="Request sequence" label="Observed">
-              <div className="request-sequence">
+              <div className="detail-rows">
                 {d.steps.map((e) => (
                   <button
                     key={e.event_id}
+                    className="detail-row"
                     onClick={() => open("event", String(e.event_id))}
                   >
-                    <span className="sequence-number">{e.seq}</span>
-                    <span className="sequence-main">
+                    <span className="seq-num">{e.seq}</span>
+                    <span className="detail-row-main">
                       <code>{e.path}</code>
-                      <small>
+                      <span>
                         {dateTimeUTC(e.ts)} ·{" "}
                         {e.delta_seconds === null
-                          ? "First request"
+                          ? "first request"
                           : `+${Math.round(e.delta_seconds)} s`}
                         {e.flags.length
-                          ? ` · ${e.flags.map((x) => flagNames[x] ?? x).join(", ")}`
+                          ? ` · ${e.flags.map((x) => (flagNames[x] ?? x).toLowerCase()).join(", ")}`
                           : ""}
-                      </small>
-                    </span>
-                    {e.status !== null && (
-                      <span
-                        className={`http-code ${e.status >= 400 ? "error" : "ok"}`}
-                      >
-                        {e.status}
                       </span>
-                    )}
-                    <ChevronRight size={12} />
+                    </span>
+                    <HttpPill code={e.status} />
+                    <ChevronRight size={14} className="row-chev" />
                   </button>
                 ))}
               </div>
             </DetailSection>
-            <div className="outcome-panel">
+
+            <div className="outcome-note">
               <Label type="Unknown" />
-              <h3>Task outcome is unknown</h3>
+              <strong>Task outcome unknown</strong>
               <p>
-                {d.outcome.text ??
-                  "Request logs show pages reached and response codes. They cannot show whether the task was completed."}
+                Request logs show pages reached and response codes. They cannot
+                show whether the task was completed.
               </p>
-            </div>
-            <DetailSection title="Evidence gaps" label="Unknown">
-              {d.gaps.length ? (
-                <ul className="plain-list">
-                  {d.gaps.map((g) => (
+              {gaps.length > 0 && (
+                <ul className="gap-list">
+                  {gaps.map((g) => (
                     <li key={g.text}>
-                      {g.text} <Label type={capitalize(g.label)} />
+                      <Label type={capitalize(g.label)} />
+                      {g.text}
                     </li>
                   ))}
                 </ul>
-              ) : (
-                <p className="muted">The API lists no gaps for this session.</p>
               )}
-            </DetailSection>
+            </div>
+
             <DetailSection title="Recommendations">
               {d.recommendations.length ? (
-                <ul className="plain-list">
+                <div className="detail-rows">
                   {d.recommendations.map((r) => (
-                    <li key={r.id}>
-                      <button
-                        className="text-link"
-                        onClick={() => open("recommendation", String(r.id))}
-                      >
-                        {r.target} · {r.pattern} · score {r.score}
-                      </button>
-                    </li>
+                    <button
+                      key={r.id}
+                      className="detail-row"
+                      onClick={() => open("recommendation", String(r.id))}
+                    >
+                      <span className="detail-row-main">
+                        <span className="sans">{r.target}</span>
+                        <span>
+                          {r.pattern} · score {r.score}
+                        </span>
+                      </span>
+                      <ChevronRight size={14} />
+                    </button>
                   ))}
-                </ul>
+                </div>
               ) : (
-                <p className="muted">
+                <p className="detail-empty">
                   No recommendation uses this session as evidence.
                 </p>
               )}

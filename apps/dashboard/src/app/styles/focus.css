@@ -1,0 +1,45 @@
+/* Keyboard focus: a background wash, never a ring. Loaded last so it wins over hover rules. */
+
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible,
+[role="tab"]:focus-visible,
+[role="radio"]:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible {
+  outline: 0;
+  background: var(--wash-focus) !important;
+}
+
+/* Table rows light up when a link or button inside has focus. */
+tbody tr:has(:focus-visible) {
+  background: var(--wash-focus) !important;
+}
+
+tbody tr:has(:focus-visible) :focus-visible {
+  background: transparent !important;
+}
+
+.search-field:has(input:focus-visible) {
+  background: var(--wash-focus) !important;
+}
+
+/* Dark grounds cannot take a light wash, so they darken instead and add a clear step. */
+.btn-primary:focus-visible,
+.button.primary:focus-visible,
+[data-slot="button"][data-variant="default"]:focus-visible {
+  background: var(--jade-press) !important;
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.btn-secondary:focus-visible,
+[data-slot="button"][data-variant="secondary"]:focus-visible,
+.segmented button[aria-checked="true"]:focus-visible {
+  background: var(--ink) !important;
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.skip-link:focus-visible {
+  background: var(--wash-focus) !important;
+}

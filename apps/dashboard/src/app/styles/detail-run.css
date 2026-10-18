@@ -1,0 +1,188 @@
+/* Detail sheets of the Data screen: run and import. Shared by detail-import.css. */
+.ops-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+  color: var(--body);
+  font-size: 13px;
+}
+
+/* Figure cells on hairline seams */
+.ops-figures {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 1px;
+  margin-bottom: 8px;
+  border: 1px solid var(--hairline);
+  background: var(--hairline);
+}
+
+.ops-figures > div {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 14px 14px;
+  background: #fff;
+}
+
+.ops-figures span {
+  color: var(--muted-text);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.ops-figures strong {
+  margin: 4px 0 2px;
+  color: var(--ink);
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+}
+
+.ops-figures strong.warn {
+  color: var(--warn-text);
+}
+
+.ops-figures small {
+  color: var(--grey);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.ops-note {
+  margin-top: 10px;
+  color: var(--grey);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* Facts: label over value, seams between rows */
+.ops-facts {
+  margin: 0;
+  border-top: 1px solid var(--hairline);
+}
+
+.ops-facts > div {
+  display: grid;
+  grid-template-columns: 130px minmax(0, 1fr);
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--seam);
+  font-size: 13px;
+}
+
+.ops-facts dt {
+  color: var(--muted-text);
+  font-weight: 500;
+}
+
+.ops-facts dd {
+  margin: 0;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.ops-facts dd.mono {
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+/* Step timeline: 9px square marks on one hairline */
+.step-timeline {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step-timeline li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 9px minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 14px;
+  padding: 0 0 18px;
+}
+
+.step-timeline li:last-child {
+  padding-bottom: 0;
+}
+
+.step-timeline li::before {
+  content: "";
+  position: absolute;
+  top: 15px;
+  bottom: -2px;
+  left: 4px;
+  width: 1px;
+  background: var(--hairline);
+}
+
+.step-timeline li:last-child::before {
+  display: none;
+}
+
+.step-timeline i {
+  width: 9px;
+  height: 9px;
+  margin-top: 5px;
+  background: var(--pass);
+}
+
+.step-timeline li.failed i {
+  background: var(--fail);
+}
+
+.step-timeline strong {
+  display: block;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.step-empty {
+  display: block;
+  margin-top: 2px;
+  color: var(--grey);
+  font-size: 13px;
+}
+
+.step-counters {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 4px 16px;
+  margin: 6px 0 0;
+}
+
+.step-counters > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.step-counters dt {
+  color: var(--grey);
+  font-size: 13px;
+}
+
+.step-counters dd {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.step-timeline em {
+  color: var(--pass);
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 500;
+}
+
+.step-timeline li.failed em {
+  color: var(--fail);
+}
