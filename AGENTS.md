@@ -1,22 +1,77 @@
-# Agent rules
+# AGENTS.md
 
-## Repo
+## Scope
 
-| Path | Content |
-|---|---|
-| `docs/` | Product and design docs. `docs/mvp-flows.md` = back-end flows (source of truth). `docs/on-prem.md` = on-prem infrastructure. |
-| `apps/api/` | Back end: FastAPI API, worker, CLI. Python + uv. |
-| `apps/dashboard/` | Next.js dashboard. |
-| `deploy/` | On-prem: Docker Compose (dev, demo), Helm chart (production), Vector config. |
+These instructions apply to this repository. More specific `AGENTS.md` files in subdirectories override them.
 
-## Python (`apps/api`)
+Before changing a component, read the relevant package/config files and the applicable service or module documentation for that component.
 
-- Use the Python version in `apps/api/.python-version` (3.14).
-- Use uv for all commands: `uv sync`, `uv add`, `uv run`. Do not use pip.
-- The project is not a package (`[tool.uv] package = false`). Do not change this. Code runs from `apps/api` as the top-level package `src` (`from src.config import get_settings`).
-- Never use `from __future__ import annotations`. It is not required on Python 3.14+ (annotations are evaluated lazily). Ruff rule TID251 rejects it.
-- Do not name a module or folder after a standard library module (for example `logging`, `types`, `queue`). The shared logger is `src/logger`.
-- Each service has its own subfolder in `src/services/<name>/`: `service.py` for the main logic, plus all files that belong only to that service (for example `importer/adapters/`, `verify/ip_lists.py`). `__init__.py` exports the public names, so callers write `from src.services import importer` and `importer.import_due_files(...)`.
-- All Postgres and inbox access goes through `src/store` (decision S.3). Routes and services do not write SQL outside it.
-- Database access: psycopg 3 and plain SQL. No ORM. Migrations: Alembic with `op.execute`.
-- Checks before a commit: `uv run ruff check . && uv run ruff format --check . && uv run pytest`.
+Code and documentation changes should be scoped to the user’s request. Do not expand the architecture, introduce new systems, or make opportunistic refactors unless explicitly requested.
+
+## Repository Map
+
+Update this section for each repository.
+
+- `<path>/` — `<purpose>`
+- `<path>/` — `<purpose>`
+- `<path>/` — `<purpose>`
+
+## Commands
+
+Update this section for each repository.
+
+Run from the repository root:
+
+- `<command>` — `<what it checks or performs>`
+- `<command>` — `<targeted variant>`
+- `<command>` — `<build/typecheck/lint/test behavior>`
+- `<command>` — `<local development command>`
+- `<command>` — `<migration or generation command>`
+
+Do not report a command as passing unless it actually completed successfully. If a command is known to be unavailable, flaky, environment-dependent, or currently empty, state that clearly.
+
+## Ponytail
+
+Use the `ponytail` skill at its default `full` level for implementation, fixes, refactors, and reviews. Prefer the smallest correct change and do not add speculative abstractions or dependencies.
+
+## Configuration
+
+Define every configurable variable, constant, and default value inside the codebases' config file. Import these values where needed. Do not define configurable values elsewhere in the codebase.
+
+## Code Spacing
+
+Use consistent blank lines to make code easy to read. Put one blank line between functions and between groups of statements that do different tasks. Keep related statements together. Avoid large blocks with no blank lines, inconsistent spacing, and repeated blank lines.
+
+## Python Guidelines
+
+Never use `from __future__ import annotations`. It is not required on Python 3.14+ (annotations are evaluated lazily). Ruff rule TID251 rejects it.
+
+## File Organization
+
+When you write or change code, prefer focused files to one long file.
+
+- Keep code concise and readable. Do not compress code or remove useful spacing to reduce the line count.
+- Split files by purpose before they grow to hundreds of lines, such as 500 LOC. Use clear responsibilities to select file boundaries.
+
+
+## Testing Philosophy
+
+Write the minimum number of tests needed to protect meaningful behavior and prevent realistic regressions. Before adding tests, inspect existing coverage and avoid duplication. Prioritize observable behavior, critical paths, important edge cases, and regression tests for bugs. Do not test trivial logic, implementation details, framework behavior, or every possible input variation. Avoid excessive mocking, exhaustive test matrices, and tests written solely to increase coverage. Keep testing effort proportional to the risk and complexity of the change. Every new test should catch a distinct potential failure; stop adding tests once meaningful risks are covered. Small, low-risk changes do not automatically require new tests. Never remove valuable existing tests merely to reduce test count.
+
+## Architecture Boundaries
+
+Do not introduce new architecture without explicitly explaining why and asking first. Implement only the architecture requested.
+
+## Documentation
+
+Update the applicable README, service guide, or module documentation in the same change when modifying behavior, APIs, lifecycle, configuration, operations, or structure.
+
+Keep durable architecture notes, workflows, and project-specific conventions in the appropriate documentation instead of growing this file unnecessarily.
+
+ # Commits
+
+Commit messages must be specific, detailed, and production-level.
+
+Use a precise Conventional Commit subject. Add a body when the change needs context, including the intent, affected behavior or scope, important implementation decisions, and verification.
+
+Avoid generic messages such as `update docs`, `fix stuff`, or `misc changes`.
