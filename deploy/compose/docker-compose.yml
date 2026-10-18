@@ -1,0 +1,78 @@
+# Dev and demo runtime, one machine (docs/on-prem.md).
+# No backups, no failover: demos and trials only, never production data.
+name: agent-analytics
+
+x-api-image: &api-image
+  build: ../../apps/api
+  image: agent-analytics-api:dev
+  env_file: .env
+  environment:
+    DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+    S3_ENDPOINT_URL: http://seaweedfs:8333
+
+services:
+  caddy:
+    image: caddy:2
+    ports: ["443:443", "80:80"]
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+    depends_on: [api, dashboard]
+
+  api:
+    <<: *api-image
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      seaweedfs: { condition: service_started }
+
+  worker:
+    <<: *api-image
+    command: ["python", "-m", "src.cli", "worker"]
+    deploy:
+      replicas: 1  # set N by hand; no auto scaling
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      seaweedfs: { condition: service_started }
+
+  migrate:
+    <<: *api-image
+    command: ["alembic", "upgrade", "head"]
+    restart: "no"
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  dashboard:
+    build:
+      context: ../../apps/dashboard
+      dockerfile: ../../deploy/dashboard/Dockerfile
+    image: agent-analytics-dashboard:dev
+    environment:
+      API_URL: http://api:8000
+      API_TOKEN: ${API_TOKEN:-}  # the dashboard server adds it to calls to the api
+    depends_on: [api]
+
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports: ["5432:5432"]
+    volumes: [postgres-data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      retries: 10
+
+  seaweedfs:
+    image: chrislusf/seaweedfs:latest
+    command: ["server", "-s3", "-s3.config=/etc/seaweedfs/s3.json", "-dir=/data"]
+    ports: ["8333:8333"]
+    volumes:
+      - ./seaweedfs-s3.json:/etc/seaweedfs/s3.json:ro
+      - seaweedfs-data:/data
+
+volumes:
+  caddy-data:
+  postgres-data:
+  seaweedfs-data:

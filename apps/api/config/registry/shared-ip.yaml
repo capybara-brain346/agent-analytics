@@ -1,0 +1,7 @@
+# Shared-IP ranges (decision 4.3). One IP here can serve many clients, so session confidence drops.
+# Carrier-grade NAT 100.64.0.0/10 is always shared (built into the code).
+# Add cloud-egress and proxy ranges that apply to your traffic.
+version: "1"
+ranges:
+  - { name: cloudflare-warp-and-workers, cidr: 104.16.0.0/13 }
+  - { name: cloudflare-warp-and-workers, cidr: 172.64.0.0/13 }

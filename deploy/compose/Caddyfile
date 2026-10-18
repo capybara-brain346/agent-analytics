@@ -1,0 +1,13 @@
+# Entry and TLS for Compose (docs/on-prem.md). Local CA certificate for localhost.
+localhost {
+	@backend path /ingest /api/* /health /livez /metrics
+	handle @backend {
+		request_body {
+			max_size 50MB
+		}
+		reverse_proxy api:8000
+	}
+	handle {
+		reverse_proxy dashboard:3000
+	}
+}

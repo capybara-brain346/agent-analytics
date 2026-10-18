@@ -1,0 +1,15 @@
+# CDN field map (decisions 1b.4, 3.2). Vendor names and columns live ONLY in these files.
+# One file for each supported CDN. Copy this file to config/cdn/<vendor>.yaml.
+format: json                  # json | csv | tsv
+edge_request_id: request_id   # vendor log column with the request ID
+timestamp: timestamp
+client_ip: client_ip
+method: method
+path: path
+status: status
+bytes: bytes
+user_agent: user_agent
+origin_header: X-Request-ID   # header the CDN sends to origin; the customer logs it in nginx
+edge_bot:
+  column: bot_score           # remove this block if the CDN has no bot signal
+  bot_below: 30               # score < 30 → bot; score >= 30 → human; missing → none

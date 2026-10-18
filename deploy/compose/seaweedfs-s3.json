@@ -1,0 +1,9 @@
+{
+  "identities": [
+    {
+      "name": "agent-analytics",
+      "credentials": [{ "accessKey": "dev", "secretKey": "dev-secret" }],
+      "actions": ["Admin", "Read", "Write", "List", "Tagging"]
+    }
+  ]
+}

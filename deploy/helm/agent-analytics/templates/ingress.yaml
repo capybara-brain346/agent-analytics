@@ -1,0 +1,26 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "aa.name" . }}
+  labels: {{- include "aa.labels" . | nindent 4 }}
+spec:
+  {{- with .Values.ingress.className }}
+  ingressClassName: {{ . }}
+  {{- end }}
+  {{- with .Values.ingress.tlsSecretName }}
+  tls: [{ hosts: [{{ $.Values.host | quote }}], secretName: {{ . }} }]
+  {{- end }}
+  rules:
+    - host: {{ .Values.host | quote }}
+      http:
+        paths:
+          {{- range list "/ingest" "/api" "/health" "/metrics" }}
+          - path: {{ . }}
+            pathType: Prefix
+            backend: { service: { name: {{ include "aa.name" $ }}-api, port: { name: http } } }
+          {{- end }}
+          - path: /
+            pathType: Prefix
+            backend: { service: { name: {{ include "aa.name" . }}-dashboard, port: { name: http } } }
+{{- end }}

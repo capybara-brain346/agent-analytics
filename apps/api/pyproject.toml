@@ -1,0 +1,49 @@
+[project]
+name = "agent-analytics-api"
+version = "0.1.0"
+description = "Agent Analytics back end: ingest, pipeline worker and dashboard API."
+requires-python = ">=3.14"
+dependencies = [
+    "alembic>=1.20.0",
+    "boto3>=1.43.114",
+    "dnspython>=2.9.0",
+    "fastapi>=0.143.3",
+    "httpx>=0.28.1",
+    "openrouter>=1.3.65",
+    "prometheus-client>=0.26.0",
+    "psycopg[binary,pool]>=3.3.6",
+    "pydantic-settings>=2.16.0",
+    "pyyaml>=6.0.3",
+    "sqlalchemy>=2.1.5",
+    "typer>=0.27.3",
+    "ua-parser>=1.0.2",
+    "uvicorn[standard]>=0.54.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "ruff>=0.17.1",
+]
+
+[tool.uv]
+# Not a package: no build step, no install of the project into the venv.
+# Code runs from this folder as the top-level package `src`.
+package = false
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "session"
+asyncio_default_test_loop_scope = "session"
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "TID"]
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"__future__.annotations".msg = "Not required on Python 3.14+. See AGENTS.md."

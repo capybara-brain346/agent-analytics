@@ -1,0 +1,24 @@
+# Site config (decisions 1.5, 5.3). Written by a person: logs cannot tell which pages matter.
+site_id: example
+sources: [cdn, origin]          # pair by default (1b.1); one source if there is no shared request ID
+cdn_field_map: example          # config/cdn/example.yaml
+request_id_header: X-Request-ID
+ingest_token_sha256: c91cbbedf8c712e8e2b7517ddeca8fe4fde839ebd8339e0b2001363002b37712  # sha256 of "dev-token"
+no_data_alert_minutes: 60
+key_pages: [/pricing, /products, /docs/api]
+conversion_pages: [/signup, /checkout]
+journeys:
+  - id: signup
+    critical: true
+    steps: [/pricing, /signup, /signup/confirm]
+  - id: docs
+    steps: [/docs, /docs/api]
+access_policy:                  # P2: a block that matches the intent is not a finding
+  allow: [/docs]
+  block: [/admin, /internal]
+  robots_disallow: [/private]
+site_pages:                     # key content for pattern P4: inline list, or a file path
+  - /pricing
+  - /products
+  - /docs/api
+# site_pages: {file: example-pages.txt}   # one URL or path for each line
