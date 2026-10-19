@@ -4,12 +4,14 @@ import { ranges } from "./nav-config";
 
 export function FilterBar({
   site,
+  sites,
   range,
   classes,
   caption,
   setFilter,
 }: {
   site: string;
+  sites: string[];
   range: string;
   classes: string;
   caption: string;
@@ -23,7 +25,11 @@ export function FilterBar({
           value={site}
           onChange={(v) => setFilter("site", v)}
           icon={<Globe2 size={14} />}
-          options={[{ value: site, label: site || "Loading…" }]}
+          options={
+            sites.length
+              ? sites.map((s) => ({ value: s, label: s }))
+              : [{ value: site, label: site || "Loading…" }]
+          }
         />
         <Segmented
           label="Time range"

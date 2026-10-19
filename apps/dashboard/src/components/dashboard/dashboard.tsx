@@ -11,7 +11,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { rangeOf, scopeFromQuery } from "@/lib/api/filters";
-import { useScopedApi } from "@/lib/api/use-api";
+import { useApi, useScopedApi } from "@/lib/api/use-api";
 import type { Overview as OverviewData } from "@/lib/api/types";
 import { dateTimeUTC, windowCaption } from "@/lib/format";
 import { Overview } from "./overview";
@@ -50,12 +50,23 @@ export function Dashboard() {
   const scope = scopeFromQuery(query),
     range = scope.range,
     selected = scope.classes;
-  const overview = useScopedApi<OverviewData>("overview", scope, {
-    bucket: rangeOf(range).bucket,
-  });
-  // The URL has no site until the user picks one. The API then uses the only
-  // site it has, and names it in the response.
-  const site = scope.site || overview.data?.window.site || "";
+  // Every screen reads the site from the URL. A URL without one gets the
+  // first configured site, so no request goes out without a site.
+  const sites = useApi<string[]>("sites");
+  const site = scope.site,
+    firstSite = sites.data?.[0];
+  useEffect(() => {
+    if (site || !firstSite) return;
+    const params = new URLSearchParams(window.location.search);
+    params.set("site", firstSite);
+    router.replace(`${window.location.pathname}?${params}`, { scroll: false });
+  }, [site, firstSite, router]);
+  const overview = useScopedApi<OverviewData>(
+    "overview",
+    scope,
+    { bucket: rangeOf(range).bucket },
+    { enabled: Boolean(site) },
+  );
   const freshness = overview.data?.freshness;
   const href: Href = (path, filters = {}) => {
     const params = new URLSearchParams();
@@ -185,6 +196,7 @@ export function Dashboard() {
           {nav && (
             <FilterBar
               site={site}
+              sites={sites.data ?? []}
               range={range}
               classes={selected}
               caption={`${caption} UTC`}
@@ -192,7 +204,17 @@ export function Dashboard() {
             />
           )}
           <div className="page-content">
-            {view === "overview" ? (
+            {!site ? (
+              <div className="empty-state">
+                <p>
+                  {sites.error
+                    ? "Sites could not be loaded."
+                    : sites.data?.length === 0
+                      ? "No site is configured. Add a file to config/sites."
+                      : "Loading sites…"}
+                </p>
+              </div>
+            ) : view === "overview" ? (
               <Overview
                 href={href}
                 open={open}

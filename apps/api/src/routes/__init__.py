@@ -13,6 +13,7 @@ from src.routes import (
     recommendations,
     runs,
     sessions,
+    sites,
 )
 from src.routes.auth import require_api_token
 
@@ -22,5 +23,17 @@ root_router.include_router(metrics.router)
 root_router.include_router(ingest.router)
 
 api_router = APIRouter(dependencies=[Depends(require_api_token)])
-for module in (overview, recommendations, agents, events, sessions, pages, journeys, imports, runs):
+API_MODULES = (
+    overview,
+    recommendations,
+    agents,
+    events,
+    sessions,
+    pages,
+    journeys,
+    imports,
+    runs,
+    sites,
+)
+for module in API_MODULES:
     api_router.include_router(module.router)
