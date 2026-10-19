@@ -227,3 +227,4 @@ __marimo__/
 # Captured logs hold real visitor IP addresses. Never commit them.
 apps/api/config/sites/piyushc*
 captures/
+.wrangler/
