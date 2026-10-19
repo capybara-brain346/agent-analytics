@@ -1,0 +1,13 @@
+# Live test site: piyushc.com on Cloudflare Pages (deploy/cloudflare-pages/README.md).
+# Copy this file and piyushc-pages.txt to apps/api/config/sites/ for a test run.
+# Cloudflare keeps no per-request logs on this plan. A Pages middleware writes one
+# line for each request, and `wrangler pages deployment tail` captures the lines.
+site_id: piyushc
+sources: [cdn]                  # Pages has no origin server: one source, no pairing
+cdn_field_map: cloudflare       # config/cdn/cloudflare.yaml
+no_data_alert_minutes: 1440     # data arrives only during test runs
+key_pages: [/, /blog, /projects, /llms.txt, /llms-full.txt]
+conversion_pages: [/api/assistant, /api/assistant-voice]   # chatbot and voice assistant
+access_policy:
+  allow: [/llms.txt, /llms-full.txt]
+site_pages: {file: piyushc-pages.txt}

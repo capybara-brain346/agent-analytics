@@ -1,0 +1,22 @@
+# Pages of piyushc.com from its sitemap (dist/sitemap-0.xml), for pattern P4.
+/
+/blog
+/blog/Be-Curious-About-Your-Compute
+/blog/Building-A-Vector-Database-from-Scratch-CapybaraDB
+/blog/Building-Mentis-A-Memory-Layer-For-Coding-Agents
+/blog/Designing-a-Deterministic-Low-Latency-Decision-Engine-with-CPP
+/blog/How-I-Automated-My-Social-Media-Workflow-with-LangGraph
+/blog/How-I-Used-Postgres-Groq-And-AI-SDK-To-Create-My-Portfolio-Website-Chatbot
+/blog/Implementing-An-SQS-Like-Message-Queue-System
+/blog/Making-A-Peer-Review-System-for-My-Blogs-Using-Google-ADK-And-Mem0
+/blog/Making-Agents-Play-Pictionary
+/blog/My-Codebases-Have-an-AI-Receptionist-Now
+/blog/Sandboxing-Coding-Agents
+/blog/SHAP-values-for-GBTs
+/blog/Simulating-vLLMs-PagedAttention
+/blog/Training-a-Mixture-of-Experts-Router
+/blog/welcome-to-my-blog
+/projects
+/projects/agent-sandboxing
+/projects/capybaradb
+/projects/capynodes

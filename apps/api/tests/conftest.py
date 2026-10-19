@@ -12,7 +12,9 @@ fixture built on them never touches Postgres.
   `async with conn.transaction(): ...`.
 - `pool`: opens the `src.store.db` pool on the test database (API tests).
 - `client`: httpx.AsyncClient on the FastAPI app, with the pool open.
-- `config_dir`: a temporary copy of apps/api/config, wired into settings (CONFIG_DIR).
+- `base_config_dir` (session, automatic): a copy of apps/api/config with only the `example` site,
+  wired into settings (CONFIG_DIR). Local site files for live tests do not reach the tests.
+- `config_dir`: a temporary copy of that config for one test, wired into settings (CONFIG_DIR).
 - Settings ignore apps/api/.env. Only process environment variables apply.
 """
 
@@ -38,6 +40,7 @@ from tests.factories import NOW
 
 API_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_SERVER_URL = "postgresql://agent_analytics:agent_analytics@localhost:55432/agent_analytics"
+TEST_SITE = "example"
 
 # Tests use the code defaults, not the developer's apps/api/.env (OFFLINE, API_TOKEN, LLM keys).
 Settings.model_config["env_file"] = None
@@ -86,10 +89,33 @@ def settings(request: pytest.FixtureRequest) -> Iterator[Settings]:
     get_settings.cache_clear()
 
 
-@pytest.fixture
-def config_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[Path]:
-    target = tmp_path / "config"
+@pytest.fixture(scope="session", autouse=True)
+def base_config_dir(tmp_path_factory: pytest.TempPathFactory) -> Iterator[Path]:
+    # Tests know one site. A site file a developer adds for a live test must not change them.
+    target = tmp_path_factory.mktemp("base") / "config"
     shutil.copytree(API_ROOT / "config", target)
+    for path in (target / "sites").glob("*.yaml"):
+        if path.stem != TEST_SITE:
+            path.unlink()
+
+    previous = os.environ.get("CONFIG_DIR")
+    os.environ["CONFIG_DIR"] = str(target)
+    get_settings.cache_clear()
+    yield target
+
+    get_settings.cache_clear()
+    if previous is None:
+        os.environ.pop("CONFIG_DIR", None)
+    else:
+        os.environ["CONFIG_DIR"] = previous
+
+
+@pytest.fixture
+def config_dir(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, base_config_dir: Path
+) -> Iterator[Path]:
+    target = tmp_path / "config"
+    shutil.copytree(base_config_dir, target)
     monkeypatch.setenv("CONFIG_DIR", str(target))
     get_settings.cache_clear()
     yield target
