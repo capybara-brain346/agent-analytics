@@ -33,3 +33,9 @@ async def test_class_comma_list_and_default_range(client, monkeypatch):
 async def test_pagination_bad_limit(client):
     assert (await client.get("/api/events", params={"limit": 0})).status_code == 422
     assert (await client.get("/api/events", params={"limit": 500})).status_code == 422
+
+
+async def test_sites_lists_every_site_file(client, config_dir):
+    sites = config_dir / "sites"
+    (sites / "second.yaml").write_text((sites / "example.yaml").read_text())
+    assert (await client.get("/api/sites")).json() == ["example", "second"]

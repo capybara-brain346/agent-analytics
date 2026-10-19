@@ -58,7 +58,7 @@ All roads end at the same two evidence screens: **Session detail** and **Event d
 
 | Element | Behaviour |
 |---|---|
-| Site selector | One site at a time. Changing it resets the screen data, keeps the time range. |
+| Site selector | One site at a time. Lists the sites of `GET /api/sites` (one for each file in `config/sites`). A URL without `site` opens the first site. Changing it resets the screen data, keeps the time range. |
 | Time range | Presets: last 1 h, 6 h, 24 h, 7 d, custom. Default: last 24 h. |
 | Class filter | Multi-select of the 6 classes. Default: all. |
 | Freshness banner | From `pipeline_runs` (Flow 7). See 4.2. |
