@@ -58,8 +58,10 @@ Needs: `wrangler` logged in to the account that owns the Pages project, `jq`, th
    deploy/cloudflare-pages/capture.sh piyushchoudhari-me piyushc <label>
    ```
 
-4. **Check the capture.** Open `https://piyushc.com/` twice in a browser. The tail file
-   `captures/*.tail.json` must show both requests. If it shows one, Development Mode is off.
+4. **Check the capture.** In JSON mode, wrangler prints no "connected" message. Open
+   `https://piyushc.com/` twice in a browser, then run `grep -c request_log captures/*.tail.json`.
+   The count must go up by 2. If it goes up by 1, Development Mode is off. Start the agents only
+   after this check.
 5. **Run the agents.** Write one row for each run in `captures/<label>-truth.csv`. These notes
    are the ground truth for the result:
 
