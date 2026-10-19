@@ -33,7 +33,7 @@ docker run -d --name aa-test-pg -p 55432:5432 \
 uv run pytest -q
 ```
 
-Use another server: set `TEST_DATABASE_SERVER_URL`.
+Use another server: set `TEST_DATABASE_SERVER_URL`. Tests ignore `apps/api/.env`: only process environment variables apply.
 
 Checks before a commit: `uv run ruff check . && uv run ruff format --check . && uv run pytest`
 
@@ -46,7 +46,7 @@ Run with `uv run python -m src.cli <command>`.
 | Command | Use |
 |---|---|
 | `worker` | Run the worker loop (see below). |
-| `run-pipeline --site S --lane fast\|slow` | Run one lane for one site now. |
+| `run-pipeline fast\|slow --site S` | Run one lane for one site now. |
 | `run-recommendations --site S [--window 6h]` | Make a recommendation run now. |
 | `import PATH [--site S] [--now] [--force] [--source cdn\|origin]` | Import a log file, or every log file in a folder (name order). Without `--site` / `--source`, they come from the file name (`samples/logs/README.md`). |
 | `cleanup` | Delete expired raw files and drop old event partitions. |

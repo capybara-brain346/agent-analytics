@@ -13,6 +13,7 @@ fixture built on them never touches Postgres.
 - `pool`: opens the `src.store.db` pool on the test database (API tests).
 - `client`: httpx.AsyncClient on the FastAPI app, with the pool open.
 - `config_dir`: a temporary copy of apps/api/config, wired into settings (CONFIG_DIR).
+- Settings ignore apps/api/.env. Only process environment variables apply.
 """
 
 import os
@@ -37,6 +38,9 @@ from tests.factories import NOW
 
 API_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_SERVER_URL = "postgresql://agent_analytics:agent_analytics@localhost:55432/agent_analytics"
+
+# Tests use the code defaults, not the developer's apps/api/.env (OFFLINE, API_TOKEN, LLM keys).
+Settings.model_config["env_file"] = None
 
 
 def _server_url() -> str:

@@ -7,7 +7,7 @@ related_targets: []
 
 # Dashboard
 
-Mode: Operate. Audience: Webzero PMs and engineers. Scope: all six mock dashboard sections and their evidence details. Content authority: dashboard.md and mvp-flows.md. The user's three images pin the visual world and override the random direction assignment (seed 3196f89c).
+Mode: Operate. Audience: Webzero PMs and engineers. Scope: all six dashboard sections and their evidence details. Content authority: dashboard.md and mvp-flows.md. The user's three images pin the visual world and override the random direction assignment (seed 3196f89c).
 
 ## Direction contract
 

@@ -10,23 +10,38 @@ Code and documentation changes should be scoped to the user’s request. Do not 
 
 ## Repository Map
 
-Update this section for each repository.
-
-- `<path>/` — `<purpose>`
-- `<path>/` — `<purpose>`
-- `<path>/` — `<purpose>`
+- `apps/api/` — Python 3.14 back end (FastAPI, psycopg 3, Alembic, Typer). One image runs `api`, `worker` and `migrate`. See `apps/api/README.md`.
+- `apps/api/src/services/` — one folder per pipeline step: importer, pairing, verify, classify, reconstruction, recommendations, pipeline. No SQL here.
+- `apps/api/src/store/` — all Postgres and S3 (inbox) access.
+- `apps/api/src/config/settings.py` — every configurable value and default (environment variables).
+- `apps/api/config/` — YAML data: bot registry, IP lists, CDN field maps, site configs. A new bot or CDN is a data change, not a code change.
+- `apps/api/migrations/` — Alembic migrations in raw SQL.
+- `apps/api/tests/` — pytest: unit, API and end-to-end tests.
+- `apps/dashboard/` — Next.js dashboard. Calls the API through the same-origin proxy `/dashboard-api`. See `apps/dashboard/README.md` and `apps/dashboard/AGENTS.md`.
+- `deploy/` — Docker Compose (dev and demo), Helm chart (production), Vector sender config.
+- `samples/logs/` — fictional CDN and origin log files, the test and demo data. See `samples/logs/README.md`.
+- `docs/` — `mvp-flows.md` (flows and decisions, source of truth), `dashboard.md` (screens), `on-prem.md` (infrastructure), `task.pdf` (assignment brief).
 
 ## Commands
 
-Update this section for each repository.
+Back end, from `apps/api`:
 
-Run from the repository root:
+- `uv sync` — install dependencies.
+- `uv run ruff check . && uv run ruff format --check . && uv run pytest` — all checks before a commit. Tests need Postgres on port 55432 (`apps/api/README.md`) and ignore `apps/api/.env`.
+- `uv run pytest tests/<folder>` — one test area, for example `tests/classify`.
+- `uv run alembic upgrade head` — apply migrations. New migration: add a file in `migrations/versions/`.
+- `uv run uvicorn src.main:app --reload` — run the API on port 8000.
+- `uv run python -m src.cli import ../../samples/logs --now` — load the sample logs.
+- `uv run python -m src.cli run-pipeline fast --site example` — run the fast lane now. `run-recommendations --site example` runs the slow lane.
 
-- `<command>` — `<what it checks or performs>`
-- `<command>` — `<targeted variant>`
-- `<command>` — `<build/typecheck/lint/test behavior>`
-- `<command>` — `<local development command>`
-- `<command>` — `<migration or generation command>`
+Dashboard, from `apps/dashboard`:
+
+- `npm run lint && npm test && npm run build` — all checks before a commit.
+- `npm run dev` — run on http://localhost:3000 (needs the API on `API_URL`).
+
+Full stack, from `deploy/compose`:
+
+- `cp .env.example .env && docker compose up --build` — all services on https://localhost.
 
 Do not report a command as passing unless it actually completed successfully. If a command is known to be unavailable, flaky, environment-dependent, or currently empty, state that clearly.
 
@@ -68,7 +83,7 @@ Update the applicable README, service guide, or module documentation in the same
 
 Keep durable architecture notes, workflows, and project-specific conventions in the appropriate documentation instead of growing this file unnecessarily.
 
- # Commits
+## Commits
 
 Commit messages must be specific, detailed, and production-level.
 

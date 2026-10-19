@@ -1,6 +1,6 @@
 # Agent Analytics
 
-A mock dashboard built with Next.js, TypeScript, shadcn/ui, Base UI, and Lucide icons.
+The Agent Analytics dashboard. Next.js, TypeScript, shadcn/ui, Base UI, and Lucide icons. It reads live data from the FastAPI back end (`apps/api`).
 
 ## Run
 
@@ -11,7 +11,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000/overview.
+Open http://localhost:3000/overview. The API must run on `API_URL` (default http://localhost:8000). See `.env.example` and `../api/README.md`.
 
 ## Checks
 
@@ -23,9 +23,16 @@ npm run build
 
 ## Scope
 
-Six sections: Overview, Recommendations, Agents, Activity explorer, Pages & journeys, and Data & pipeline. All values are fixed sample records for Oct 16, 2026. Links, filters, tabs, and evidence details work locally. Filters remain in the URL. The interface includes empty, stale, failed, unknown, and in-progress sample states.
+Six sections: Overview, Recommendations, Agents, Activity explorer, Pages & journeys, and Data & pipeline. Filters (site, time range, class) are in the URL.
 
-No API, database, login, upload, job execution, scheduler, or external action is connected. Generation and upload controls explain that the workspace is read-only. Summary counts represent the larger fictional dataset; evidence tables show a small sample of its records.
+```
+ browser ──► /dashboard-api/api/* ──► Next.js route handler ──► ${API_URL}/api/*
+             (same origin)            adds Bearer API_TOKEN       (FastAPI)
+```
+
+- All data comes from the API. The browser never sees `API_URL` or `API_TOKEN` (`src/app/dashboard-api/[...path]/route.ts`).
+- Actions: upload log files (button or drag and drop on Data & pipeline → Sources), delete an import, and generate a recommendation run.
+- No login. Access control is the API token on the server side.
 
 Product requirements are in `../../docs/dashboard.md` and `../../docs/mvp-flows.md`.
 
