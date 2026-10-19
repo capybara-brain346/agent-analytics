@@ -1,0 +1,15 @@
+# Cloudflare Pages access log (decisions 1b.4, 3.2): one JSON line for each request,
+# written by the site's functions/_middleware.js and captured with
+# `wrangler pages deployment tail` (deploy/cloudflare-pages/README.md).
+format: json
+edge_request_id: request_id   # cf-ray
+timestamp: timestamp
+client_ip: client_ip          # cf-connecting-ip
+method: method
+path: path
+status: status
+bytes: bytes                  # 0 when Pages streams without content-length
+user_agent: user_agent
+host: host
+referrer: referrer
+# No edge_bot block: the bot score needs Cloudflare Bot Management (not on this plan).

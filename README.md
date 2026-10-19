@@ -365,6 +365,7 @@ deploy/
   compose/             dev and demo stack (Caddy, SeaweedFS, Postgres)
   helm/                production chart (CloudNativePG, Ingress, HTTPRoute)
   vector/              origin log sender config for the customer
+  cloudflare-pages/    live-site test: capture a Pages site's requests, site config
 samples/logs/          one week of fictional CDN + origin logs
 docs/                  brief, flows, dashboard spec, on-prem, design
 ```

@@ -18,7 +18,7 @@ Code and documentation changes should be scoped to the user’s request. Do not 
 - `apps/api/migrations/` — Alembic migrations in raw SQL.
 - `apps/api/tests/` — pytest: unit, API and end-to-end tests.
 - `apps/dashboard/` — Next.js dashboard. Calls the API through the same-origin proxy `/dashboard-api`. See `apps/dashboard/README.md` and `apps/dashboard/AGENTS.md`.
-- `deploy/` — Docker Compose (dev and demo), Helm chart (production), Vector sender config.
+- `deploy/` — Docker Compose (dev and demo), Helm chart (production), Vector sender config, live-site test capture for Cloudflare Pages (`deploy/cloudflare-pages/README.md`).
 - `samples/logs/` — fictional CDN and origin log files, the test and demo data. See `samples/logs/README.md`.
 - `docs/` — `mvp-flows.md` (flows and decisions, source of truth), `dashboard.md` (screens), `on-prem.md` (infrastructure), `task.pdf` (assignment brief).
 
