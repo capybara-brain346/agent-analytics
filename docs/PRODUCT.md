@@ -15,14 +15,14 @@ Product managers decide which agent journeys to test. Engineers inspect the evid
 Make agent traffic visible and show which journeys need validation. Recommendations link to sessions and requests.
 
 ## Capabilities and Constraints
-This delivery is a complete frontend with fixed mock data. It has no API, import, scheduler, background work, or external actions. Local navigation, filtering, and detail views show the end-user experience.
+The dashboard reads live data from the FastAPI back end. Users can upload log files, delete imports, and generate recommendation runs. Config (sites, registry, thresholds) is in files, not in the UI. No login: the API token stays on the dashboard server.
 Keep the six sections from dashboard.md. Label evidence Observed, Inferred, or Unknown. Identity claims remain unverified until verified. HTTP 200 does not prove task completion.
 
 ## Brand Commitments
 Use the Webzero product console layer: a light interface with Stone workspace, hairline rules, dense tables, compact charts, and jade only for marks and the main action. See `DESIGN.md`.
 
 ## Evidence on Hand
-dashboard.md and mvp-flows.md contain the product requirements. `DESIGN.md` holds the visual direction. All displayed traffic records are synthetic.
+dashboard.md and mvp-flows.md contain the product requirements. `DESIGN.md` holds the visual direction. The demo data is the fictional log files in `samples/logs/`.
 
 ## Product Principles
 - Show evidence and its limits together.

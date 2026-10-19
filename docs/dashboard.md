@@ -1,6 +1,6 @@
 # Dashboard — UI / UX Flows (Flow 6)
 
-Source for the mock dashboard. Content, structure, and behaviour only. No visual design (colours, fonts, styling) in this file.
+Source for the dashboard. Content, structure, and behaviour only. No visual design (colours, fonts, styling) in this file.
 
 Based on: `mvp-flows.md` (Flows 1–7, locked), `task.pdf` §02, §03.D, §04, §05, §09.
 
@@ -12,7 +12,7 @@ Based on: `mvp-flows.md` (Flows 1–7, locked), `task.pdf` §02, §03.D, §04, �
 |---|---|---|
 | Webzero PM (primary) | Decide which journeys to test next. Trust the reason. | Recommendations, Overview, Pages & Journeys |
 | Engineer | Check that data arrives and the pipeline works. Debug a verdict. | Data & Pipeline, Activity Explorer |
-| AI agent / script | Read the same data without the UI (Webzero is agent-first). | JSON API with the same filters and IDs as each screen (§9) |
+| AI agent / script | Read the same data without the UI (Webzero is agent-first). | JSON API with the same filters and IDs as each screen (§14) |
 
 ---
 
@@ -46,7 +46,6 @@ Based on: `mvp-flows.md` (Flows 1–7, locked), `task.pdf` §02, §03.D, §04, �
         │      (Events | Sessions)  │
         ├── 5 Pages & Journeys ─────┼──► Page detail / Journey detail ──► Sessions
         └── 6 Data & Pipeline ──────┘──► Import run detail · Pipeline run detail
-            (Settings: read-only view of config, inside 6)
 ```
 
 All roads end at the same two evidence screens: **Session detail** and **Event detail**.
@@ -209,7 +208,7 @@ List of runs: run ID · window · created · counts (new / open / gone) · rule 
 ### Empty states
 
 - No run yet: "No recommendations yet. Runs every 6 h, or generate now."
-- Run with 0 candidates: "No pattern met its threshold in this window." + thresholds used + link to Settings.
+- Run with 0 candidates: "No pattern met its threshold in this window." + "Run again". Thresholds are in the config files (`apps/api/config`, settings).
 
 ---
 
@@ -388,23 +387,6 @@ Run detail: each step with status, duration, items processed, error text (if fai
  Alerts      list: time · type (no data / 3 failures) · site · cleared at
 ```
 
-### 10.5 Settings (read-only in MVP)
-
-Shows the current config files, with version:
-
-```
- site_config     key pages · conversion pages · journeys (critical ✓/✗)
- access policy   robots.txt snapshot · allow / block list
- sitemap         URLs · key-content URLs
- thresholds      pattern thresholds · frequency buckets · window (6 h)
- registry        version · number of bots · IP-list snapshot dates
- field maps      one for each CDN
-```
-
-Editing = change the files (no UI editor in MVP).
-
----
-
 ## 11. Key user flows
 
 ### F-A: PM acts on a recommendation
@@ -514,7 +496,7 @@ Rules for the API:
 
 - Login and access control (known gap, internal system; PDF §05 requires it before customer use).
 - Editing config in the UI (files only).
-- Live streaming / push updates (near real-time through the 5-min runs is enough, Flow 7).
+- Live streaming / push updates (near real-time through the 1-min runs is enough, Flow 7).
 - Export, alerts by email/Slack, multi-site comparison.
 - Visual design.
 
