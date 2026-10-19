@@ -219,3 +219,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Sample log files are test data (samples/logs/README.md)
+!samples/logs/*.log

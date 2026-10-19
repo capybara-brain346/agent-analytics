@@ -65,7 +65,7 @@ const isRaw = (body: unknown): body is Blob | FormData | ArrayBuffer | string =>
   body instanceof ArrayBuffer;
 
 async function request<T>(
-  method: "GET" | "POST",
+  method: "GET" | "POST" | "DELETE",
   url: string,
   body: unknown,
   signal: AbortSignal | undefined,
@@ -118,6 +118,11 @@ export function apiPost<T>(
   signal?: AbortSignal,
 ): Promise<T> {
   return request<T>("POST", apiUrl(path, params), body, signal);
+}
+
+/** DELETE /api/<path>. */
+export function apiDelete<T>(path: string, params?: Params): Promise<T> {
+  return request<T>("DELETE", apiUrl(path, params), undefined, undefined);
 }
 
 /** GET /health. The API answers 503 with a normal body when it is unhealthy, so 503 is not an error here. */

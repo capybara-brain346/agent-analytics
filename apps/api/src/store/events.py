@@ -115,6 +115,16 @@ async def delete_file_events(conn: AsyncConnection, site_id: str, file_id: str) 
     return cur.rowcount
 
 
+async def delete_file_rows(conn: AsyncConnection, site_id: str, file_id: str) -> int:
+    # Every row that holds a line of the file: its own rows, and the paired rows that keep one of
+    # its origin lines (the origin row itself was deleted at pairing).
+    cur = await conn.execute(
+        "delete from events where site_id = %s and (file_id = %s or origin_file_id = %s)",
+        [site_id, str(file_id), str(file_id)],
+    )
+    return cur.rowcount
+
+
 _PARTITION_DAY = re.compile(r"^events_(\d{8})$")
 
 

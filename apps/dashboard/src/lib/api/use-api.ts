@@ -21,6 +21,14 @@ type Result<T> = {
   error: ApiError | null;
 };
 
+// Mounted queries, so a change in one place reloads the lists that show it.
+const listeners = new Set<(prefix: string) => void>();
+
+/** Reload every mounted query whose key starts with `prefix`, for example "imports". */
+export function invalidate(prefix: string) {
+  for (const listener of listeners) listener(prefix);
+}
+
 /**
  * One fetch for each `key`. A new key aborts the old request, and an answer for
  * an old key is never shown. `fetcher` may read the clock (the time window).
@@ -60,6 +68,15 @@ export function useQuery<T>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, enabled, tick]);
   const reload = useCallback(() => setTick((t) => t + 1), []);
+  useEffect(() => {
+    const listener = (prefix: string) => {
+      if (key.startsWith(prefix)) reload();
+    };
+    listeners.add(listener);
+    return () => {
+      listeners.delete(listener);
+    };
+  }, [key, reload]);
   // An answer for another key is never shown. After a reload the old answer
   // of the same key stays until the new one arrives.
   const current = enabled && result.key === key;

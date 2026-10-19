@@ -19,3 +19,28 @@
   flex-shrink: 0;
   background: var(--warn-mark);
 }
+
+.import-delete {
+  margin-top: 16px;
+}
+
+.import-delete-confirm p {
+  color: var(--body);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.import-delete-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.btn-standard.danger {
+  color: var(--fail);
+}
+
+.btn-standard.danger:hover:not(:disabled) {
+  border-color: var(--fail);
+  background: var(--fail-tint);
+}

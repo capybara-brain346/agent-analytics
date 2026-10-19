@@ -2,15 +2,11 @@ import gzip
 import json
 from datetime import timedelta
 
-import pytest
 from psycopg.rows import dict_row
 
-from src.config import get_settings
 from src.models.domain import Lane
-from src.routes.ingest import inbox_dependency
-from src.services import ingest, pipeline, verify
+from src.services import pipeline, verify
 from tests.factories import CHROME_UA, GPTBOT_IP, GPTBOT_UA, NOW
-from tests.fakes import MemoryInbox
 
 AUTH = {"Authorization": "Bearer dev-token"}
 GOOGLEBOT_UA = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
@@ -64,20 +60,6 @@ ORIGIN = [
     origin_line(20, "c0", CHROME_IP, CHROME_UA, "/pricing", 200),
     origin_line(30, "c1", CHROME_IP, CHROME_UA, "/signup", 200),
 ]
-
-
-@pytest.fixture
-def inbox(config_dir, client, monkeypatch) -> MemoryInbox:
-    monkeypatch.setenv("OFFLINE", "true")
-    monkeypatch.setenv("OPENROUTER_API_KEY", "")
-    get_settings.cache_clear()
-    ingest.reset_limits()
-    memory = MemoryInbox()
-    app = client._transport.app
-    app.dependency_overrides[inbox_dependency] = lambda: memory
-    yield memory
-    app.dependency_overrides.clear()
-    ingest.reset_limits()
 
 
 async def rows(conn, sql):

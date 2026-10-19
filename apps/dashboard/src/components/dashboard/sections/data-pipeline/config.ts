@@ -7,15 +7,11 @@ export const RUN_LIST_LIMIT = 50;
 /** Import files read to build the source table. */
 export const SOURCE_FILE_LIMIT = 200;
 
-/** Where the site configuration lives. The API does not expose it. */
-export const CONFIG_PATH = "apps/api/config/";
-
 export const TABS = [
   { id: "sources", name: "Sources" },
   { id: "imports", name: "Import runs" },
   { id: "runs", name: "Pipeline runs" },
   { id: "health", name: "Health & alerts" },
-  { id: "settings", name: "Settings" },
 ];
 
 /** Status filter of the run lists. An empty value shows every row. */

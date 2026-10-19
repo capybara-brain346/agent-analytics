@@ -31,7 +31,6 @@ export const navGroups: NavGroup[] = [
     label: "Manage",
     items: [
       { key: "data", path: "/data", label: "Data & pipeline" },
-      { key: "settings", path: "/data", tab: "settings", label: "Settings" },
     ],
   },
 ];

@@ -52,7 +52,7 @@ Under `src/components/dashboard/`:
 - `sections/`: one screen each.
   - `agents.tsx`
   - `activity/`: events and sessions tables, toolbar, pager, recommendation evidence bar.
-  - `data-pipeline/`: health, imports, runs, sources, and settings tabs.
+  - `data-pipeline/`: health, imports, runs, and sources tabs. `upload.tsx`: multi-file upload and the drop zone on the Sources tab.
   - `pages-journeys/`: pages and journeys tabs.
   - `recommendations/`: table, status, and run controls.
 - `details/`: detail sheets per entity. `common.tsx` has the shared sections and fields, `facts.tsx` the fact lists, `legend.tsx` the chart legend.

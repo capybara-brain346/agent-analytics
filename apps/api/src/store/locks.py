@@ -25,6 +25,13 @@ async def site_lane_lock(conn: AsyncConnection, site_id: str, lane: Lane) -> Asy
             await conn.execute("select pg_advisory_unlock(%s)", [key])
 
 
+async def try_site_lane_xact_lock(conn: AsyncConnection, site_id: str, lane: Lane) -> bool:
+    # Transaction-level: it ends with the commit or the rollback, so no work stays visible to a
+    # run before it is committed. Same key as site_lane_lock: the two exclude each other.
+    cur = await conn.execute("select pg_try_advisory_xact_lock(%s)", [lock_key(site_id, lane)])
+    return (await cur.fetchone())[0]
+
+
 def bucket_lock_key(site_id: str, bucket: str, prefix: str) -> int:
     digest = hashlib.sha256(f"bucket:{site_id}:{bucket}:{prefix}".encode()).digest()
     return int.from_bytes(digest[:8], "big", signed=True)

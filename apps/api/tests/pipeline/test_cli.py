@@ -133,3 +133,26 @@ def test_worker_wired(monkeypatch):
     assert runner.invoke(cli.app, ["worker"]).exit_code == 0
     assert runner.invoke(cli.app, ["worker", "--lanes", "slow"]).exit_code == 0
     assert called == ["all", "slow"]
+
+
+def test_import_folder_reads_site_and_source_from_names(monkeypatch, tmp_path: Path):
+    patch_pool(monkeypatch)
+    calls = []
+
+    async def import_local_file(path, site, **kwargs):
+        calls.append((path.name, site, kwargs.get("source")))
+        return {"file_id": "f", "duplicate": False}
+
+    monkeypatch.setattr(cli.importer, "import_local_file", import_local_file)
+    for name in ("example__origin__20261001T0000Z.log", "example__cdn__20261001T0000Z__a.log.gz"):
+        (tmp_path / name).write_text("x")
+    (tmp_path / "README.md").write_text("not a log")
+    result = runner.invoke(cli.app, ["import", str(tmp_path)])
+    assert result.exit_code == 0, result.output
+    assert calls == [
+        ("example__cdn__20261001T0000Z__a.log.gz", "example", "cdn"),
+        ("example__origin__20261001T0000Z.log", "example", "origin"),
+    ]
+
+    (tmp_path / "old.log").write_text("x")
+    assert runner.invoke(cli.app, ["import", str(tmp_path)]).exit_code == 2

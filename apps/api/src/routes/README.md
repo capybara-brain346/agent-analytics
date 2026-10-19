@@ -9,4 +9,4 @@ FastAPI routers. Thin: read params, call `store` / `services`, map to `models.ap
 
 - `params.py`: shared dependencies: DB connection, site, time scope, paging.
 - `ingest` writes to the S3 inbox only. The worker imports the files later.
-- Only `POST /api/imports` and `POST /api/recommendations` change state in `/api`.
+- Only `POST /api/imports/upload`, `DELETE /api/imports/{id}` and `POST /api/recommendations` change state in `/api`.
