@@ -5,7 +5,7 @@
 type    = "file"
 include = ["/var/log/nginx/access.log"]
 
-[sinks.webzero]
+[sinks.agent_analytics]
 type     = "http"
 inputs   = ["nginx"]
 uri      = "https://<our-host>/ingest?site=<site_id>"

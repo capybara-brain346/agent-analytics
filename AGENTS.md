@@ -21,7 +21,6 @@ Code and documentation changes should be scoped to the user’s request. Do not 
 - `deploy/` — Docker Compose (dev and demo), Helm chart (production), Vector sender config, live-site test capture for Cloudflare Pages (`deploy/cloudflare-pages/README.md`).
 - `samples/logs/` — fictional CDN and origin log files, the test and demo data. See `samples/logs/README.md`.
 - `docs/modules/` — one folder per module (architecture, ingestion, pairing, verification, classification, activity-reconstruction, recommendations, pipeline, store, api, dashboard, deployment, testing). Design, decisions and known limits. Start at `docs/modules/README.md`.
-- `docs/` — also `task.pdf` (assignment brief), `DESIGN.md` (dashboard visual design) and `PRODUCT.md` (product framing for design tooling).
 
 ## Commands
 
@@ -42,7 +41,7 @@ Dashboard, from `apps/dashboard`:
 
 Full stack, from `deploy/compose`:
 
-- `cp .env.example .env && docker compose up --build` — all services on https://localhost.
+- `docker compose up --build` — all services on https://localhost. No `.env` is needed: `docker-compose.yml` has every default. Copy `.env.example` to `.env` only to override a value. Needs Docker Compose v2.24 or later.
 
 Do not report a command as passing unless it actually completed successfully. If a command is known to be unavailable, flaky, environment-dependent, or currently empty, state that clearly.
 

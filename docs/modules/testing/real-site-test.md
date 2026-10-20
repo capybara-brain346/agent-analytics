@@ -1,15 +1,13 @@
 # Real-site test
 
-This file describes how we test Agent Analytics on a real website with real AI agents. It covers the approach, the capture tools and the procedure. The test results are in a separate report (Linear ZER-244).
-
-Tracking: Linear ZER-237 (parent ZER-236). Code: PR #4 and PR #5 (`agent-analytics`), commit `543a16b` (`personal-website`).
+This file describes how we test Agent Analytics on a real website with real AI agents. It covers the approach, the capture tools and the procedure. The test results are in a separate report.
 
 ## Read this when
 
 - You run the real-site test.
 - You change `deploy/cloudflare-pages/` (`capture.sh`, site files) or `apps/api/config/cdn/cloudflare.yaml`.
 - You add another live test site.
-- You write the results report (ZER-244).
+- You write the results report.
 
 ## Code map
 
@@ -50,7 +48,7 @@ The test answers these questions:
 
 | Option | Decision | Reason |
 |---|---|---|
-| Connect a customer CDN and origin | Not used | It takes too much time for this sprint. |
+| Connect a customer CDN and origin | Not used | It takes too much time for this test. |
 | Use the synthetic sample logs | Not enough | They cannot show real agent behavior. |
 | Test on a site that we control | **Used** | We control the site, the deploys and the agents, and we know what we ran. |
 
@@ -258,7 +256,7 @@ There is no formal ground-truth sheet. The runs are our own test traffic, so the
 | Recommendations | At least 3, each linked to evidence from the run |
 | Blind spots | Agent activity that the log did not show |
 
-Reporting rules (from ZER-236):
+Reporting rules:
 
 - Keep observed facts, inferences and unknowns separate.
 - A crawler label does not prove intent. A 200 response does not prove that the agent completed a task.
@@ -272,7 +270,7 @@ Reporting rules (from ZER-236):
 | run2 | 2026-10-19 07:29 | Capture check |
 | run3 | 2026-10-19 07:44 | First agent traffic run |
 
-The results are in the results report (ZER-244).
+The results are in a separate report.
 
 ## Rules and decisions
 
@@ -282,7 +280,7 @@ The results are in the results report (ZER-244).
    Why: zone cache hits skip the middleware and are missing from the log.
 3. Use one open-ended prompt for every agent. Give no fixed tasks or URLs.
    Why: real agents have their own goals.
-4. Evaluate by hand. Keep facts, inferences and unknowns separate (ZER-236).
+4. Evaluate by hand. Keep facts, inferences and unknowns separate.
    Why: the runs are our own traffic and there is no ground-truth sheet.
 5. Keep site files for a live site out of the shipped `apps/api/config/sites/`. Copy them in for a run.
    Why: the demo stays single-site, and tests must not see them.

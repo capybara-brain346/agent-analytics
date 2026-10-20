@@ -1,4 +1,4 @@
-/* Webzero product console tokens. Light theme only. */
+/* Product console tokens. Light theme only. */
 :root {
   color-scheme: light;
 
@@ -43,7 +43,7 @@
   --bar-height: 56px;
   --control-height: 34px;
 
-  /* shadcn semantic tokens, mapped to Webzero values */
+  /* shadcn semantic tokens, mapped to console values */
   --background: #ffffff;
   --foreground: var(--ink);
   --card: #ffffff;

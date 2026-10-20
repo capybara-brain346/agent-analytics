@@ -133,8 +133,8 @@ Gap example (SQL window logic):
 |---|---|---|
 | [4.1] | Closed sessions are appended once. Only `open_sessions` and the hourly rows of the other views are rewritten, for the site with new events. Views are derived. History lives in `events` + `verdicts`. | A full rebuild reads all history every run and grows with every site and day. Open/closed keeps almost all writes as appends. |
 | [4.2] | Retry = same client + same path again within 60 s after a 4xx/5xx. Loop = redirect back to a visited path, or same path 5 times or more. Values are in settings. | These are facts for the rules. Reconstruction reports, rules judge. |
-| [4.3] | A shared-IP flag (CGN `100.64.0.0/10`, ranges in `config/registry/shared-ip.yaml`) lowers confidence. | Same IP is not the same agent (PDF §03.C). |
-| [4.4] | Each session lists its gaps ("no CDN log: edge blocks unknown", "outcome unknown"). | PDF §03.C. |
+| [4.3] | A shared-IP flag (CGN `100.64.0.0/10`, ranges in `config/registry/shared-ip.yaml`) lowers confidence. | Same IP is not the same agent. |
+| [4.4] | Each session lists its gaps ("no CDN log: edge blocks unknown", "outcome unknown"). | A session must show what the log cannot prove. |
 | [4.5] | A session closes when its last event is older than the gap (30 min; agent clients 2 min) plus a delivery margin for late CDN files. | Late files can still add to a visit that looks finished. |
 | [4.6] | A late event for an already closed range (backfill, very late file): re-compute the sessions of that client from the range start. Delete + insert in one transaction. Rare path. | Keeps closed rows correct without a full rebuild. |
 | [4.7] | Upserts and deletes for one site run in one transaction. Readers see the old rows or the new rows, never a mix (Postgres MVCC). No table swap, no exclusive lock. | Safe for many sites in one table. Dashboard reads never wait. |
@@ -182,7 +182,7 @@ The code checks `low` first (shared IP, agent client, class 6), then `high`, the
 | `session_id` = `'s' ||` first 20 characters of `md5(site_id | client_key | started | first event id)`. | Deterministic id. |
 | A rebuilt session keeps the id of the oldest stored session it overlaps (one old id goes to one rebuilt session at most). When sessions merge, the merged one keeps the earliest id. Any other rebuilt session gets its own hash id, re-hashed until it differs from every id in use (max 20 rounds, then `RuntimeError`). | A late earlier event moves `started` but not the id. Links and recommendation evidence stay valid. |
 | `version` of a rebuilt session = highest stored version of its id + 1 (0 + 1 for a new id). | Readers can see that an open session changed. |
-| Events inside a session are ordered by `(ts, id)`. `seq` starts at 1. `session_events` stores `(session_id, event_id, event_ts, seq)`. | Drill-down to evidence (PDF §03.D). |
+| Events inside a session are ordered by `(ts, id)`. `seq` starts at 1. `session_events` stores `(session_id, event_id, event_ts, seq)`. | Drill-down to evidence. |
 | A session is open when `last_seen + (gap_min + delivery_margin_minutes) > now`, where `gap_min` is the largest gap of its events. `close_idle_sessions` moves open rows that pass the limit (using the `agent_client` category of the row's verdict) to `sessions` with `on conflict do nothing`. | Time rule only. A session with no new event still closes. |
 | Retry (per event): the previous event of the same session and same path has status >= 400, and the time difference is `retry_window_seconds` or less. | [4.2] |
 | Loop (per event): the path appears `loop_repeat_count` times or more in the session, or the previous event of the session has status 300 to 399 and the first event of this path is at least 2 events earlier. | [4.2] |
@@ -195,7 +195,7 @@ The code checks `low` first (shared IP, agent client, class 6), then `high`, the
 | `page_stats.n_4xx` counts every 4xx (403 and 429 included). Error rate = `(n_4xx + n_5xx) / requests`. Block rate = `(n_403 + n_429) / requests`. | One definition for all readers. |
 | Distinct counts over many hours (sessions, clients) come from the session tables, not from adding hourly values. | A session that spans hours counts once for each hour in the hourly rows. |
 | `page_stats.tags` has `key` and/or `conversion` from site config. | Dashboard preset views. |
-| `agents` has one row for each hour, `claimed_agent`, `traffic_class`. Clients with no bot name use `unknown:<ua_type>` or `unknown:class<N>`. `verification` and `confidence` come from the last event of the hour. `top_paths` = 5 most requested paths. | Agent directory (PDF "Agent directory"). |
+| `agents` has one row for each hour, `claimed_agent`, `traffic_class`. Clients with no bot name use `unknown:<ua_type>` or `unknown:class<N>`. `verification` and `confidence` come from the last event of the hour. `top_paths` = 5 most requested paths. | Agent directory. |
 | `journey_steps` rows list the steps up to the highest step a session reached in that hour, for each class. `sessions_retry_or_loop` counts sessions with a retry or loop event at that step. | Hourly step list. The exact funnel comes from `sessions.journeys_reached`. |
 | `reset_site(conn, site_id)` deletes all view rows of the site and sets `in_views = false` on its events. | The incremental path only adds. It cannot see that rows are gone after an import file is deleted. |
 

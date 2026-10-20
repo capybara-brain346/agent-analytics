@@ -1,6 +1,6 @@
 # Recommendations
 
-The recommendation engine is the slow lane of the pipeline. It answers: "Which journeys should Webzero test next, and why?"
+The recommendation engine is the slow lane of the pipeline. It answers: "Which journeys should we test next, and why?"
 Input: session, page, journey and agent tables (see [activity-reconstruction](../activity-reconstruction/README.md)) and the site config YAML.
 Output: one append-only run with a ranked list of recommendations. Each recommendation has 8 fields. Code owns every fact. An optional LLM writes 4 text fields.
 
@@ -129,7 +129,7 @@ Decision IDs `[5.x]` come from the original design. Other rules (`R...`) describ
 - R7. A key page is a page in `key_pages` or `conversion_pages`. Both lists are in the key set.
   Why: impact and P2 use one definition of "key".
 
-### Patterns (PDF section 04)
+### Patterns
 
 - `[5.1]` All 5 patterns. P4 compares the customer sitemap or content list with fetches. The engine does no page-content check and does not fetch pages.
   Why: we capture, we do not diagnose content.
@@ -209,7 +209,7 @@ The bundle (`build_bundle`) holds:
 | Next action (`next_action`) | LLM, else template. Label `unknown`. |
 
 - `[5.6]` Each recommendation states its Unknown part and why simulation is needed. Every template `next_action` has an "Unknown:" sentence. The LLM prompt asks for the same.
-  Why: PDF section 04.
+  Why: logs cannot show intent or task success.
 
 ### Text: LLM and templates
 

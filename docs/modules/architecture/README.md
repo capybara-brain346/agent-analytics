@@ -13,7 +13,7 @@ Input: access log files from the customer. Output: verified identities, sessions
 
 ## Product purpose
 
-- Question: can we turn observable AI-agent traffic into trustworthy evidence, and use it to decide which journeys Webzero tests next?
+- Question: can we turn observable AI-agent traffic into trustworthy evidence, and use it to decide which journeys to test next?
 - Users: product managers (decide which agent journeys to test) and engineers (inspect evidence and data coverage).
 - Every claim has one label: `Observed`, `Inferred` or `Unknown` (`EvidenceLabel` in `apps/api/src/models/domain.py`).
 - An identity claim stays unverified until the verify step proves it.

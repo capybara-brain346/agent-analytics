@@ -37,11 +37,3 @@ origin logs┘   (import)     (CDN+origin) (identity)     (6 classes)        (se
 | [dashboard](dashboard/README.md) | Change dashboard screens, UX rules or UI URLs. |
 | [deployment](deployment/README.md) | Change Compose, Helm, Dockerfiles or log senders. |
 | [testing](testing/README.md) | Run or add tests, use sample logs, run the real-site test. |
-
-## Other files in `docs/`
-
-| File | Purpose |
-|---|---|
-| [`../task.pdf`](../task.pdf) | The assignment brief. |
-| [`../DESIGN.md`](../DESIGN.md) | Dashboard visual design system. Design tooling reads it from this path. |
-| [`../PRODUCT.md`](../PRODUCT.md) | Product framing for design tooling. |

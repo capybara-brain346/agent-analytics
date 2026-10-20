@@ -13,7 +13,7 @@ The managed (AWS) target uses the same images. Managed infrastructure is not wri
 - You add or change the origin log sender config (`deploy/vector/vector.toml`).
 - You add a new environment variable that Compose or Helm must pass.
 - You work on offline mode (no outside network).
-- You write or change the setup guide `setup.md`.
+- You write or change the setup guide `SETUP.md`.
 
 For the list of technologies and the reason for each, see [architecture](../architecture/README.md).
 
@@ -39,7 +39,7 @@ For the list of technologies and the reason for each, see [architecture](../arch
 | `deploy/helm/agent-analytics/templates/httproute.yaml` | Gateway API `HTTPRoute` (disabled by default). |
 | `deploy/helm/agent-analytics/templates/_helpers.tpl` | Names, labels, shared `api` environment (`aa.apiEnv`). |
 | `deploy/vector/vector.toml` | Origin log sender config for the customer. |
-| `setup.md` | Step guide that tells an AI agent to start the Compose stack. Not a prompt. |
+| `SETUP.md` | Step guide that tells an AI agent to start the Compose stack. Not a prompt. |
 | `README.md` section "2. Run it" | Human run steps for Compose and local development. |
 | `apps/api/src/config/settings.py` | Every environment variable and default (`Settings`). |
 | `apps/api/src/routes/health.py` | `/livez` and `/health`. |
@@ -166,7 +166,7 @@ Sender matrix:
 | CDN logs | The CDN's log push | Customer, in the CDN console | Endpoint URL, site token, field map |
 | CDN that writes only to its own bucket | Our bucket reader (in the worker) | Customer gives read-only access to that bucket | Nothing extra |
 | Origin logs | Vector on each origin server | Customer ops team | `vector.toml` and install guide |
-| Old files, tests | Dashboard upload or CLI | Webzero PM | Nothing extra |
+| Old files, tests | Dashboard upload or CLI | Product manager | Nothing extra |
 
 Where Vector runs:
 
@@ -184,7 +184,7 @@ Where Vector runs:
 type    = "file"
 include = ["/var/log/nginx/access.log"]
 
-[sinks.webzero]
+[sinks.agent_analytics]
 type     = "http"
 inputs   = ["nginx"]
 uri      = "https://<our-host>/ingest?site=<site_id>"
@@ -341,9 +341,9 @@ Commands:
 | `python -m src.cli download-ip-lists` | `api` image | Download (or, when `OFFLINE=true`, load bundled) IP-list snapshots once. |
 | `docker compose exec worker python -m src.cli run-recommendations --site example --window 14d` | `deploy/compose` | Make recommendations from sample data. "Generate now" looks only at the last 6 hours. |
 
-### `setup.md`
+### `SETUP.md`
 
-`setup.md` (repo root) is a guide for an AI agent. The agent must:
+`SETUP.md` (repo root) is a guide for an AI agent. The agent must:
 
 1. Check `docker`, `docker compose version` (v2.24 or later), the daemon, and free host ports 80, 443, 5432, 8333.
 2. Not create a `.env`. Create `deploy/compose/.env` only when the user gives an LLM key (`OPENROUTER_API_KEY` and `LLM_MODEL`, default `anthropic/claude-sonnet-5.5`). The key is optional.
@@ -351,7 +351,7 @@ Commands:
 4. Check `docker compose ps -a`: `caddy`, `api`, `worker`, `dashboard`, `seaweedfs` are `Up`, `postgres` is `Up (healthy)`, `migrate` is `Exited (0)`. Then `curl -sk https://localhost/health` (retry up to 2 minutes) and `https://localhost/` (200).
 5. Tell the user to open https://localhost and to continue past the certificate warning.
 
-Rules in `setup.md`: Docker Compose only (no Kubernetes, Helm, Vector); no repo file changes; no commit, branch or push. Sample data: logs in `samples/logs/` are synthetic and cover 2026-10-12 to 2026-10-18. Dashboard time ranges count back from now, so old sample data falls outside `7d` later. If you change Compose services, ports or the health check, update `setup.md` Step 1 and Step 4.
+Rules in `SETUP.md`: Docker Compose only (no Kubernetes, Helm, Vector); no repo file changes; no commit, branch or push. Sample data: logs in `samples/logs/` are synthetic and cover 2026-10-12 to 2026-10-18. Dashboard time ranges count back from now, so old sample data falls outside `7d` later. If you change Compose services, ports or the health check, update `SETUP.md` Step 1 and Step 4.
 
 ## Offline mode
 
@@ -373,7 +373,7 @@ What exists in the code:
 ## Known limits
 
 - Compose: no backups, no failover, no auto scaling. Postgres (5432) and SeaweedFS (8333) are published on the host. Default passwords and S3 keys are for dev only.
-- `setup.md` needs Docker Compose v2.24 or later (optional `env_file`). Rootless Docker cannot bind ports 80 and 443 by default.
+- `SETUP.md` needs Docker Compose v2.24 or later (optional `env_file`). Rootless Docker cannot bind ports 80 and 443 by default.
 - Helm: `resources` are empty by default. No `PodDisruptionBudget`, affinity or `NetworkPolicy` in the chart. The worker and dashboard Deployments have no probes. The migrate Job does not load `existingSecret`.
 - Helm: the chart has no value for the bucket reader settings, site config files or other `Settings` fields. Site configs are in the image (`apps/api/config/`).
 - Helm: routing does not include `/livez`. The Kubernetes probes call the pod directly, so this does not affect them.
@@ -408,7 +408,7 @@ There are no automated tests for Compose, Helm or Vector files. Check by hand:
 
 ```sh
 cd deploy/compose && docker compose config          # Compose resolves with no .env
-cd deploy/compose && docker compose up --build -d   # then follow setup.md Step 4
+cd deploy/compose && docker compose up --build -d   # then follow SETUP.md Step 4
 helm template deploy/helm/agent-analytics           # needs helm; render the chart
 ```
 

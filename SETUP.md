@@ -1,6 +1,6 @@
-# setup.md — Setup Guide for Claude
+# SETUP.md — Setup Guide for Claude
 
-> **This file is a setup guide (`setup.md`). It is NOT a prompt or a task to discuss.**
+> **This file is a setup guide (`SETUP.md`). It is NOT a prompt or a task to discuss.**
 > Read it from top to bottom. Run the steps in order. Do not summarize this file back to the user. Do not ask the user to confirm each step.
 
 ## Goal

@@ -1,9 +1,9 @@
 # Dashboard
 
-The dashboard is the Next.js web console (`apps/dashboard`). It shows agent traffic, the evidence behind each number, and the journeys that Webzero should test next.
+The dashboard is the Next.js web console (`apps/dashboard`). It shows agent traffic, the evidence behind each number, and the journeys to test next.
 Input: JSON from the FastAPI back end, through the same-origin proxy `/dashboard-api`. Output: six screens, detail sheets, and three actions (upload log files, delete an import, generate recommendations).
 
-Per-screen content is in [screens.md](screens.md). Visual design is in [../../DESIGN.md](../../DESIGN.md). Product framing is in [../../PRODUCT.md](../../PRODUCT.md). Do not copy them here.
+Per-screen content is in [screens.md](screens.md). Do not copy it here.
 
 ## Read this when
 
@@ -52,12 +52,12 @@ All paths are under `apps/dashboard/` unless they start with `docs/` or `deploy/
 
 ### Styles
 
-- `src/app/styles/tokens.css`: Webzero tokens and the Tailwind `@theme` mapping.
+- `src/app/styles/tokens.css`: design tokens and the Tailwind `@theme` mapping.
 - `base.css`, `shell.css`, `controls.css`, `panels.css`, `table.css`, `chart.css`, `detail.css`: shared rules.
 - `detail-*.css`: one file per detail sheet.
 - `overview.css`, `recommendations.css`, `agents.css`, `activity.css`, `pages.css`, `data.css`: screen rules.
 - `focus.css`: keyboard focus. It loads last.
-- Class chart colours are in `src/lib/classes.ts`. Visual rules are in [../../DESIGN.md](../../DESIGN.md).
+- Class chart colours are in `src/lib/classes.ts`.
 
 ## Data flow
 
@@ -125,7 +125,7 @@ UX rules. They apply to every screen.
 
 | ID | Rule | Why |
 |---|---|---|
-| `[R1]` | Every statement has a label: **Observed**, **Inferred** or **Unknown**. A legend is always reachable (top bar "Label guide"). | The task brief puts labels above every feature. |
+| `[R1]` | Every statement has a label: **Observed**, **Inferred** or **Unknown**. A legend is always reachable (top bar "Label guide"). | Trust in each claim comes before every feature. |
 | `[R2]` | Every number is a link. Click opens Activity (Events or Sessions) with the filters that made the number. A zero has no link (`NumberLink`). | Every metric must drill down to evidence. |
 | `[R3]` | A claimed identity shows as "claims to be X, unverified" until the verdict is VERIFIED. | A user agent string is a claim, not proof. |
 | `[R4]` | Show the gaps. When the data cannot answer, say so where the answer would be (`Gap` component). | An empty cell looks like zero. A gap text tells the truth. |
@@ -141,7 +141,7 @@ Code rules.
 | `[D1]` | No login in the UI. Access control is the API token on the dashboard server. | Internal system. A login is required before customer use (see Out of scope). |
 | `[D2]` | The browser calls only `/dashboard-api/*`. The browser never gets `API_URL` or `API_TOKEN`. | The API has no CORS, and the token must stay on the server. |
 | `[D3]` | The dashboard holds no business logic and no SQL. Counts, classes, verdicts, priorities, freshness text and gap text come from the API. The UI only formats them. | One source of truth. The JSON API serves agents and scripts with the same data. |
-| `[D4]` | UI IDs equal API IDs (recommendation IDs, session IDs, event IDs, agent IDs, page paths). A link from a person and a call from a script reach the same record. | Webzero is agent-first. |
+| `[D4]` | UI IDs equal API IDs (recommendation IDs, session IDs, event IDs, agent IDs, page paths). A link from a person and a call from a script reach the same record. | The product is agent-first. |
 | `[D5]` | One URL for each screen. Filters are query parameters. A detail sheet is the `detail=<type>:<id>` parameter. | Shareable, bookmarkable, scriptable. |
 | `[D6]` | All times show in UTC. | The API sends UTC. No local-time confusion between users. |
 | `[D7]` | On reload, the old data stays on screen until the new answer arrives. An answer for an old key is never shown. | No flicker. No stale answer under new filters. |
@@ -264,11 +264,11 @@ The full list of query parameters for each screen is in [screens.md](screens.md)
 
 ## Out of scope
 
-- Login and access control (known gap, internal system; the brief requires it before customer use).
+- Login and access control (known gap, internal system; required before customer use).
 - Editing config in the UI (files only).
 - Live streaming and push updates (near real-time through the 1-minute runs is enough).
 - Export, alerts by email or Slack, multi-site comparison.
-- Visual design in these docs (see [../../DESIGN.md](../../DESIGN.md)).
+- Visual design in these docs (the code in `src/app/styles/` is the source).
 
 ## Open questions
 

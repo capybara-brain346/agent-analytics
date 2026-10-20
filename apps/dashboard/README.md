@@ -38,15 +38,15 @@ Product requirements are in `../../docs/modules/dashboard/README.md` and `../../
 
 ## Styling
 
-The UI follows the Webzero product console layer (light theme, Instrument Sans and JetBrains Mono through `next/font/google`). `src/app/globals.css` only imports the files in `src/app/styles/`:
+The UI follows the product console layer (light theme, Instrument Sans and JetBrains Mono through `next/font/google`). `src/app/globals.css` only imports the files in `src/app/styles/`:
 
-- `tokens.css`: Webzero tokens and the Tailwind `@theme` mapping for shadcn utilities.
+- `tokens.css`: design tokens and the Tailwind `@theme` mapping for shadcn utilities.
 - `base.css`, `shell.css` (rail, top bar, workspace, status row), `controls.css`, `panels.css`, `table.css`, `chart.css`, `detail.css`: shared rules.
 - `detail-*.css`: one file per detail sheet.
 - `focus.css`: keyboard focus (`:focus-visible`) as a background wash on every control and table row. Loaded last.
 - `overview.css`, `recommendations.css`, `agents.css`, `activity.css`, `pages.css`, `data.css`: section-specific rules only.
 
-Traffic-class chart colours are in `src/lib/classes.ts`. Visual rules are in `../../docs/DESIGN.md`.
+Traffic-class chart colours are in `src/lib/classes.ts`.
 
 ## File map
 

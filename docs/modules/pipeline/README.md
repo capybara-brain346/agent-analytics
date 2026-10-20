@@ -137,7 +137,7 @@ View update (the `views` step) runs in one transaction:
 
 Real-time context:
 
-- Real-time scope: the product needs near real-time, not real time. The floor is the customer log delivery (CDN push batch, Vector flush). Expect about 1 to 6 minutes after the request. Why: the assignment (`docs/task.pdf`) never asks for real time: file import "misses real-time data" (section 03.A), "ingest asynchronously" and "alert when data stops arriving" (section 05).
+- Real-time scope: the product needs near real-time, not real time. The floor is the customer log delivery (CDN push batch, Vector flush). Expect about 1 to 6 minutes after the request. Why: real time is not a requirement. The requirements are: file import misses real-time data, so ingest asynchronously and alert when data stops arriving.
 - [7.7] A session with a last event less than 30 minutes ago is "in progress". An older session is "closed". Why: honest label: a later import can change an open session. The 30 minutes come from `session_gap_minutes`. `in_progress` is set in `apps/api/src/store/queries.py` by the union of `sessions` and `open_sessions`.
 
 Run rules:
@@ -155,7 +155,7 @@ Run rules:
 
 Alerts and health:
 
-- [7.6] Raise an alert after 3 failed runs in a row (`FAILED_RUNS_ALERT`). `/health` returns the last success of each lane. A lane is unhealthy when its last success is older than the limit. Why: the assignment (section 05) asks for health checks and error logging. Phase 2 infrastructure uses `/health`.
+- [7.6] Raise an alert after 3 failed runs in a row (`FAILED_RUNS_ALERT`). `/health` returns the last success of each lane. A lane is unhealthy when its last success is older than the limit. Why: operators need health checks and error logging. Phase 2 infrastructure uses `/health`.
 - [7.11] `/health` and the stale rule apply for each site and lane. Why: many sites in one system.
 - A `no_data` alert is raised for a source when no new live file arrived within `no_data_alert_minutes` (site file value, or the `NO_DATA_ALERT_MINUTES` default). Only live files count. A backfill upload must not hide a sender that stopped (decisions 1.4, 1.18). A source that never sent a file has no baseline and raises no alert. The alert resolves when a new live file arrives.
 - An alert is unique for each open (`site_id`, `kind`, `source`) by the index `alerts_open`. `raise_alert` returns `None` when the same alert is open. `resolve_alert` sets `resolved_at`.

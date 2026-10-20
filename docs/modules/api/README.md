@@ -94,7 +94,7 @@ Request sequence for one `/api` call:
 
 ### Agent-first API
 
-1. [A1] The JSON API is a first-class user. Every dashboard screen has a JSON route with the same filters and the same IDs. Why: Webzero is agent-first. An agent must read the same data as a human without the UI.
+1. [A1] The JSON API is a first-class user. Every dashboard screen has a JSON route with the same filters and the same IDs. Why: the product is agent-first. An agent must read the same data as a human without the UI.
 2. [A2] The UI path and the API path match. The API path is the UI path under `/api`. Exceptions: `/data/imports` is `/api/imports`, `/data/runs` is `/api/runs`, and `/data/health` is `/health` (no `/api` prefix, no token). Why: a link from a human and a call from an agent reach the same record.
 3. [A3] IDs are the same as in the UI: recommendation IDs, session IDs, event IDs, agent IDs, journey IDs, run IDs. Why: A2.
 4. [A4] Global filters are query parameters: `site`, `from`, `to`, `class` (UX rule R8). Why: filters stay the same between screens and in shareable links.
@@ -134,7 +134,7 @@ Request sequence for one `/api` call:
 
 ### Health and alerts
 
-29. [7.6] `/health` returns the last success of each lane. A lane is unhealthy when its last success is older than `HEALTH_STALE_MINUTES` (fast lane), or older than the slow interval plus `HEALTH_STALE_MINUTES` (slow lane). A lane that never succeeded is unhealthy. Open alerts are in the body (up to 100). A raised alert after `FAILED_RUNS_ALERT` failed runs in a row comes from the pipeline module. Why: PDF section 05 health checks. Phase 2 uses `/health`.
+29. [7.6] `/health` returns the last success of each lane. A lane is unhealthy when its last success is older than `HEALTH_STALE_MINUTES` (fast lane), or older than the slow interval plus `HEALTH_STALE_MINUTES` (slow lane). A lane that never succeeded is unhealthy. Open alerts are in the body (up to 100). A raised alert after `FAILED_RUNS_ALERT` failed runs in a row comes from the pipeline module. Why: operators need health checks. Phase 2 uses `/health`.
 30. [7.11] `/health` and the staleness rule apply for each site and lane. Why: many sites in one system.
 31. [E1] A database error in `/health` gives `503` with `healthy: false`, empty `lanes` and empty `alerts`. The error is logged. Why: a probe must get an answer even when the DB is down.
 
@@ -391,14 +391,14 @@ Docker Compose and Helm set these variables: see [deployment](../deployment/READ
 
 ## Known limits
 
-- No user login. One shared `API_TOKEN` guards `/api/*`, and it is optional. There is no per-user access control. This must change before customer use (PDF section 05).
+- No user login. One shared `API_TOKEN` guards `/api/*`, and it is optional. There is no per-user access control. This must change before customer use.
 - The `/ingest` rate window is in process memory. With N API replicas the real limit is up to N times `INGEST_RATE_PER_MINUTE`.
 - Error shapes are not uniform. Parameter and not-found errors use `{"code", "message"}`. `/ingest`, `/api/imports*` and auth errors use a string `detail`. FastAPI validation errors use the FastAPI default shape.
 - Not every list is paged. `/api/sites`, `/api/agents`, `/api/pages` and `/api/journeys` return the full list. `/api/imports` is paged but has its own shape (`items`, `total`, `limit`, `offset`) instead of `Paged[T]`.
 - Not every model carries a `label`. See A5: only the models that define `label` (and `LabeledText`) do.
 - `GET /api/imports` has no site default: `site` is optional and means "all sites".
 - Logs cannot show task completion. Outcome fields are always `unknown`.
-- Raw IPs and full URLs (with query strings) are stored and returned. Redaction is necessary before customer use (PDF sections 05 and 09; decision 1.12).
+- Raw IPs and full URLs (with query strings) are stored and returned. Redaction is necessary before customer use (decision 1.12).
 - The API does not export data and does not push alerts (no email or Slack). See the dashboard module for the UI scope.
 
 ## Open questions

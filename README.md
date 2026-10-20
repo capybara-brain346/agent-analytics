@@ -1,10 +1,8 @@
 # Agent Analytics
 
-> Can we turn observable AI-agent traffic into trustworthy evidence, and use that evidence to decide which journeys Webzero should test next?
+> Can we turn observable AI-agent traffic into trustworthy evidence, and use that evidence to decide which journeys to test next?
 
 Agent Analytics reads CDN and origin access logs. It finds AI agents and bots, verifies who they are, rebuilds what they did, and ranks the journeys to test next. Every claim has a label: **Observed**, **Inferred** or **Unknown**.
-
-Built in a 5-day sprint for the Webzero engineering assignment ([docs/task.pdf](docs/task.pdf)).
 
 ```
  access logs ──► verified identity ──► sessions & journeys ──► ranked test recommendations
@@ -16,7 +14,7 @@ Built in a 5-day sprint for the Webzero engineering assignment ([docs/task.pdf](
 
 ## Contents
 
-1. [Result against the brief](#1-result-against-the-brief)
+1. [Results](#1-results)
 2. [Run it](#2-run-it)
 3. [Architecture](#3-architecture)
 4. [How one request becomes evidence](#4-how-one-request-becomes-evidence)
@@ -27,9 +25,9 @@ Built in a 5-day sprint for the Webzero engineering assignment ([docs/task.pdf](
 
 ---
 
-## 1. Result against the brief
+## 1. Results
 
-| Definition of done (PDF §09) | Where it is |
+| Definition of done | Where it is |
 |---|---|
 | Ingests real HTTP access logs through a documented, reproducible path | `POST /ingest` (Vector, CDN push), dashboard upload, CLI. All three use one inbox and one parser. |
 | Normalises every event into one internal schema | One provider-neutral `events` table. CDN vendor differences live in YAML field maps only. |
@@ -116,7 +114,7 @@ Optional: set `OPENROUTER_API_KEY` and `LLM_MODEL` for LLM-written recommendatio
 
 Three processes, one image: `api`, `worker`, `migrate`. Plus `dashboard`, `postgres` and S3-compatible storage. No queue product, no cron.
 
-### Pipeline stages (PDF §07 reference → this build)
+### Pipeline stages
 
 ```
  1 Collect ─► 2 Ingest ─► 3 Normalise ─► 4 Classify ─► 5 Sessionise ─► 6 Analyse ─► 7 Recommend ─► 8 Dashboard
@@ -268,8 +266,8 @@ Full record with reasons: the module docs in [docs/modules/](docs/modules/README
 | **One PostgreSQL** [S.1] | Separate log database (ClickHouse) | Steps need transactions across events, verdicts and files. Postgres handles ~10 M lines/day with daily partitions. ClickHouse is the measured scale path [S.5]. |
 | **`import_files` table is the queue** [7.8] | SQS, RabbitMQ | `FOR UPDATE SKIP LOCKED` gives safe parallel work and crash retry. No second list to keep in sync. |
 | **Worker loop as scheduler** [7.1] | cron, Airflow | No extra service. Advisory lock per site + lane: sites run in parallel, one site never twice. |
-| **Provider-neutral schema; vendors in YAML** [1b.4] | Cloudflare-shaped model | PDF §03.A. A new CDN = a new field map, no code change. |
-| **Bot registry as data** [2.10, 3.3] | Bot names in code | PDF §03.B. New bot = YAML edit. Rule order stays code, with `rule_version`. |
+| **Provider-neutral schema; vendors in YAML** [1b.4] | Cloudflare-shaped model | A new CDN = a new field map, no code change. |
+| **Bot registry as data** [2.10, 3.3] | Bot names in code | New bot = YAML edit. Rule order stays code, with `rule_version`. |
 | **Verify by IP list first, then rDNS** [2.4, 2.6] | Trust the User-Agent | A UA is a claim. DNS failure = UNVERIFIED, not SPOOFED. |
 | **Append-only verdicts and recommendation runs** [2.8, 5.4] | Upsert latest | Auditability: Monday's verdict stays true for Monday's events. |
 | **Browser UA without edge signal = Unknown** [3.6] | Assume human | Honest. A UA is a claim. |
@@ -368,13 +366,11 @@ deploy/
   vector/              origin log sender config for the customer
   cloudflare-pages/    live-site test: capture a Pages site's requests, site config
 samples/logs/          one week of fictional CDN + origin logs
-docs/                  brief, design, module docs (docs/modules/)
+docs/modules/          one doc per module
 ```
 
 | Document | Content |
 |---|---|
-| [docs/task.pdf](docs/task.pdf) | The assignment brief |
 | [docs/modules/](docs/modules/README.md) | One doc per module: every pipeline step, decision and known limit, dashboard screens, deployment, testing |
-| [docs/DESIGN.md](docs/DESIGN.md) | Dashboard visual design system |
 | [apps/api/README.md](apps/api/README.md) | Back-end setup, CLI, worker, security limits |
 | [apps/dashboard/README.md](apps/dashboard/README.md) | Dashboard setup, styling, file map |

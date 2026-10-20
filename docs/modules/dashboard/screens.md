@@ -1,14 +1,14 @@
 # Dashboard screens
 
-Per-screen spec of the dashboard. Content, structure and behaviour only. No colours or fonts (see [../../DESIGN.md](../../DESIGN.md)). Module overview, code map, rules `[R1]` to `[R8]` and `[D1]` to `[D10]`: [README.md](README.md).
+Per-screen spec of the dashboard. Content, structure and behaviour only. No colours or fonts (see `apps/dashboard/src/app/styles/`). Module overview, code map, rules `[R1]` to `[R8]` and `[D1]` to `[D10]`: [README.md](README.md).
 
 ## Users
 
 | User | Goal | Main screens |
 |---|---|---|
-| Webzero PM (primary) | Decide which journeys to test next. Trust the reason. | Recommendations, Overview, Pages & journeys |
+| Product manager (primary) | Decide which journeys to test next. Trust the reason. | Recommendations, Overview, Pages & journeys |
 | Engineer | Check that data arrives and the pipeline works. Debug a verdict. | Data & pipeline, Activity |
-| AI agent or script | Read the same data without the UI (Webzero is agent-first). | JSON API with the same filters and IDs as each screen ([../api/README.md](../api/README.md)) |
+| AI agent or script | Read the same data without the UI (the product is agent-first). | JSON API with the same filters and IDs as each screen ([../api/README.md](../api/README.md)) |
 
 ## Navigation map
 
@@ -140,7 +140,7 @@ Top pages empty: "No agent requests to pages." (text depends on whether classes 
 
 ## Screen 2: Recommendations (`/recommendations`)
 
-Question: "Which journeys should Webzero test next, and why?" This is the centrepiece.
+Question: "Which journeys should we test next, and why?" This is the centrepiece.
 The list ignores the time range. It follows `site` and the selected run.
 
 ### Toolbar and run header
@@ -188,7 +188,7 @@ A row opens the Recommendation sheet.
 
 ### Recommendation sheet (`recommendation:<id>`)
 
-Sections in order. The eight fields of the brief map to the sections as follows.
+Sections in order. The eight recommendation fields map to the sections as follows.
 
 ```
  Header         status pill · confidence · recommended test · pattern · run #

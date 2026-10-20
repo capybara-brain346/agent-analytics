@@ -181,7 +181,7 @@ Checks run in this order. The first match wins.
 - [3.5] Agent clients (for example ChatGPT-User) go to class 2. Why: they declare themselves. Class 4 is for activity found only from evidence.
 - [3.6] Browser UA with no edge signal goes to class 6 UNKNOWN, not class 5. Dashboard text: "browser UA, not confirmed human". Why: a UA is a claim. Be honest.
 - [3.7] No subtypes in the output. Activity reconstruction reads the registry category (`agent_client`) for the 2-minute session gap (`agent_session_gap_minutes`). Why: 6 classes are enough. The category is already registry data.
-- No ML. Output is the 6 top-level classes only. Why: the assignment brief says to skip ML.
+- No ML. Output is the 6 top-level classes only. Why: rules are auditable and need no training data.
 - A spoofed verdict also has flag `spoofed`. Verification sets the flag when it adds the row. Classification adds the flag again and removes duplicates. Why: the flag stays on the row even if the class rule changes.
 - The `classification` object in the event detail API has `label: "inferred"`. Why: a class is an inference, not an observation.
 
