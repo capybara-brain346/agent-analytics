@@ -12,7 +12,9 @@ from tests.factories import (
 )
 
 GOOGLEBOT_UA = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
-CLAIUDE = "ClaudeBot/1.0"
+MISTRAL_UA = "MistralAI-User/1.0"
+CLAUDE_UA = "ClaudeBot/1.0"
+CLAUDE_USER_UA = "Claude-User/1.0"
 
 
 class FakeResolver:
@@ -85,12 +87,23 @@ async def test_no_snapshot_unverified(conn):
 
 async def test_unknown_and_claimed(conn):
     await make_event(conn, user_agent=CHROME_UA, client_ip="81.2.3.4")
-    await make_event(conn, user_agent=CLAIUDE, client_ip="160.79.1.1")
+    await make_event(conn, user_agent=MISTRAL_UA, client_ip="160.79.1.1")
     await verify.verify_new_clients(conn, "example", NOW, FakeResolver())
     by_ua = {r["user_agent"]: r for r in await rows(conn)}
     assert by_ua[CHROME_UA]["verdict"] == "UNKNOWN" and by_ua[CHROME_UA]["method"] == "none"
     assert by_ua[CHROME_UA]["claimed_agent"] is None
-    assert by_ua[CLAIUDE]["verdict"] == "CLAIMED" and by_ua[CLAIUDE]["method"] == "none"
+    assert by_ua[MISTRAL_UA]["verdict"] == "CLAIMED" and by_ua[MISTRAL_UA]["method"] == "none"
+
+
+async def test_anthropic_bots_share_one_ip_list(conn):
+    await make_ip_list_snapshot(conn, source="anthropic.json", prefixes=["160.79.104.0/23"])
+    await make_event(conn, user_agent=CLAUDE_UA, client_ip="160.79.104.10")
+    await make_event(conn, user_agent=CLAUDE_USER_UA, client_ip="104.16.1.1")
+    await verify.verify_new_clients(conn, "example", NOW, FakeResolver())
+    by_ua = {r["user_agent"]: r for r in await rows(conn)}
+    assert by_ua[CLAUDE_UA]["verdict"] == "VERIFIED" and by_ua[CLAUDE_UA]["method"] == "ip_list"
+    assert by_ua[CLAUDE_USER_UA]["verdict"] == "SPOOFED"
+    assert by_ua[CLAUDE_USER_UA]["claimed_agent"] == "claude-user"
 
 
 GOOD = FakeResolver(

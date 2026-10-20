@@ -24,21 +24,23 @@ bots:
     ua_pattern: "OAI-SearchBot"
     category: ai_crawler
     verify: { method: ip_list, source: openai-searchbot.json, url: "https://openai.com/searchbot.json" }
+  # Anthropic publishes one list for all its bots and no reverse DNS names, so an IP match
+  # proves "from Anthropic", not which of the three bots.
   - id: claudebot
     vendor: Anthropic
     ua_pattern: "ClaudeBot"
     category: ai_crawler
-    verify: { method: none }
+    verify: { method: ip_list, source: anthropic.json, url: "https://claude.com/crawling/bots.json" }
   - id: claude-user
     vendor: Anthropic
     ua_pattern: "Claude-User"
     category: agent_client
-    verify: { method: none }
+    verify: { method: ip_list, source: anthropic.json, url: "https://claude.com/crawling/bots.json" }
   - id: claude-searchbot
     vendor: Anthropic
     ua_pattern: "Claude-SearchBot"
     category: ai_crawler
-    verify: { method: none }
+    verify: { method: ip_list, source: anthropic.json, url: "https://claude.com/crawling/bots.json" }
   - id: perplexitybot
     vendor: Perplexity
     ua_pattern: "PerplexityBot"
