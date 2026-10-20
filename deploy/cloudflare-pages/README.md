@@ -13,7 +13,7 @@ request. So we capture each request at the time it occurs, and you cannot export
                                               │ console.log({log: "request_log", ...})
                                               ▼
                          wrangler pages deployment tail --search request_log
-                                              │ capture.sh (Ctrl-C)
+                                              │ capture.sh (30 min or Ctrl-C)
                                               ▼
                   captures/piyushc__cdn__<start>__<label>.log   (one JSON line for each request)
                                               │ cli import --now
@@ -29,7 +29,7 @@ importer ignores. Logging cannot change or fail a response.
 
 | File | Purpose |
 |---|---|
-| `capture.sh` | Tails the newest production deployment; on Ctrl-C writes the log file |
+| `capture.sh` | Tails the newest production deployment; after `CAPTURE_MINUTES` (default 30) or on Ctrl-C writes the log file |
 | `site/piyushc.yaml` | Site config: one source (`cdn`), key pages, chatbot and voice as conversions |
 | `site/piyushc-pages.txt` | Pages from the site's sitemap, for pattern P4 |
 | `apps/api/config/cdn/cloudflare.yaml` | Field map for the middleware lines |
@@ -62,15 +62,14 @@ Needs: `wrangler` logged in to the account that owns the Pages project, `jq`, th
    `https://piyushc.com/` twice in a browser, then run `grep -c request_log captures/*.tail.json`.
    The count must go up by 2. If it goes up by 1, Development Mode is off. Start the agents only
    after this check.
-5. **Run the agents.** Write one row for each run in `captures/<label>-truth.csv`. These notes
-   are the ground truth for the result:
+5. **Run the agents** with one open-ended prompt, the same for each agent
+   (`docs/real-site-test-approach.md`, section 8). Run them all inside the capture window. You
+   check the results by hand against the runs you know.
 
-   ```
-   agent,provider,started_utc,ended_utc,task,expected_paths
-   ChatGPT agent,OpenAI,2026-10-20T10:00Z,2026-10-20T10:06Z,"find his latest blog post",/blog;/blog/...
-   ```
-
-6. **Stop the capture** with Ctrl-C. The script prints the line count and the log path.
+6. **Stop the capture.** It stops by itself after 30 minutes. Set `CAPTURE_MINUTES=<n>` before the
+   command for another limit, or press Ctrl-C to stop early. The script prints the line count and
+   the log path. If the tail ends before the limit, the script prints a warning with the elapsed
+   time and the exit code. The tail's error output is in `<file>.log.tail.json.err`.
 7. **Import and run the pipeline** (from `apps/api`):
 
    ```sh
@@ -79,7 +78,7 @@ Needs: `wrangler` logged in to the account that owns the Pages project, `jq`, th
    uv run python -m src.cli run-recommendations --site piyushc
    ```
 
-8. **Compare** the dashboard (`/?site=piyushc`) with the truth file.
+8. **Check** the dashboard (`/?site=piyushc`) by hand against the runs you know.
 
 ## Known limits
 
