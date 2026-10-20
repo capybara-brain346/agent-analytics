@@ -82,7 +82,7 @@ async def p2_blocked_access(
 async def p3_broken_navigation(
     conn: AsyncConnection, site_id: str, start: datetime, min_sessions: int
 ) -> list[dict]:
-    # Distinct sessions (Flow 4): hourly rows list the steps only. A session counts once, at a
+    # Distinct sessions: hourly rows list the steps only. A session counts once, at a
     # step where it had a retry or a loop (retry_paths), however many hours it spans.
     query = f"""
     with {_SESS},

@@ -2,8 +2,8 @@ from enum import IntEnum, StrEnum
 
 
 class Lane(StrEnum):
-    FAST = "fast"  # 1 Import → 1b Pair → 2 Verify → 3 Classify → 4 Views
-    SLOW = "slow"  # 5 Recommendations
+    FAST = "fast"  # Import → Pair → Verify → Classify → Views
+    SLOW = "slow"  # Recommendations
 
 
 class SourceType(StrEnum):

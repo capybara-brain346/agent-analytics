@@ -1,4 +1,4 @@
-"""Initial schema: every table of Flows 1 to 7.
+"""Initial schema: every table of the pipeline.
 
 Revision ID: 0001
 Revises:
@@ -13,7 +13,7 @@ branch_labels = None
 depends_on = None
 
 STATEMENTS = [
-    # ---- Flow 1: import files and rejects ----
+    # ---- Import: import files and rejects ----
     """
     create table import_files (
         id uuid primary key default gen_random_uuid(),
@@ -99,7 +99,7 @@ STATEMENTS = [
     )
     """,
     "create index ip_list_snapshots_latest on ip_list_snapshots (source, fetched_at desc)",
-    # ---- Flow 1 and 1b: events, daily partitions ----
+    # ---- Import and pairing: events, daily partitions ----
     """
     create table events (
         id bigint generated always as identity,
@@ -189,7 +189,7 @@ STATEMENTS = [
     end
     $$
     """,
-    # ---- Flow 4: sessions (closed), open_sessions, session_events ----
+    # ---- Activity reconstruction: sessions (closed), open_sessions, session_events ----
     """
     create table sessions (
         site_id text not null,
@@ -235,7 +235,7 @@ STATEMENTS = [
     )
     """,
     "create index session_events_event on session_events (site_id, event_id)",
-    # ---- Flow 4: hourly view tables ----
+    # ---- Activity reconstruction: hourly view tables ----
     """
     create table page_stats (
         site_id text not null,
@@ -288,7 +288,7 @@ STATEMENTS = [
         primary key (site_id, hour, claimed_agent, traffic_class)
     )
     """,
-    # ---- Flow 5: recommendations ----
+    # ---- Recommendations ----
     """
     create table recommendation_runs (
         id bigint generated always as identity primary key,
@@ -351,7 +351,7 @@ STATEMENTS = [
         created_at timestamptz not null default now()
     )
     """,
-    # ---- Flow 7: runs, fair turns, alerts ----
+    # ---- Pipeline: runs, fair turns, alerts ----
     """
     create table pipeline_runs (
         id uuid primary key default gen_random_uuid(),

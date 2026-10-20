@@ -13,7 +13,7 @@ branch_labels = None
 depends_on = None
 
 UP = [
-    # Flow 4 (decision 4.1): new work = events with in_views = false. Cost follows new events,
+    # Decision 4.1: new work = events with in_views = false. Cost follows new events,
     # not history.
     "alter table events add column in_views boolean not null default false",
     # Events that already have a session row are done (old data from before this migration).
@@ -28,7 +28,7 @@ UP = [
     create index events_not_in_views on events (site_id, ts)
         where not in_views and pair_state <> 'pending'
     """,
-    # Flow 1b: the origin row is deleted on pairing. The paired row keeps its identity, so a
+    # Pairing: the origin row is deleted on pairing. The paired row keeps its identity, so a
     # re-import of the origin file does not insert the merged lines again.
     "alter table events add column origin_line_key text",
     "alter table events add column origin_file_id uuid",
@@ -36,7 +36,7 @@ UP = [
     create index events_origin_line_key on events (site_id, origin_line_key)
         where origin_line_key is not null
     """,
-    # Flow 5: a score such as 3 x 2 x 3 x 0.6 = 10.8 must be stored exactly.
+    # Recommendations: a score such as 3 x 2 x 3 x 0.6 = 10.8 must be stored exactly.
     "alter table recommendations alter column score type numeric(8, 1)",
 ]
 

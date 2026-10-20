@@ -7,7 +7,7 @@ from psycopg.rows import dict_row
 
 STATUS_TOKEN = re.compile(r"^([1-5])(\d\d|xx)$")
 
-# Closed and still-open visits as one set; `in_progress` marks the open ones (Flow 7, 7.7).
+# Closed and still-open visits as one set; `in_progress` marks the open ones (decision 7.7).
 SESSIONS_UNION = """(
     select s.*, false as in_progress from sessions s
     union all
@@ -484,7 +484,7 @@ async def list_agents(
         rows = [r for r in rows if r["verification"] == verification]
     if not rows:
         return rows
-    # Distinct counts come from the session tables, never from adding hourly rows (Flow 4).
+    # Distinct counts come from the session tables, never from adding hourly rows.
     sw, sp = _session_where(f)
     stats = await _all(
         conn,

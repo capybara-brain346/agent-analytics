@@ -52,7 +52,7 @@ existingSecret: agent-analytics
 offline: false
 logLevel: INFO
 
-# Recommendation text (Flow 5) through OpenRouter. OPENROUTER_API_KEY goes in existingSecret.
+# Recommendation text through OpenRouter. OPENROUTER_API_KEY goes in existingSecret.
 # Empty model = template text only.
 llm:
   model: ""                           # for example anthropic/claude-sonnet-5.5

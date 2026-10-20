@@ -37,7 +37,7 @@ class Settings(BaseSettings):
     bucket_reader_interval_seconds: int = 60
     bucket_reader_prefix: str = ""
 
-    # Worker and pipeline (Flow 7)
+    # Worker and pipeline
     tick_seconds: int = 60
     work_limit_bytes: int = 200 * 1024 * 1024
     work_limit_lines: int = 2_000_000
@@ -45,31 +45,31 @@ class Settings(BaseSettings):
     stale_run_minutes: int = 30  # A running run older than this with a free lock = crashed
     failed_runs_alert: int = 3
 
-    # Import and alerts (Flow 1)
+    # Import and alerts
     raw_retention_days: int = 7
     events_retention_days: int = 30
     no_data_alert_minutes: int = 60  # Default; a site file can override
 
-    # Pair (Flow 1b)
+    # Pair
     pair_window_seconds: int = 5  # +/- N s around the CDN time
     pair_wait_minutes: int = 10  # An unpaired event waits this long, then stays single
     # While the other source still has queued files, rows keep waiting, up to this limit
     pair_hard_limit_hours: int = 24
 
-    # Verify (Flow 2)
+    # Verify
     rdns_ttl_hours: int = 24
     unverified_retry_minutes: int = 60  # A DNS error is retried after this time, not after 24 h
     dns_timeout_seconds: float = 2.0
     ip_list_dir: Path = API_ROOT / "config" / "registry" / "ip-lists"
 
-    # Activity reconstruction (Flow 4)
+    # Activity reconstruction
     session_gap_minutes: int = 30
     agent_session_gap_minutes: int = 2
     delivery_margin_minutes: int = 10
     retry_window_seconds: int = 60
     loop_repeat_count: int = 5
 
-    # Recommendations (Flow 5)
+    # Recommendations
     recommendation_window: str = "6h"
     p1_min_key_pages: int = 3
     p2_min_blocks: int = 5

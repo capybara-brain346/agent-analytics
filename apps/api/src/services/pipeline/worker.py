@@ -138,7 +138,7 @@ async def run_loops(
     mode: str = "all", tick_seconds: float | None = None, stop: asyncio.Event | None = None
 ) -> None:
     # The pool must be open. Each lane group has its own loop (task) and its own connections,
-    # so a slow recommendation run (LLM calls) never delays the next fast tick (Flow 7).
+    # so a slow recommendation run (LLM calls) never delays the next fast tick.
     # Daily maintenance runs with the slow lane: it is off the fast path.
     # mode: "fast" | "slow" | "all" (both loops in one process).
     tick_seconds = get_settings().tick_seconds if tick_seconds is None else tick_seconds

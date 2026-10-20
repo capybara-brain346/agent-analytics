@@ -350,7 +350,7 @@ async def save_progress(
     max_ts: datetime | None,
 ) -> None:
     # The work limit stopped the file inside: keep the totals and the resume offset, and put the
-    # file back in the queue (Flow 7.9).
+    # file back in the queue (decision 7.9).
     await conn.execute(
         """
         update import_files

@@ -13,13 +13,13 @@ branch_labels = None
 depends_on = None
 
 UP = [
-    # Flow 1b.6: an unpaired row waits from its arrival, not from its event time.
+    # Decision 1b.6: an unpaired row waits from its arrival, not from its event time.
     "alter table events add column imported_at timestamptz not null default now()",
-    # Flow 7.9: a large file is imported in slices; lines_done is the resume offset.
+    # Decision 7.9: a large file is imported in slices; lines_done is the resume offset.
     "alter table import_files add column lines_done integer not null default 0",
     # Transient inbox errors: the file goes back to 'new' until retries reach the limit.
     "alter table import_files add column retries integer not null default 0",
-    # Flow 1 bucket reader: objects already copied (survives a restart, shared by workers).
+    # Import bucket reader: objects already copied (survives a restart, shared by workers).
     """
     create table bucket_objects (
         site_id text not null,

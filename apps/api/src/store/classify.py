@@ -16,7 +16,7 @@ async def fetch_unclassified(conn: AsyncConnection, site_id: str) -> list[dict]:
 
 async def save_classes(conn: AsyncConnection, rows: list[tuple]) -> int:
     # rows: (traffic_class, confidence, rule_id, rule_version, class_evidence, ua_type, flags, id)
-    # WHERE traffic_class IS NULL: a classified row is never overwritten (Flow 3, 3.4).
+    # WHERE traffic_class IS NULL: a classified row is never overwritten (decision 3.4).
     if not rows:
         return 0
     async with conn.cursor() as cur:

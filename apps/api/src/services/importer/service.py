@@ -23,7 +23,7 @@ log = get_logger(__name__)
 BATCH_ROWS = 5000
 FUTURE_LIMIT = timedelta(days=1)
 MAX_RETRIES = 5  # Transient inbox errors per file before it is failed
-# A file is read in slices (Flow 7.9). A slice starts at the first line, so it reads and skips the
+# A file is read in slices (7.9). A slice starts at the first line, so it reads and skips the
 # lines done before (a gzip stream has no random access). To keep that cost bounded, the slice of
 # one file grows with its progress: it takes at least as many lines as are done, up to
 # SLICE_GROWTH_CAP times the work limit. A file of N lines needs about log2 slices at first and N
