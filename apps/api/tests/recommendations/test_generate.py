@@ -38,6 +38,12 @@ def test_score_example():
     assert scoring.confidence_label(3, 1, 0) == "high"
 
 
+def test_evidence_cap_lowers_confidence():
+    f = scoring.factors("P4", "small_response", "/docs/api", False, 5, 5, 0, 0)
+    assert (f["confidence"], f["confidence_factor"]) == ("low", 0.3)
+    assert scoring.factors("P2", None, "/pricing", True, 5, 0, 0, 5)["confidence"] == "low"
+
+
 async def test_p2_pricing_scores_18(conn):
     await blocked_page(conn, "/pricing", sessions=5)
     run_id = await run(conn)

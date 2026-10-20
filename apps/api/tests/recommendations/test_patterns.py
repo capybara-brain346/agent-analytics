@@ -13,6 +13,10 @@ from tests.factories import (
 )
 
 
+async def agent_session(conn, **o):
+    return await make_session(conn, **{"claimed_agent": "chatgpt-user"} | o)
+
+
 async def found(conn, pattern):
     cfg = replace(load_site_config("example"), site_pages=["/pricing", "/products", "/docs/api"])
     return [
@@ -32,18 +36,19 @@ def test_parse_window():
 
 
 async def test_p1_positive(conn):
-    await make_session(conn, session_id="a")
-    await make_session(conn, session_id="b", traffic_class=4, open=True)
+    await agent_session(conn, session_id="a")
+    await agent_session(conn, session_id="b", traffic_class=4, open=True)
     [c] = await found(conn, "P1")
     assert c["sessions_count"] == 2 and set(c["session_ids"]) == {"a", "b"}
     assert c["target"] == "/signup"
 
 
 async def test_p1_negative(conn):
-    await make_session(conn, session_id="conv", reached_conversion=True)
-    await make_session(conn, session_id="few", key_pages_visited=2)
-    await make_session(conn, session_id="browser", traffic_class=5)
-    await make_session(conn, session_id="old", last_seen=NOW - timedelta(hours=7))
+    await agent_session(conn, session_id="conv", reached_conversion=True)
+    await agent_session(conn, session_id="few", key_pages_visited=2)
+    await agent_session(conn, session_id="browser", traffic_class=5)
+    await make_session(conn, session_id="crawler")
+    await agent_session(conn, session_id="old", last_seen=NOW - timedelta(hours=7))
     assert await found(conn, "P1") == []
 
 
@@ -66,7 +71,7 @@ async def test_p3(conn):
     await make_journey_step(conn, step_no=2, step_path="/signup")
     await make_journey_step(conn, step_no=1, step_path="/pricing")
     for i in range(3):
-        await make_session(
+        await agent_session(
             conn,
             session_id=f"a{i}",
             pages_in_order=["/pricing", "/signup"],
@@ -75,7 +80,7 @@ async def test_p3(conn):
             journeys_reached={"signup": 2},
         )
     for i in range(2):  # below the threshold at /pricing
-        await make_session(
+        await agent_session(
             conn,
             session_id=f"b{i}",
             pages_in_order=["/pricing"],
@@ -103,7 +108,7 @@ async def test_p3_counts_distinct_sessions_not_hourly_rows(conn):
             step_path="/signup",
             sessions_retry_or_loop=1,
         )
-    await make_session(
+    await agent_session(
         conn,
         session_id="long",
         started=NOW - timedelta(hours=3),
@@ -118,7 +123,7 @@ async def test_p3_counts_distinct_sessions_not_hourly_rows(conn):
 async def test_p3_retry_elsewhere_does_not_count(conn):
     await make_journey_step(conn, step_no=2, step_path="/signup")
     for i in range(3):  # retry on /docs, only a visit on /signup
-        await make_session(
+        await agent_session(
             conn,
             session_id=f"a{i}",
             pages_in_order=["/signup", "/docs"],
@@ -132,7 +137,7 @@ async def test_p3_retry_elsewhere_does_not_count(conn):
 async def test_p3_negative_class(conn):
     await make_journey_step(conn, step_no=2, step_path="/signup", traffic_class=5)
     for i in range(4):
-        await make_session(
+        await agent_session(
             conn,
             session_id=f"a{i}",
             traffic_class=5,
@@ -176,11 +181,11 @@ async def test_p4_negative(conn):
 async def test_p5_positive(conn):
     await make_journey_step(conn, step_no=1, step_path="/pricing")
     await make_journey_step(conn, step_no=3, step_path="/signup/confirm")
-    await make_session(
+    await agent_session(
         conn, session_id="a", pages_in_order=["/pricing", "/signup"],
         journeys_reached={"signup": 2},
     )  # fmt: skip
-    await make_session(
+    await agent_session(
         conn, session_id="b", pages_in_order=["/pricing"], journeys_reached={"signup": 1}
     )
     [c] = await found(conn, "P5")
@@ -190,8 +195,8 @@ async def test_p5_positive(conn):
 async def test_p5_negative(conn):
     # One session reached the last step: no finding.
     await make_journey_step(conn, step_no=1, step_path="/pricing")
-    await make_session(conn, session_id="a", journeys_reached={"signup": 1})
-    await make_session(
+    await agent_session(conn, session_id="a", journeys_reached={"signup": 1})
+    await agent_session(
         conn,
         session_id="b",
         pages_in_order=["/pricing", "/signup", "/signup/confirm"],
@@ -199,5 +204,5 @@ async def test_p5_negative(conn):
     )
     # non-critical journey is ignored
     await make_journey_step(conn, journey_id="docs", step_no=1, step_path="/docs")
-    await make_session(conn, session_id="c", journeys_reached={"docs": 1})
+    await agent_session(conn, session_id="c", journeys_reached={"docs": 1})
     assert await found(conn, "P5") == []

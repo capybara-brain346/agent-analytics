@@ -7,6 +7,7 @@ CONFIDENCE_WHY = {
     "medium": "claimed identity or browser, IP not shared",
     "low": "agent client, shared IP, or unknown class",
 }
+LEVELS = ("low", "medium", "high")
 
 
 def score(impact: int, frequency: int, severity: int, confidence: float) -> float:
@@ -31,8 +32,14 @@ def confidence_label(n_high: int, n_medium: int, n_low: int) -> str:
     return next(label for label, n in counts.items() if n == top)
 
 
+def evidence_cap(pattern: str, kind: str | None) -> tuple[str, str]:
+    key = f"{pattern}:{kind}" if kind else pattern
+    return key, get_settings().confidence_cap.get(key, "high")
+
+
 def factors(
     pattern: str,
+    kind: str | None,
     target: str,
     is_key_page: bool,
     sessions: int,
@@ -40,7 +47,9 @@ def factors(
     n_medium: int,
     n_low: int,
 ) -> dict:
-    label = confidence_label(n_high, n_medium, n_low)
+    identity = confidence_label(n_high, n_medium, n_low)
+    cap_key, cap = evidence_cap(pattern, kind)
+    label = min(identity, cap, key=LEVELS.index)
     impact = 3 if is_key_page else 1
     frequency = frequency_factor(sessions)
     severity = SEVERITY[pattern]
@@ -62,8 +71,9 @@ def factors(
             "frequency": f"Frequency {frequency}: {sessions} sessions affected",
             "severity": f"Severity {severity}: fixed for pattern {pattern}",
             "confidence": (
-                f"Confidence {factor}: {label}, {CONFIDENCE_WHY[label]} "
-                f"({n_high} high, {n_medium} medium, {n_low} low of {total} sessions)"
+                f"Confidence {factor}: {label}, the lower of identity {identity} "
+                f"({CONFIDENCE_WHY[identity]}; {n_high} high, {n_medium} medium, {n_low} low "
+                f"of {total} sessions) and evidence cap {cap} for {cap_key}"
             ),
         },
     }

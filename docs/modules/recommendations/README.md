@@ -18,8 +18,8 @@ Output: one append-only run with a ranked list of recommendations. Each recommen
 
 | Path | Purpose |
 |---|---|
-| `apps/api/src/services/recommendations/service.py` | `generate`, `find_candidates`, `build_bundle`, `parse_window`, `stable_id`, `bundle_hash`, `RULE_VERSION`. |
-| `apps/api/src/services/recommendations/scoring.py` | Score formula, factor values, `SEVERITY`, `CONFIDENCE_FACTOR`, factor reason texts. |
+| `apps/api/src/services/recommendations/service.py` | `generate`, `find_candidates`, `task_agents`, `build_bundle`, `parse_window`, `stable_id`, `bundle_hash`, `RULE_VERSION`. |
+| `apps/api/src/services/recommendations/scoring.py` | Score formula, factor values, `SEVERITY`, `CONFIDENCE_FACTOR`, `evidence_cap`, factor reason texts. |
 | `apps/api/src/services/recommendations/text.py` | `template_text`, `recommended_test`, `validate_llm_text`, `TEXT_FIELDS`, `class_name`. |
 | `apps/api/src/services/recommendations/llm.py` | `OpenRouterClient`, `default_client`, `SYSTEM_PROMPT`, `parse_text`, `LLMError`. |
 | `apps/api/src/services/recommendations/README.md` | Short module note next to the code. |
@@ -107,7 +107,7 @@ Decision IDs `[5.x]` come from the original design. Other rules (`R...`) describ
 
 - `[5.5]` Production: one run every 2 weeks on a 14-day window. MVP: 6-hour window, one run every 6 hours, plus on demand (CLI and button). The window is a setting (`RECOMMENDATION_WINDOW`). Each run is stored.
   Why: recommendations are not real-time and not eager (team decision).
-- `[5.4]` Runs are append-only and carry `rule_version` (`RULE_VERSION = "1"`). The stable ID is `sha256("pattern|target|journey_id")[:16]` (`stable_id`). The UI shows new, still open or gone against the previous successful run.
+- `[5.4]` Runs are append-only and carry `rule_version` (`RULE_VERSION = "2"`). The stable ID is `sha256("pattern|target|journey_id")[:16]` (`stable_id`). The UI shows new, still open or gone against the previous successful run.
   Why: evidence stays valid after a PM acts.
 - R1. Views still update after each import (fast lane) for the dashboard. Recommendations are a separate command: `run-recommendations --window 14d`.
   Why: the slow lane must not slow down the fast lane.
@@ -140,11 +140,11 @@ Decision IDs `[5.x]` come from the original design. Other rules (`R...`) describ
 
 | Pattern | Name (`PATTERN_NAMES`) | Rule | Target | Severity |
 |---|---|---|---|---|
-| P1 | Product discovery | Sessions of class 2 or 4 with `key_pages_visited >= P1_MIN_KEY_PAGES` and not `reached_conversion`. One candidate for the site. | First `conversion_pages` entry, or `conversion` if the list is empty | 2 |
+| P1 | Product discovery | Task sessions (R19) with `key_pages_visited >= P1_MIN_KEY_PAGES` and not `reached_conversion`. One candidate for the site. | First `conversion_pages` entry, or `conversion` if the list is empty | 2 |
 | P2 | Blocked access | `page_stats` of class 1 or 2 on a key page with `n_403 + n_429 >= P2_MIN_BLOCKS`, and the access policy does not block the path by intent. | The page | 3 |
-| P3 | Broken navigation | Distinct sessions of class 2 or 4 with a retry or loop at a journey step (`retry_paths`) and the journey reached (`journeys_reached`), count `>= P3_MIN_SESSIONS`. | The journey step path | 3 |
+| P3 | Broken navigation | Distinct task sessions (R19) with a retry or loop at a journey step (`retry_paths`) and the journey reached (`journeys_reached`), count `>= P3_MIN_SESSIONS`. | The journey step path | 3 |
 | P4 | Content discoverability | Each `site_pages` URL against `page_stats` of class 2 (AI crawlers) and class 5 (browsers). Kinds below. Runs only if `site_pages` is not empty and class 2 has at least one request in the window. | The URL | 2 |
-| P5 | Full-journey simulation | Critical journey (at least 2 steps): step 1 reached by class 2 or 4 sessions, last step reached by none. | Last step of the journey | 2 |
+| P5 | Full-journey simulation | Critical journey (at least 2 steps): step 1 reached by task sessions (R19), last step reached by none. | Last step of the journey | 2 |
 
 P4 kinds (column `kind`):
 
@@ -154,6 +154,8 @@ P4 kinds (column `kind`):
 | `blocked_or_redirected` | Class 2 got no 2xx and at least one 403 or 3xx. |
 | `small_response` | Class 2 got 2xx and its median bytes are below `P4_BYTES_RATIO` × the browser median bytes (label: Inferred). |
 
+- R19. Task sessions = class 4, or class 2 with a `claimed_agent` whose registry category is `agent_client` (`task_agents`, from `config/registry/bots.yaml`). P1, P3, P5 and `journey_funnel` count only task sessions. P2 and P4 count all AI crawlers.
+  Why: AI crawlers (category `ai_crawler`) only read pages. They never try a task, so a missing conversion, a missing last step or a repeated fetch is no evidence of a problem.
 - R10. P1 is "product to conversion": the candidate `paths` are all `key_pages`. P3 and P5 take a `journey_id`. P2 and P4 take no journey. P3 and P4 are key only if the path is in the key set. P1, P2 and P5 are always key.
   Why: the impact factor needs this flag.
 - `[5.2]` Thresholds (3 pages, 5 × 403/429, 3 sessions), the P4 bytes ratio and the frequency buckets are in config. Tune them on demo data.
@@ -165,13 +167,16 @@ P4 kinds (column `kind`):
  Impact     key / conversion page = 3 · other = 1
  Frequency  sessions affected: < 5 = 1 · 5-50 = 2 · > 50 = 3
  Severity   P2, P3 = 3 · P1, P4, P5 = 2                      (fixed per pattern: SEVERITY)
- Confidence most evidence sessions decide: high 1.0 · medium 0.6 · low 0.3
+ Confidence lower of identity (most evidence sessions decide) and the evidence cap of the
+            pattern: high 1.0 · medium 0.6 · low 0.3
  Example: P2 on /pricing = 3 × 2 × 3 × 1.0 = 18
 ```
 
-- R11. Confidence label = the level with most evidence sessions (`confidence_label`). A tie goes to the lower level. No sessions = low. Session counts are by `sessions.confidence`: `high`, `medium`, and everything else (including NULL) is low.
+- R20. Confidence label = the lower of the identity level (R11) and the evidence cap of the pattern (`evidence_cap`, setting `confidence_cap`). Caps: P2, P3, P4 `blocked_or_redirected` = high (the status or retry is in the log). P1, P5, P4 `never_fetched` = medium (an absence). P4 `small_response` = low (a guess from size). A pattern with no cap allows high. The confidence reason shows both levels.
+  Why: confidence must say how strongly the evidence supports the problem, not only who the client is.
+- R11. Identity level = the level with most evidence sessions (`confidence_label`). A tie goes to the lower level. No sessions = low. Session counts are by `sessions.confidence`: `high`, `medium`, and everything else (including NULL) is low.
   Why: a weak claim must not look strong.
-- R12. `confidence_factor` meaning (`CONFIDENCE_WHY`): high = verified identity, IP not shared. Medium = claimed identity or browser, IP not shared. Low = agent client, shared IP, or unknown class.
+- R12. Identity level meaning (`CONFIDENCE_WHY`): high = verified identity, IP not shared. Medium = claimed identity or browser, IP not shared. Low = agent client, shared IP, or unknown class.
   Why: the UI shows the reason for each factor (`factor_reasons`).
 - R13. Score is stored with one decimal (`recommendations.score numeric(8, 1)`, migration 0002). Example: 3 × 2 × 3 × 0.6 = 10.8.
   Why: the stored score must equal the formula.
@@ -190,7 +195,7 @@ The bundle (`build_bundle`) holds:
 | `agents` | Up to 10 agents with class, verification and sessions. |
 | `time_pattern` | `first_seen`, `last_seen`, `peak_hours_utc` (top 3). |
 | `access_policy` | Path, `blocked_by_intent`, `allow`, `block`, `robots_disallow`. |
-| `journey_position`, `journey_funnel` | Journeys that contain the target, step number, sessions reached and sessions with retry or loop for each step (class 2 and 4). |
+| `journey_position`, `journey_funnel` | Journeys that contain the target, step number, sessions reached and sessions with retry or loop for each step (task sessions, R19). |
 | `related` | Other candidates of the same journey (pattern, target, score). |
 | `samples` | Up to 5 sample events with IDs. Failed (status >= 400) and target-path events come first. |
 | `thresholds` | Thresholds and frequency settings used. |
@@ -247,6 +252,7 @@ Settings are in `apps/api/src/config/settings.py`. Environment variable names ar
 | `frequency_mid_min` | `5` | Frequency 1 below this value. |
 | `frequency_high_over` | `50` | Frequency 3 above this value. |
 | `p4_bytes_ratio` | `0.3` | P4: AI median bytes below this share of the browser median = `small_response`. |
+| `confidence_cap` | see R20 | Highest confidence for each pattern (key `P4:<kind>` for P4). |
 | `openrouter_api_key` (`OPENROUTER_API_KEY`) | `None` | LLM API key. `None` = template text only. |
 | `llm_base_url` (`LLM_BASE_URL`) | `https://openrouter.ai/api/v1` | OpenRouter or a compatible gateway. |
 | `llm_model` (`LLM_MODEL`) | `None` | OpenRouter model ID, for example `anthropic/claude-sonnet-5.5`. `None` = template text only. |
@@ -359,8 +365,8 @@ uv run pytest tests/recommendations
 
 | File | Covers |
 |---|---|
-| `tests/recommendations/test_patterns.py` | `parse_window`, P1 to P5 positive and negative cases, P3 distinct sessions. |
-| `tests/recommendations/test_generate.py` | Score example, P2 `/pricing` = 18, bundle contents, validator, template fallback, LLM text and cache, new/open/gone, LLM HTTP client, `default_client`, fractional score, P4 ratio setting. |
+| `tests/recommendations/test_patterns.py` | `parse_window`, P1 to P5 positive and negative cases, P3 distinct sessions, AI crawler sessions do not count for P1. |
+| `tests/recommendations/test_generate.py` | Score example, evidence cap, P2 `/pricing` = 18, bundle contents, validator, template fallback, LLM text and cache, new/open/gone, LLM HTTP client, `default_client`, fractional score, P4 ratio setting. |
 | `tests/e2e/test_pipeline_e2e.py` | Full path from ingest to recommendations and API. |
 
 ## Related modules

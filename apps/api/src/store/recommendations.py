@@ -25,6 +25,11 @@ count(*) filter (where s.confidence = 'medium') as n_medium,
 count(*) filter (where s.confidence not in ('high', 'medium') or s.confidence is null) as n_low
 """
 
+_TASK = """
+(s.traffic_class = 4
+ or (s.traffic_class = 2 and s.claimed_agent = any(%(task_agents)s::text[])))
+"""
+
 
 async def _rows(conn: AsyncConnection, query: str, params: dict) -> list[dict]:
     async with conn.cursor(row_factory=dict_row) as cur:
@@ -40,16 +45,21 @@ def _params(site_id: str, start: datetime, **extra) -> dict:
 
 
 async def p1_product_discovery(
-    conn: AsyncConnection, site_id: str, start: datetime, min_key_pages: int
+    conn: AsyncConnection,
+    site_id: str,
+    start: datetime,
+    min_key_pages: int,
+    task_agents: list[str],
 ) -> dict | None:
     query = f"""
     with {_SESS}
     select {_AGG} from sess s
-    where s.traffic_class in (2, 4) and s.key_pages_visited >= %(min_pages)s
+    where {_TASK} and s.key_pages_visited >= %(min_pages)s
       and not s.reached_conversion
     having count(*) > 0
     """
-    rows = await _rows(conn, query, _params(site_id, start, min_pages=min_key_pages))
+    params = _params(site_id, start, min_pages=min_key_pages, task_agents=task_agents)
+    rows = await _rows(conn, query, params)
     return rows[0] if rows else None
 
 
@@ -80,7 +90,7 @@ async def p2_blocked_access(
 
 
 async def p3_broken_navigation(
-    conn: AsyncConnection, site_id: str, start: datetime, min_sessions: int
+    conn: AsyncConnection, site_id: str, start: datetime, min_sessions: int, task_agents: list[str]
 ) -> list[dict]:
     # Distinct sessions: hourly rows list the steps only. A session counts once, at a
     # step where it had a retry or a loop (retry_paths), however many hours it spans.
@@ -94,13 +104,14 @@ async def p3_broken_navigation(
     select st.*, a.*, a.sessions_count as affected from steps st
     cross join lateral (
         select {_AGG} from sess s
-        where s.traffic_class in (2, 4) and s.retry_paths @> array[st.step_path]::text[]
+        where {_TASK} and s.retry_paths @> array[st.step_path]::text[]
           and jsonb_exists(s.journeys_reached, st.journey_id)
     ) a
     where a.sessions_count >= %(min_sessions)s
     order by a.sessions_count desc, st.journey_id, st.step_no
     """
-    return await _rows(conn, query, _params(site_id, start, min_sessions=min_sessions))
+    params = _params(site_id, start, min_sessions=min_sessions, task_agents=task_agents)
+    return await _rows(conn, query, params)
 
 
 async def p4_content_discovery(
@@ -152,7 +163,11 @@ async def p4_content_discovery(
 
 
 async def p5_full_journey(
-    conn: AsyncConnection, site_id: str, start: datetime, journeys: list[dict]
+    conn: AsyncConnection,
+    site_id: str,
+    start: datetime,
+    journeys: list[dict],
+    task_agents: list[str],
 ) -> list[dict]:
     # journeys: [{"id", "first_path", "final_no", "final_path"}] (critical journeys).
     if not journeys:
@@ -166,10 +181,10 @@ async def p5_full_journey(
     ),
     reach as (
         select j.*,
-            (select count(*) from sess s where s.traffic_class in (2, 4)
+            (select count(*) from sess s where {_TASK}
                 and coalesce((s.journeys_reached ->> j.journey_id)::int, 0) >= 1)::int
                 as first_reached,
-            (select count(*) from sess s where s.traffic_class in (2, 4)
+            (select count(*) from sess s where {_TASK}
                 and coalesce((s.journeys_reached ->> j.journey_id)::int, 0) >= j.final_no)::int
                 as final_reached
         from j
@@ -177,7 +192,7 @@ async def p5_full_journey(
     select r.*, a.* from reach r
     left join lateral (
         select {_AGG} from sess s
-        where s.traffic_class in (2, 4)
+        where {_TASK}
           and s.pages_in_order @> array[r.first_path]::text[]
           and not s.pages_in_order @> array[r.final_path]::text[]
     ) a on true
@@ -191,6 +206,7 @@ async def p5_full_journey(
         finals=[j["final_no"] for j in journeys],
         firsts=[j["first_path"] for j in journeys],
         final_paths=[j["final_path"] for j in journeys],
+        task_agents=task_agents,
     )
     return await _rows(conn, query, params)
 
@@ -280,7 +296,11 @@ async def time_pattern(
 
 
 async def journey_funnel(
-    conn: AsyncConnection, site_id: str, start: datetime, journey_ids: list[str]
+    conn: AsyncConnection,
+    site_id: str,
+    start: datetime,
+    journey_ids: list[str],
+    task_agents: list[str],
 ) -> list[dict]:
     # Distinct sessions from the session tables (journeys_reached, retry_paths), not hourly sums.
     query = f"""
@@ -292,16 +312,17 @@ async def journey_funnel(
           and traffic_class in (2, 4)
     )
     select st.journey_id, st.step_no, st.step_path,
-        (select count(*) from sess s where s.traffic_class in (2, 4)
+        (select count(*) from sess s where {_TASK}
             and coalesce((s.journeys_reached ->> st.journey_id)::int, 0) >= st.step_no)::int
             as sessions_reached,
-        (select count(*) from sess s where s.traffic_class in (2, 4)
+        (select count(*) from sess s where {_TASK}
             and s.retry_paths @> array[st.step_path]::text[]
             and jsonb_exists(s.journeys_reached, st.journey_id))::int as sessions_retry_or_loop
     from steps st
     order by st.journey_id, st.step_no
     """
-    return await _rows(conn, query, _params(site_id, start, ids=journey_ids))
+    params = _params(site_id, start, ids=journey_ids, task_agents=task_agents)
+    return await _rows(conn, query, params)
 
 
 async def count_events(conn: AsyncConnection, site_id: str, session_ids: list[str]) -> int:

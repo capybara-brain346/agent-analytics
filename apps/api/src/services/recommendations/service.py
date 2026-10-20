@@ -6,12 +6,14 @@ from datetime import UTC, datetime, timedelta
 from psycopg import AsyncConnection
 
 from src.config import get_settings
+from src.models.domain import RegistryCategory
 from src.services.recommendations import scoring, text
 from src.services.recommendations.llm import default_client
+from src.services.registry import load_registry
 from src.services.site_config import SiteConfig, load_site_config
 from src.store import recommendations as store
 
-RULE_VERSION = "1"
+RULE_VERSION = "2"
 _WINDOW = re.compile(r"^(\d+)([mhd])$")
 _UNITS = {"m": "minutes", "h": "hours", "d": "days"}
 
@@ -31,6 +33,10 @@ def stable_id(pattern: str, target: str, journey_id: str | None) -> str:
 def bundle_hash(bundle: dict) -> str:
     raw = json.dumps(bundle, sort_keys=True, default=str)
     return hashlib.sha256(raw.encode()).hexdigest()
+
+
+def task_agents() -> list[str]:
+    return [e.id for e in load_registry()[1] if e.category == RegistryCategory.AGENT_CLIENT]
 
 
 def _candidate(pattern: str, target: str, row: dict, **extra) -> dict:
@@ -54,9 +60,10 @@ async def find_candidates(conn: AsyncConnection, cfg: SiteConfig, start: datetim
     settings = get_settings()
     site = cfg.site_id
     key_set = set(cfg.key_pages) | set(cfg.conversion_pages)
+    agents = task_agents()
     found = []
 
-    row = await store.p1_product_discovery(conn, site, start, settings.p1_min_key_pages)
+    row = await store.p1_product_discovery(conn, site, start, settings.p1_min_key_pages, agents)
     if row:
         target = cfg.conversion_pages[0] if cfg.conversion_pages else "conversion"
         found.append(_candidate("P1", target, row, paths=list(cfg.key_pages), is_key=True))
@@ -68,7 +75,9 @@ async def find_candidates(conn: AsyncConnection, cfg: SiteConfig, start: datetim
             continue
         found.append(_candidate("P2", row["path"], row, is_key=True, blocks=row["blocks"]))
 
-    for row in await store.p3_broken_navigation(conn, site, start, settings.p3_min_sessions):
+    for row in await store.p3_broken_navigation(
+        conn, site, start, settings.p3_min_sessions, agents
+    ):
         found.append(
             _candidate(
                 "P3",
@@ -94,7 +103,7 @@ async def find_candidates(conn: AsyncConnection, cfg: SiteConfig, start: datetim
         for j in journeys
     ]
     by_id = {j.id: j for j in journeys}
-    for row in await store.p5_full_journey(conn, site, start, specs):
+    for row in await store.p5_full_journey(conn, site, start, specs, agents):
         journey = by_id[row["journey_id"]]
         found.append(
             _candidate(
@@ -175,7 +184,11 @@ async def build_bundle(
         {k: _iso(v) for k, v in row.items()}
         for row in await store.sample_events(conn, site, ids, paths, 5)
     ]
-    funnel = await store.journey_funnel(conn, site, start, journey_ids) if journey_ids else []
+    funnel = (
+        await store.journey_funnel(conn, site, start, journey_ids, task_agents())
+        if journey_ids
+        else []
+    )
     policy = cfg.access_policy
     return {
         "pattern": cand["pattern"],
@@ -264,6 +277,7 @@ async def generate(
         cand["events_count"] = await store.count_events(conn, site_id, cand["session_ids"])
         cand["scored"] = scoring.factors(
             cand["pattern"],
+            cand["kind"],
             cand["target"],
             cand["is_key"],
             cand["sessions_count"],

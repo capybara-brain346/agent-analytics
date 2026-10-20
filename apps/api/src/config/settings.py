@@ -77,6 +77,15 @@ class Settings(BaseSettings):
     frequency_mid_min: int = 5  # sessions < 5 = 1; 5..50 = 2; > 50 = 3
     frequency_high_over: int = 50
     p4_bytes_ratio: float = 0.3  # AI median bytes below this share of the browser median
+    confidence_cap: dict[str, str] = {
+        "P1": "medium",
+        "P2": "high",
+        "P3": "high",
+        "P4:blocked_or_redirected": "high",
+        "P4:never_fetched": "medium",
+        "P4:small_response": "low",
+        "P5": "medium",
+    }
     openrouter_api_key: str | None = None  # None = template text only
     llm_base_url: str = "https://openrouter.ai/api/v1"  # OpenRouter or a compatible gateway
     llm_model: str | None = None  # OpenRouter model ID; None = template text only
