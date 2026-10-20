@@ -50,9 +50,10 @@ Built in a 5-day sprint for the Webzero engineering assignment ([docs/task.pdf](
 
 ```sh
 cd deploy/compose
-cp .env.example .env
 docker compose up --build
 ```
+
+No `.env` file is needed: `docker-compose.yml` has a default for every value. Copy `.env.example` to `.env` only to override one. Docker Compose v2.24 or later is required.
 
 Open https://localhost (Caddy local CA). Then:
 
@@ -121,11 +122,11 @@ Three processes, one image: `api`, `worker`, `migrate`. Plus `dashboard`, `postg
  1 Collect ─► 2 Ingest ─► 3 Normalise ─► 4 Classify ─► 5 Sessionise ─► 6 Analyse ─► 7 Recommend ─► 8 Dashboard
  Vector,     /ingest,     adapters +     verify +      activity        hourly        5 patterns,   every number
  CDN push,   inbox,       field map,     classify      reconstruction  page/agent/   score, LLM    links to its
- upload,     sha256       dedupe,        (Flows 2–3)   (Flow 4)        journey       text          evidence
- CLI         (Flow 1)     pair (1b)                                    views         (Flow 5)      (Flow 6)
+ upload,     sha256       dedupe,                                      journey       text          evidence
+ CLI                      pair                                         views
 ```
 
-### Scheduling (Flow 7)
+### Scheduling
 
 ```
  worker loop (every TICK_SECONDS)
@@ -169,7 +170,7 @@ Three processes, one image: `api`, `worker`, `migrate`. Plus `dashboard`, `postg
             reject: line no. + reason (no line text)        counted, skipped
 ```
 
-### CDN + origin pairing (Flow 1b)
+### CDN + origin pairing
 
 ```
  CDN line ──── edge_request_id + method + path, ±5 s ──── origin line
@@ -181,7 +182,7 @@ Three processes, one image: `api`, `worker`, `migrate`. Plus `dashboard`, `postg
         status
 ```
 
-### Identity: verify, then classify (Flows 2–3)
+### Identity: verify, then classify
 
 ```
  client_key = (User-Agent, IP)          ◄─ one check per client, not per line
@@ -208,7 +209,7 @@ Three processes, one image: `api`, `worker`, `migrate`. Plus `dashboard`, `postg
 
 Verdicts are **append-only**. A new IP-list snapshot adds a new row. Old events keep the verdict that was true at their time.
 
-### Activity reconstruction (Flow 4)
+### Activity reconstruction
 
 ```
  events + verdicts
@@ -225,7 +226,7 @@ Verdicts are **append-only**. A new IP-list snapshot adds a new row. Old events 
 
 Shared IPs (CGN, cloud egress) lower session confidence. Each session lists its gaps, for example "outcome unknown".
 
-### Recommendations (Flow 5)
+### Recommendations
 
 ```
  ~1 M log lines ─► events ─► sessions ─► views ─► 5 pattern queries ─► ~20 candidates
@@ -367,13 +368,13 @@ deploy/
   vector/              origin log sender config for the customer
   cloudflare-pages/    live-site test: capture a Pages site's requests, site config
 samples/logs/          one week of fictional CDN + origin logs
-docs/                  brief, flows, dashboard spec, on-prem, design
+docs/                  brief, MVP spec, dashboard spec, on-prem, design
 ```
 
 | Document | Content |
 |---|---|
 | [docs/task.pdf](docs/task.pdf) | The assignment brief |
-| [docs/mvp-flows.md](docs/mvp-flows.md) | Every flow, decision and known limit (source of truth) |
+| [docs/mvp-flows.md](docs/mvp-flows.md) | Every pipeline step, decision and known limit (source of truth) |
 | [docs/dashboard.md](docs/dashboard.md) | Dashboard screens and UX rules |
 | [docs/on-prem.md](docs/on-prem.md) | Technology choices, Compose and Kubernetes runtime, log senders |
 | [docs/research.md](docs/research.md) | Day 1 research plan |
