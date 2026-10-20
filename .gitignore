@@ -226,5 +226,4 @@ __marimo__/
 # Live-site tests (deploy/cloudflare-pages/README.md): local site copies and captured logs.
 # Captured logs hold real visitor IP addresses. Never commit them.
 apps/api/config/sites/piyushc*
-captures/
 .wrangler/
