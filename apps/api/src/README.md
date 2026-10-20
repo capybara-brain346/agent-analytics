@@ -23,4 +23,4 @@ dashboard ◄── routes/* (/api, read-only) ◄──────────
 | `services/` | Business logic, one folder per service. |
 | `store/` | All SQL and S3 access. |
 
-Back-end specs: `docs/mvp-flows.md`.
+Back-end specs: `docs/modules/` (start at `docs/modules/README.md`).

@@ -34,7 +34,7 @@ Six sections: Overview, Recommendations, Agents, Activity explorer, Pages & jour
 - Actions: upload log files (button or drag and drop on Data & pipeline → Sources), delete an import, and generate a recommendation run.
 - No login. Access control is the API token on the server side.
 
-Product requirements are in `../../docs/dashboard.md` and `../../docs/mvp-flows.md`.
+Product requirements are in `../../docs/modules/dashboard/README.md` and `../../docs/modules/dashboard/screens.md`.
 
 ## Styling
 

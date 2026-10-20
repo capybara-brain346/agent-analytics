@@ -1,4 +1,4 @@
-# Production runtime (docs/on-prem.md: Production: Kubernetes + Helm).
+# Production runtime (docs/modules/deployment/README.md).
 
 image:
   api: agent-analytics-api:0.1.0        # api, worker and migrate use this image

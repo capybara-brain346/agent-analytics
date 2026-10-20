@@ -1,4 +1,4 @@
-# Origin log sender (docs/on-prem.md: Log senders). The customer installs Vector on each origin.
+# Origin log sender (docs/modules/deployment/README.md: Log senders). The customer installs Vector on each origin.
 # Replace <our-host>, <site_id> and <site token>.
 
 [sources.nginx]

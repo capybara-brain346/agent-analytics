@@ -63,7 +63,7 @@ Needs: `wrangler` logged in to the account that owns the Pages project, `jq`, th
    The count must go up by 2. If it goes up by 1, Development Mode is off. Start the agents only
    after this check.
 5. **Run the agents** with one open-ended prompt, the same for each agent
-   (`docs/real-site-test-approach.md`, section 8). Run them all inside the capture window. You
+   (`docs/modules/testing/real-site-test.md`, "Agent run"). Run them all inside the capture window. You
    check the results by hand against the runs you know.
 
 6. **Stop the capture.** It stops by itself after 30 minutes. Set `CAPTURE_MINUTES=<n>` before the

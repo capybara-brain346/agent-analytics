@@ -1,4 +1,4 @@
-# Entry and TLS for Compose (docs/on-prem.md). Local CA certificate for localhost.
+# Entry and TLS for Compose (docs/modules/deployment/README.md). Local CA certificate for localhost.
 localhost {
 	@backend path /ingest /api/* /health /livez /metrics
 	handle @backend {

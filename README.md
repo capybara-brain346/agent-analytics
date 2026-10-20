@@ -258,7 +258,7 @@ Code fills facts (test, evidence, priority, confidence). The LLM writes only rea
 
 ## 5. Architecture decisions
 
-Full record with reasons: [docs/mvp-flows.md](docs/mvp-flows.md) (decision IDs in brackets).
+Full record with reasons: the module docs in [docs/modules/](docs/modules/README.md) (decision IDs in brackets).
 
 | Decision | Rejected alternative | Why |
 |---|---|---|
@@ -368,15 +368,13 @@ deploy/
   vector/              origin log sender config for the customer
   cloudflare-pages/    live-site test: capture a Pages site's requests, site config
 samples/logs/          one week of fictional CDN + origin logs
-docs/                  brief, MVP spec, dashboard spec, on-prem, design
+docs/                  brief, design, module docs (docs/modules/)
 ```
 
 | Document | Content |
 |---|---|
 | [docs/task.pdf](docs/task.pdf) | The assignment brief |
-| [docs/mvp-flows.md](docs/mvp-flows.md) | Every pipeline step, decision and known limit (source of truth) |
-| [docs/dashboard.md](docs/dashboard.md) | Dashboard screens and UX rules |
-| [docs/on-prem.md](docs/on-prem.md) | Technology choices, Compose and Kubernetes runtime, log senders |
-| [docs/research.md](docs/research.md) | Day 1 research plan |
+| [docs/modules/](docs/modules/README.md) | One doc per module: every pipeline step, decision and known limit, dashboard screens, deployment, testing |
+| [docs/DESIGN.md](docs/DESIGN.md) | Dashboard visual design system |
 | [apps/api/README.md](apps/api/README.md) | Back-end setup, CLI, worker, security limits |
 | [apps/dashboard/README.md](apps/dashboard/README.md) | Dashboard setup, styling, file map |

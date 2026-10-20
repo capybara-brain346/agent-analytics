@@ -1,6 +1,6 @@
 # Agent Analytics API
 
-Back end for the flows in [docs/mvp-flows.md](../../docs/mvp-flows.md). On-prem deployment: [docs/on-prem.md](../../docs/on-prem.md).
+Back end specified in [docs/modules/](../../docs/modules/README.md). Settings reference: [api module](../../docs/modules/api/README.md). On-prem deployment: [deployment module](../../docs/modules/deployment/README.md).
 
 One image, three commands:
 

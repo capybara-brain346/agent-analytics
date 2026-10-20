@@ -1,4 +1,4 @@
-// Traffic classes (docs/dashboard.md §4.3). Names and colours are fixed design data.
+// Traffic classes (docs/modules/classification/README.md). Names and colours are fixed design data.
 // Counts always come from the API.
 // Stacked-bar palette: separated by lightness so segments stay distinguishable on white.
 // Search ink, AI jade, other bots warn gold, automation deep jade, then three greys.

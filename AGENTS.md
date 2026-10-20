@@ -20,7 +20,8 @@ Code and documentation changes should be scoped to the user’s request. Do not 
 - `apps/dashboard/` — Next.js dashboard. Calls the API through the same-origin proxy `/dashboard-api`. See `apps/dashboard/README.md` and `apps/dashboard/AGENTS.md`.
 - `deploy/` — Docker Compose (dev and demo), Helm chart (production), Vector sender config, live-site test capture for Cloudflare Pages (`deploy/cloudflare-pages/README.md`).
 - `samples/logs/` — fictional CDN and origin log files, the test and demo data. See `samples/logs/README.md`.
-- `docs/` — `mvp-flows.md` (flows and decisions, source of truth), `dashboard.md` (screens), `on-prem.md` (infrastructure), `task.pdf` (assignment brief).
+- `docs/modules/` — one folder per module (architecture, ingestion, pairing, verification, classification, activity-reconstruction, recommendations, pipeline, store, api, dashboard, deployment, testing). Design, decisions and known limits. Start at `docs/modules/README.md`.
+- `docs/` — also `task.pdf` (assignment brief), `DESIGN.md` (dashboard visual design) and `PRODUCT.md` (product framing for design tooling).
 
 ## Commands
 
@@ -80,6 +81,8 @@ Do not introduce new architecture without explicitly explaining why and asking f
 ## Documentation
 
 Update the applicable README, service guide, or module documentation in the same change when modifying behavior, APIs, lifecycle, configuration, operations, or structure.
+
+Module docs live in `docs/modules/<module>/README.md`. Before changing a module, read its doc. Keep its code map, rules, settings and known limits true to the code.
 
 Keep durable architecture notes, workflows, and project-specific conventions in the appropriate documentation instead of growing this file unnecessarily.
 

@@ -86,7 +86,7 @@ class Settings(BaseSettings):
     # Dashboard API (/api/*): Bearer token. None = open (dev only; a warning is logged)
     api_token: str | None = None
 
-    # Offline mode (on-prem.md, PROPOSED)
+    # Offline mode (docs/modules/deployment/README.md)
     offline: bool = False
 
     # YAML data: CDN field maps, bot registry, site config

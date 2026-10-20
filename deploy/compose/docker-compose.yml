@@ -1,4 +1,4 @@
-# Dev and demo runtime, one machine (docs/on-prem.md).
+# Dev and demo runtime, one machine (docs/modules/deployment/README.md).
 # No backups, no failover: demos and trials only, never production data.
 name: agent-analytics
 
